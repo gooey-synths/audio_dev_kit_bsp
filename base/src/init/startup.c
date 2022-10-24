@@ -192,6 +192,15 @@ uint32_t* vector_table[] = {
 };
 
 ///
+/// Enable the FPU coprocessor
+///
+void enable_fpu(){
+    /* enable FPU if available and used */
+    SCB->CPACR |= ((3UL << 10*2) |             /* set CP10 Full Access               */
+                (3UL << 11*2));           /* set CP11 Full Access               */
+}
+
+///
 /// Caluculate bits for prescalers
 /// @param source Source frequency
 /// @param target Target frequency
@@ -208,6 +217,54 @@ uint8_t calc_prescaler_bits(uint32_t source, uint32_t target){
     return scale_bits;
 }
 
+///
+/// Set VOS power scale
+/// @param scale Scale to set
+///
+void set_VOS_scale(uint8_t scale){
+
+    uint8_t scale_bits = 4-scale;
+    scale_bits &= 0x3;
+
+    if(scale_bits != 0){
+        PWR->D3CR |= scale_bits << 14;
+        while (!(PWR->D3CR & 1 << 13)){
+            ; // Wait for the VOSRDY bit
+        }
+    }
+    else{ // Requested VOS scale 0
+        PWR->D3CR |= 3 << 14; // Shift to VOS scale 1 before 0
+        while (!(PWR->D3CR & 1 << 13)){
+            ; // Wait for the VOSRDY bit
+        }
+
+        /// Activate VOS0
+        SYSCFG->PWRCR = 1; // Maximum overdrive!
+        while (!(PWR->D3CR & 1 << 13)){
+            ; // Wait for the VOSRDY bit
+        }
+    }
+
+}
+
+///
+/// Set flash parameters
+/// @param latency Number of wait states per read
+/// @param prog_delay Programming delay
+///
+void set_flash_params(uint8_t latency, uint8_t prog_delay){
+    if(latency > 4){
+        latency = 4; // clip to 4 wait states
+    }
+    if(prog_delay > 2){
+        prog_delay = 2; // clip to 2 latency.
+    }
+
+    FLASH->ACR = prog_delay << 4 | latency;
+    if(FLASH->ACR != (prog_delay << 4 | latency)){
+        halt(); // Failed to set flash parameters!
+    }
+}
 
 ///
 /// Configure and start clocks.
@@ -223,22 +280,29 @@ void start_clocks(){
     
     RCC->APB4ENR |= 1 << 1; // Enable clock to SYSCFG peripheral
 
-    PWR->D3CR |= 2 << 14; // Set VOS to scale 2
+    set_VOS_scale(0); // Set to highest power state 
 
-    while (!(PWR->D3CR & 1 << 13)){
-        ; // Wait for the VOSRDY bit
+    // Configure flash (based on table 17, VOS0 column in STM RM0433)
+    if(AHB_AXI_TARGET > 0 && AHB_AXI_TARGET <= 70e6){
+        set_flash_params(0, 0);
     }
-
-    PWR->D3CR |= 1 << 14; // Set VOS to scale 1
-    while (!(PWR->D3CR & 1 << 13)){
-        ; // Wait for the VOSRDY bit
+    else if(AHB_AXI_TARGET > 70e6 && AHB_AXI_TARGET <= 140e6){
+        set_flash_params(1, 1);
     }
-
-    /// Activate VOS0 (overdrive!)
-    SYSCFG->PWRCR = 1; // Maximum overdrive!
-
-    while (!(PWR->D3CR & 1 << 13)){
-        ; // Wait for the VOSRDY bit
+    else if(AHB_AXI_TARGET > 140e6 && AHB_AXI_TARGET <= 185e6){
+        set_flash_params(2, 1);
+    }
+    else if(AHB_AXI_TARGET > 185e6 && AHB_AXI_TARGET <= 210e6){
+        set_flash_params(2, 2);
+    }
+    else if(AHB_AXI_TARGET > 210e6 && AHB_AXI_TARGET <= 185e6){
+        set_flash_params(3, 2);
+    }
+    else if(AHB_AXI_TARGET > 225e6 && AHB_AXI_TARGET <= 240e6){
+        set_flash_params(4, 2);
+    }
+    else{
+        halt(); // Invalid frequency... 
     }
 
     // Start up external oscllator
@@ -255,9 +319,9 @@ void start_clocks(){
     uint8_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ;
 
     RCC->PLLCFGR = 
-        //1 << 18 | // ENABLE pll1 divr
-        //1 << 17 | // ENABLE pll1 divq
-        1 << 16 | // ENABLE pll1 divp
+        //1 << 18 | // Enable pll1 divr
+        //1 << 17 | // Enable pll1 divq
+        1 << 16 | // Enable pll1 divp
         3 << 2  | // clock rate frequency is between 8 an 16MHz TODO: calculate clock range beforehand
         0 << 1  | // Wide VCO range 192 to 836 MHz
         0 << 0;  // No fractional divider.
@@ -272,57 +336,45 @@ void start_clocks(){
     }
 
     // Configure cbus prescalers    
-    uint8_t hpre = 0;
-    if(D1_TARGET != AHB_TARGET){
-        hpre = 8 + calc_prescaler_bits(D1_TARGET, AHB_TARGET); //TODO: use this!
+    uint8_t hpre = 0; // 0 means no division
+    if(D1_TARGET != AHB_AXI_TARGET){
+        hpre = 8 + calc_prescaler_bits(D1_TARGET, AHB_AXI_TARGET);
         //assert(hpre < 16);
     }
 
     RCC->D1CFGR = 
-        0 << 8 |    // Do not divide D1 clock
+        0 << 8 |    // Do not divide D1 clock, PLL is set to appropriate range
         hpre << 0;  // Divide for AHB
 
-    uint8_t apb1_pre = 0;
-    uint8_t apb2_pre = 0;
-    uint8_t apb4_pre = 0;
+    uint8_t apb1_pre = 0; // 0 means no division
+    uint8_t apb2_pre = 0; // 0 means no division
+    uint8_t apb4_pre = 0; // 0 means no division
 
-    if(APB1_TARGET != AHB_TARGET){
-        apb1_pre = 4 + calc_prescaler_bits(AHB_TARGET, APB1_TARGET);
-        //assert(apb1_pre < 8);
+    if(APB1_TARGET != AHB_AXI_TARGET){
+        apb1_pre = 4 + calc_prescaler_bits(AHB_AXI_TARGET, APB1_TARGET);
     }
 
-    if(APB2_TARGET != AHB_TARGET){
-        apb2_pre = 4 + calc_prescaler_bits(AHB_TARGET, APB2_TARGET);
-        //assert(apb2_pre < 8);
+    if(APB2_TARGET != AHB_AXI_TARGET){
+        apb2_pre = 4 + calc_prescaler_bits(AHB_AXI_TARGET, APB2_TARGET);
     }
 
     RCC->D2CFGR =
         apb2_pre << 8 |
         apb1_pre << 4;
 
-    if(APB4_TARGET != AHB_TARGET){
-        apb4_pre = 4 + calc_prescaler_bits(AHB_TARGET, APB4_TARGET);
-        //assert(apb4_pre < 8);
+    if(APB4_TARGET != AHB_AXI_TARGET){
+        apb4_pre = 4 + calc_prescaler_bits(AHB_AXI_TARGET, APB4_TARGET);
     }
 
     RCC->D3CFGR =
         apb4_pre << 4;
 
-    // Configure flash
-
-    uint8_t flash_latency = 4; // 5 flash clock cycle latency
-    uint8_t program_delay = 2; // 2?
-    FLASH->ACR = program_delay << 4 | flash_latency;
-    if(FLASH->ACR != (program_delay << 4 | flash_latency)){
-        halt(); // Failed to set flash params!
-    }
     // Set system clock
     RCC->CFGR |= 3; // Select PLL1p as system clock 
     
     while (!((RCC->CFGR & 3<<3) == 3<<3)){
         ; // Wait for PLL1 to be selected for CPU clock.
     }
-    volatile uint32_t debug = FLASH->ACR;
 
 }
 
@@ -346,6 +398,8 @@ __attribute__ ((noreturn)) void reset_handler(){
     for (uint32_t *bss_ptr = &_sbss; bss_ptr < &_ebss;) {
         *bss_ptr++ = 0;
     }
+
+    enable_fpu();
 
     start_clocks();
 
