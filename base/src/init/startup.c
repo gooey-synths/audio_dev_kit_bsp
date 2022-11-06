@@ -16,7 +16,7 @@ extern uint32_t _sbss;   //< Start of BSS section
 extern uint32_t _ebss;   //< End of BSS section
 extern uint32_t _sdata;  //< Start of data section
 extern uint32_t _edata;  //< End of data section
-extern uint32_t _sstack; //< Start of stack
+extern uint32_t _sstack; //< Start of stack section
 extern uint32_t _estack; //< End of stack section
 
 #define STACK_START_ADDR   0x20020000
@@ -25,23 +25,23 @@ __attribute__ ((section(".isrvectors")))
 uint32_t* vector_table[] = {
     (uint32_t*) STACK_START_ADDR,   
     (uint32_t*) reset_handler,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
-    ISR_NOT_IMPL,
+    ISR_NOT_IMPL, /* NMI */
+    ISR_NOT_IMPL, /* Hard fault */
+    ISR_NOT_IMPL, /* Memory management fault */
+    ISR_NOT_IMPL, /* Bus fault */
+    ISR_NOT_IMPL, /* Usage fault */
+    ISR_NOT_IMPL, /* Reserved */
+    ISR_NOT_IMPL, /* Reserved */
+    ISR_NOT_IMPL, /* Reserved */
+    ISR_NOT_IMPL, /* Reserved */
+    ISR_NOT_IMPL, /* SVCall */
+    ISR_NOT_IMPL, /* Reserved for debug */
+    ISR_NOT_IMPL, /* Reserved */
+    ISR_NOT_IMPL, /* PendSV */
+    ISR_NOT_IMPL, /* Systick */
     ISR_NOT_IMPL, /* Window WatchDog              */
     ISR_NOT_IMPL, /* PVD/AVD through EXTI Line detection */
-    ISR_NOT_IMPL, /* Tamper and TimeStamps through the EXT */
+    ISR_NOT_IMPL, /* Tamper and TimeStamps through the EXTI */
     ISR_NOT_IMPL, /* RTC Wakeup through the EXTI line */
     ISR_NOT_IMPL, /* FLASH                        */
     ISR_NOT_IMPL, /* RCC                          */
@@ -201,20 +201,20 @@ void enable_fpu(){
 }
 
 ///
-/// Caluculate bits for prescalers
+/// Caluculate number of times to devide by 2 to get from source to targer
 /// @param source Source frequency
 /// @param target Target frequency
-/// @return bits for prescaler
+/// @return Divider amount
 /// @note For correct results make sure that target is a power of 2 division of source
 ///
-uint8_t calc_prescaler_bits(uint32_t source, uint32_t target){
-    uint8_t scale_bits = 0;
+uint8_t calc_divider(uint32_t source, uint32_t target){
+    uint8_t divider = 0;
 
-    while(source > source){
-        target >>= 2;
-        scale_bits++;
+    while(source > target){
+        source >>= 1;
+        divider++;
     }
-    return scale_bits;
+    return divider;
 }
 
 ///
@@ -338,7 +338,7 @@ void start_clocks(){
     // Configure cbus prescalers    
     uint8_t hpre = 0; // 0 means no division
     if(D1_TARGET != AHB_AXI_TARGET){
-        hpre = 8 + calc_prescaler_bits(D1_TARGET, AHB_AXI_TARGET);
+        hpre = 8 + calc_divider(D1_TARGET, AHB_AXI_TARGET);
         //assert(hpre < 16);
     }
 
@@ -351,11 +351,11 @@ void start_clocks(){
     uint8_t apb4_pre = 0; // 0 means no division
 
     if(APB1_TARGET != AHB_AXI_TARGET){
-        apb1_pre = 4 + calc_prescaler_bits(AHB_AXI_TARGET, APB1_TARGET);
+        apb1_pre = 4 + calc_divider(AHB_AXI_TARGET, APB1_TARGET) - 1;
     }
 
     if(APB2_TARGET != AHB_AXI_TARGET){
-        apb2_pre = 4 + calc_prescaler_bits(AHB_AXI_TARGET, APB2_TARGET);
+        apb2_pre = 4 + calc_divider(AHB_AXI_TARGET, APB2_TARGET) - 1;
     }
 
     RCC->D2CFGR =
@@ -363,7 +363,7 @@ void start_clocks(){
         apb1_pre << 4;
 
     if(APB4_TARGET != AHB_AXI_TARGET){
-        apb4_pre = 4 + calc_prescaler_bits(AHB_AXI_TARGET, APB4_TARGET);
+        apb4_pre = 4 + calc_divider(AHB_AXI_TARGET, APB4_TARGET) - 1;
     }
 
     RCC->D3CFGR =
