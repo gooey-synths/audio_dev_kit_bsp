@@ -7,7 +7,10 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake)
 set(CMAKE_BUILD_TYPE Debug)
 
 # PLace your c and c++ files here
-set(SOURCES)
+set(SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
+	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
+)
 
 # Place directories to include here
 include_directories()
