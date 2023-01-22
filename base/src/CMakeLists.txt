@@ -10,6 +10,8 @@ set(CMAKE_BUILD_TYPE Debug)
 set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gpio/gpio.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_gpio.cpp
 )
 
 # Place directories to include here

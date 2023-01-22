@@ -10,4 +10,11 @@
 #define APB2_TARGET (AHB_AXI_TARGET/4)   //< Target Hz for APB2 peripherals
 #define APB4_TARGET (AHB_AXI_TARGET/4)   //< Target Hz for APB4 peripherals
 
+/* Pin definitions found in pin_defs.c */
+
+extern GPIOPin  led_pin;
+extern GPIOConf led_pin_conf;
+
+extern GPIOPin  mco2_pin;
+extern GPIOConf mco2_pin_conf;
 #endif
