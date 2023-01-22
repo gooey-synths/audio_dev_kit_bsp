@@ -16,6 +16,11 @@ const GPIOConf led_pin_conf = {
 
 // Clock test pins
 
+const GPIOPin mco2_pin = {
+    .port = 2, // Port C
+    .pin = 9  // Pin 9
+};
+
 const GPIOConf mco2_pin_conf = {
     .type = PUSH_PULL_TYPE,
     .mode = ALTERNATE,

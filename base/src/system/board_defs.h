@@ -1,6 +1,8 @@
 #ifndef BOARD_DEFS_H
 #define BOARD_DEFS_H
 
+#include "../gpio/gpio_defs.h"
+
 /* Clock related */
 #define XTAL_FREQ  (16000000)        //< Hz of on-board oscillator
 #define D1_TARGET  (XTAL_FREQ*30)    //< Target Hz of D1 domain
