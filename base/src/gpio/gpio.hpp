@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    GPIOPort* mPort; //< Ponter to port
+    GPIOPort* mPort; //< Pointer to port
     uint8_t mPin;    //< Pin number
 
 };
@@ -63,7 +63,6 @@ public:
     /// @return Pointer to the GPIOController instance
     ///
     static GPIOController* getInstance(){
-        static int a = 0;
         static GPIOController instance;        
         return &instance;
     }
