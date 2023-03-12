@@ -57,7 +57,7 @@ void GPIOPort::setPinMode(uint8_t pin, eGPIOPinMode mode){
     }
 
     mPort->MODER &= ~(3 << (pin*2)); // clear mode bits.
-    mPort->MODER |= (uint8_t)mode << (pin*2);
+    mPort->MODER |= (uint8_t)mode << (pin*2); // set mode bits.
 }
 
 ///
