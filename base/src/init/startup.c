@@ -376,6 +376,11 @@ void start_clocks(){
         ; // Wait for PLL1 to be selected for CPU clock.
     }
 
+    // By default MCO2 is hooked up to sysck, leave it be.
+    RCC->CFGR &= ~(0xF << 25); // clear MCO2 prescaler
+    RCC->CFGR |= (10 << 25); // prescale by 10
+
+
 }
 
 ///
