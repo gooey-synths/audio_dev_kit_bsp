@@ -4,6 +4,8 @@
 
 #define TEST_UART_BAUD 9600
 
+using namespace uart;
+
 ///
 /// Setup the UART pins
 ///
@@ -21,7 +23,7 @@ static void setup_pins(){
 void test_uart_hello_world(){
     static char message[] = "Hello World!\r\n";
     setup_pins();
-    UartController uart_1(USART1, 1);
+    UartController uart_1(1);
     uart_1.setBaudRate(TEST_UART_BAUD);
 
     while(1){
@@ -38,7 +40,7 @@ void test_uart_hello_world(){
 ///
 void test_uart_echo(){
     setup_pins();
-    UartController uart_1(USART1, 1);
+    UartController uart_1(1);
     uart_1.setBaudRate(TEST_UART_BAUD);
     while(1){
         // Add echo capabilities here!
