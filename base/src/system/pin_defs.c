@@ -57,8 +57,3 @@ const GPIOConf uart_1_rx_conf = {
     .pull = NO_PULL,
     .alternate_function = 4
 };
-
-const GPIOPin mco2_pin = {
-    .port = 2,
-    .pin = 9
-};

@@ -1,6 +1,6 @@
 #include "uart.hpp"
 #include "../system/board_defs.h"
-#include <cassert>
+//#include "assert.h"
 
 using namespace uart;
 
@@ -8,6 +8,7 @@ const uint16_t UartController::DEFULT_BAUD = 9600;
 const UartFrameConfig UartController::DEFAULT_FRAME = {
     .mWordLength = EIGHT_BITS,
     .mParity = false,
+    .mParityOdd = false,
     .mStopBits = ONE_STOP_BIT
 };
 
@@ -92,8 +93,7 @@ mFramingConfig(UartController::DEFAULT_FRAME)
             RCC->APB1LENR |= 1 << 31; // Start.
             break;
 
-        default:
-            assert(false); // invalid uart number
+
     }
 
     mUsart->CR1 =  // M bits control word length

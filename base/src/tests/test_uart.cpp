@@ -2,9 +2,17 @@
 #include "../uart/uart.hpp"
 #include "../system/board_defs.h"
 
+using namespace uart;
+
 #define TEST_UART_BAUD 9600
 
-using namespace uart;
+// Change this to change the frame of the test
+const UartFrameConfig TEST_FRAME = {
+    .mWordLength = EIGHT_BITS,
+    .mParity = false,
+    .mParityOdd = false,
+    .mStopBits = ONE_STOP_BIT
+};
 
 ///
 /// Setup the UART pins
@@ -24,9 +32,9 @@ void test_uart_hello_world(){
     static char message[] = "Hello World!\r\n";
     setup_pins();
     UartController uart_1(1);
-    uart_1.setBaudRate(TEST_UART_BAUD);
 
     while(1){
+        uart_1.setBaudRate(TEST_UART_BAUD);
         uart_1.write(message, sizeof(message));
         for(int i = 0; i < 0x1FFFFF; i++); //delay...
     }
@@ -42,8 +50,8 @@ void test_uart_echo(){
     setup_pins();
     UartController uart_1(1);
     uart_1.setBaudRate(TEST_UART_BAUD);
+    uart_1.setFraming(TEST_FRAME);
     while(1){
-        // Add echo capabilities here!
         char in = uart_1.readChar();
         uart_1.write(&in, sizeof(in));
     }
