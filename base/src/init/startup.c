@@ -327,7 +327,7 @@ void start_clocks(){
         0 << 0;  // No fractional divider.
 
     RCC->PLL1DIVR = 
-        pll1_divn-1 << 0; // Set PLL1 divN divider
+        pll1_divn -1 << 0; // Set PLL1 divN divider
 
     RCC->CR |= 1 << 24; // Enable PLL1
 

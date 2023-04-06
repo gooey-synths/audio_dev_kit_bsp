@@ -111,7 +111,6 @@ mFramingConfig(UartController::DEFAULT_FRAME)
 ///
 /// Set the baud rate
 /// @param baud_rate_set Baud rate to set to.
-/// @todo baud rate is doubled? Should fix that...
 ///
 void UartController::setBaudRate(uint16_t baud_rate_set){
 
