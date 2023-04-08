@@ -338,7 +338,7 @@ void start_clocks(){
     // Configure cbus prescalers    
     uint8_t hpre = 0; // 0 means no division
     if(D1_TARGET != AHB_AXI_TARGET){
-        hpre = 8 + calc_divider(D1_TARGET, AHB_AXI_TARGET);
+        hpre = 8 + calc_divider(D1_TARGET, AHB_AXI_TARGET)-1;
         //assert(hpre < 16);
     }
 
