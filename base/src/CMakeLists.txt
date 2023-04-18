@@ -13,6 +13,8 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/gpio/gpio.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/system/pin_defs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_gpio.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/uart/uart.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_uart.cpp
 )
 
 # Place directories to include here

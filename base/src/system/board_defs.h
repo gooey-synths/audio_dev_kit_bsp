@@ -19,4 +19,11 @@ extern GPIOConf led_pin_conf;
 
 extern GPIOPin  mco2_pin;
 extern GPIOConf mco2_pin_conf;
+
+extern GPIOPin  uart_1_tx_pin;
+extern GPIOConf uart_1_tx_conf;
+
+extern GPIOPin  uart_1_rx_pin;
+extern GPIOConf uart_1_rx_conf;
+
 #endif
