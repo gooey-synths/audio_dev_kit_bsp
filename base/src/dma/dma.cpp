@@ -49,24 +49,28 @@ void DmaController::setRequest(uint8_t perID, uint8_t channel){
 
 ///
 /// Claim a DMA channel.
-/// @param channel
+/// @param channelNum Channel number to claim (1-8)
+/// @return Pointer to Dma channel object or NUll if channel not available.
 ///
-DmaController::DmaChannel* DmaController::claimChannel(uint8_t mChannelNum){
-	if(mChannelNum < 1 || mChannelNum > DMA1_NUM_CHANNELS){
+DmaController::DmaChannel* DmaController::claimChannel(uint8_t channelNum){
+	if(channelNum < 1 || channelNum > DMA1_NUM_CHANNELS){
 		return NULL;
 	}
-	if(mChannels[mChannelNum-1].mChannelClaimed == 0){
-		mChannels[mChannelNum-1].claim();
-		return &mChannels[mChannelNum-1];
+	if(mChannels[channelNum-1].mChannelClaimed == 0){
+		mChannels[channelNum-1].claim();
+		return &mChannels[channelNum-1];
 	}
 	return NULL;
 }
 
 ///
 /// Release a DMA channel.
-/// @param channel
+/// @param channel Pointer to channel to free
 ///
 void DmaController::releaseChannel(DmaController::DmaChannel* channel){
+	if(!channel){
+		return; // Null pointer
+	}
 	channel->release();
 }
 
@@ -232,12 +236,7 @@ void DmaController::DmaChannel::setNumTransfers(uint16_t numTransfers, uint8_t c
 /// Begin the transfer
 ///
 uint8_t DmaController::DmaChannel::begin(){	
-	while(*(&(mChannelController->mControllerHw->LISR))){
-		*(&(mChannelController->mControllerHw->LIFCR)) = 0xFFFFFFFF; // Change this to clear on a per channel basis
-	}
-
-	__DSB();
-	__ISB();
+	mChannelController->clearInterrupt(0x3f, mChannelNum);
 
 	mStreamHw->CR |= 1 << 0;
 	return 0;

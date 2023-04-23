@@ -7,14 +7,15 @@
 #include "stdio.h"
 #include "string.h"
 
-#define TEST_BUFFER_STIZE 42
-#define TEST_PRINT_WIDTH 16
+#define TEST_BUFFER_STIZE 50 // Change this to adjust buffer size
 
-#define TEST_CONTROLLER 1
-#define TEST_CHANNEL 5
+#define TEST_CONTROLLER 2 // Change this to change the DMA controller (1 or 2)
+#define TEST_CHANNEL 7 // Change this to change the DMA channel (1-8)
 
-uint16_t srcBuffer[TEST_BUFFER_STIZE];
-uint16_t dstBuffer[TEST_BUFFER_STIZE];
+#define TEST_DATA_SIZE uint32_t // Change this to adjust buffer width
+
+TEST_DATA_SIZE srcBuffer[TEST_BUFFER_STIZE];
+TEST_DATA_SIZE dstBuffer[TEST_BUFFER_STIZE];
 
 ///
 /// Setup UART pins
@@ -33,7 +34,7 @@ static void setup_pins(){
 ///
 void test_dma_single_buffer(){
     setup_pins();
-    UartController uart_1(USART1, 1);
+    uart::UartController uart_1(1);
 
     
     // Fill source buffer
@@ -66,13 +67,13 @@ void test_dma_single_buffer(){
 
         // Transfer using software trigger
         channel->begin();
-        for(int i = 0; i < 0x1FFFFF; i++); // wait fo transfer to happen, not sure if this is needed.
+        for(int i = 0; i < 0x1FFFFF; i++); // Wait for transfer to happen, this is overkill
         
         // Write destination buffer after transfer
         uart_1.write((char*)"dstBuffer: \r\n", sizeof("dstBuffer: \r\n"));
         print_buffer(&uart_1, dstBuffer, sizeof(*dstBuffer), sizeof(dstBuffer));
         
-        for(int i = 0; i < 0x7FFFFF; i++); //delay...
+        for(int i = 0; i < 0x7FFFFF; i++); // Delay...
     }
 
 }

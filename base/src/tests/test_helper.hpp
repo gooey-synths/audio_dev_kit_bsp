@@ -17,7 +17,7 @@
 /// @note data elements must be less than 10 characters
 /// @note This print function is VERY VERY unsafe
 ///
-static void print_buffer(UartController* uart, void* buffer, uint8_t elem_size, uint8_t buffer_len){
+static void print_buffer(uart::UartController* uart, void* buffer, uint8_t elem_size, uint32_t buffer_len){
     uint8_t* buf_ptr = (uint8_t*) buffer;
     uint8_t elem_ctr = 0;
     char print_buff[13]; // 10 characters plus comma, space, and null termintor

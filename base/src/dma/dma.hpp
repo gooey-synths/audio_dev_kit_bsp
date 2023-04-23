@@ -25,6 +25,15 @@ enum eDmaErrorType{
 	ERROR
 };
 
+enum eDmaInterruptFlags{
+	FIFO_ERROR_INT = 1<<0,
+	RESERVED_INT = 1<<1,
+	DIR_MODE_ERR_INT = 1<<2,
+	TRAN_ERR_INT = 1<<3,
+	HALF_TRANS_INT = 1<<4,
+	TRANS_COMPLETE = 1<<5,
+};
+
 class DmaController{
 public:
 
@@ -77,7 +86,7 @@ public:
 
 	private:
 		friend class DmaController;
-		eDmaTransferType mTransferType; //
+		eDmaTransferType mTransferType; ///< Transfer type that the channel is configured for
 	};
 	
 	DmaChannel* getAvailableChannel();
@@ -89,11 +98,37 @@ private:
 
 	void setRequest(uint8_t perID, uint8_t channel);
 
-	uint8_t mControllerHwNum;
+	///
+	/// Clear interrupts on a certain channel.
+	/// @param intMask Bitmask representing the interrupt flags to clear see @ref dma::eDmaInterruptFlags
+	/// @param channel Channel to clear interrupts on (1-8)
+	///
+	inline void clearInterrupt(uint8_t intMask, uint8_t channel){
+		if(channel < 1 || channel > DMA1_NUM_CHANNELS){
+			return; // Invalid channel
+		}
+		channel--;
+		intMask &= 0x3F;
 
-	DMA_TypeDef* mControllerHw;
+		if(channel < 2){
+			mControllerHw->LIFCR |= intMask << channel*6;
+		}
+		else if(channel < 4){
+			mControllerHw->LIFCR |= intMask << (channel*6)+4;
+		}
+		else if(channel < 6){
+			mControllerHw->HIFCR |= intMask << (channel-4)*6;
+		}
+		else if(channel < 8){
+			mControllerHw->HIFCR |= intMask << ((channel-4)*6)+4;
+		}
+	}
 
-	DmaChannel mChannels[DMA1_NUM_CHANNELS];
+	uint8_t mControllerHwNum; ///< Number of the DMA controller (1 or 2)
+
+	DMA_TypeDef* mControllerHw; ///< DMA controller registers
+
+	DmaChannel mChannels[DMA1_NUM_CHANNELS]; ///< DMA channels
 };
 
 
