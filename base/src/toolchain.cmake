@@ -23,7 +23,7 @@ set(CMAKE_C_FLAGS_RELEASE           "-mcpu=cortex-m7 -mthumb -Os -DNDEBUG" CACHE
 set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_C_FLAGS_DEBUG}" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS_RELEASE         "${CMAKE_C_FLAGS_RELEASE}" CACHE INTERNAL "")
 
-set(CMAKE_EXE_LINKER_FLAGS "-march=armv7-m -mabi=aapcs -Wl,-T\"${PROJECT_SOURCE_DIR}/init/stm32h750.ld\" -mabi=aapcs -nostartfiles -lgcc")
+set(CMAKE_EXE_LINKER_FLAGS "-march=armv7e-m -mabi=aapcs -Wl,-T\"${PROJECT_SOURCE_DIR}/init/stm32h750.ld\" -mabi=aapcs -nostartfiles -lgcc")
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
