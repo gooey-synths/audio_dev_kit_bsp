@@ -89,7 +89,7 @@ public:
 		eDmaTransferType mTransferType; ///< Transfer type that the channel is configured for
 	};
 	
-	DmaChannel* getAvailableChannel();
+	DmaChannel* claimAvailableChannel();
 	DmaChannel* claimChannel(uint8_t mChannelNum);
 	void releaseChannel(DmaChannel* channel);
 

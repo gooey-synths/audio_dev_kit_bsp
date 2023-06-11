@@ -50,7 +50,7 @@ void DmaController::setRequest(uint8_t perID, uint8_t channel){
 ///
 /// Claim a DMA channel.
 /// @param channelNum Channel number to claim (1-8)
-/// @return Pointer to Dma channel object or NUll if channel not available.
+/// @return Pointer to Dma channel object or NULL if channel not available.
 ///
 DmaController::DmaChannel* DmaController::claimChannel(uint8_t channelNum){
 	if(channelNum < 1 || channelNum > DMA1_NUM_CHANNELS){
@@ -75,10 +75,10 @@ void DmaController::releaseChannel(DmaController::DmaChannel* channel){
 }
 
 ///
-/// Get pointer to the next available DMA channel or NULL if all are taken
+/// Claim and get pointer to the next available DMA channel or NULL if all are taken
 /// @return Next availble channel or NULL if none available
 ///
-DmaController::DmaChannel* DmaController::getAvailableChannel(){
+DmaController::DmaChannel* DmaController::claimAvailableChannel(){
 	for(uint8_t iChannel = 0; iChannel < DMA1_NUM_CHANNELS; iChannel++){
 		if(!mChannels[iChannel].mChannelClaimed){
 			return claimChannel(iChannel+1);
