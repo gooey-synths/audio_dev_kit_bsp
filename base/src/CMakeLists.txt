@@ -35,7 +35,6 @@ add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
 add_custom_command(TARGET ${PROJECT_NAME}.bin
 	COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
 
-add_definitions(-DGTEST_HAS_PTHREAD=0)
 
 include(FetchContent)
 
@@ -52,5 +51,6 @@ enable_testing()
 add_executable(my_tests test_test/hello_test.cpp)
 target_link_libraries(my_tests gtest gtest_main)
 
+target_compile_definitions(gtest PRIVATE GTEST_HAS_PTHREAD=0)
+target_compile_definitions(gtest_main PRIVATE GTEST_HAS_PTHREAD=0)
 target_compile_definitions(my_tests PRIVATE GTEST_HAS_PTHREAD=0)
-
