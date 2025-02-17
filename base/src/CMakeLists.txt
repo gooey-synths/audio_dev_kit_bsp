@@ -35,8 +35,19 @@ add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
 add_custom_command(TARGET ${PROJECT_NAME}.bin
 	COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
 
-find_package(GTest REQUIRED)
+include(FetchContent)
 
-add_executable(test_foo test_test/hello_test.cpp)
-target_include_directories( test_foo PRIVATE ${GTEST_INCLUDE_DIRS} )
-target_link_libraries( test_foo tested_library ${GTEST_BOTH_LIBRARIES} )
+# Download GoogleTest
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+# Add test executable
+add_executable(my_tests test_test/hello_test.cpp)
+target_link_libraries(my_tests gtest gtest_main)
+
+add_test(NAME MyTests COMMAND my_tests)
