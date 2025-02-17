@@ -50,4 +50,6 @@ enable_testing()
 add_executable(my_tests test_test/hello_test.cpp)
 target_link_libraries(my_tests gtest gtest_main)
 
+target_compile_definitions(my_tests PRIVATE GTEST_HAS_PTHREAD=0)
+
 add_test(NAME MyTests COMMAND my_tests)
