@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.21.4)
 
-# Set toolchain file
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake)
-
 # Leave as debug for now
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -20,40 +17,49 @@ set(SOURCES
 
 )
 
-# Place directories to include here
-include_directories()
-
 # PROJECT_NAME
 project(audio_dev_kit_bsp)
 
-# Create elf file and link it
-add_executable(${PROJECT_NAME}.elf ${SOURCES})
-target_link_libraries(${PROJECT_NAME}.elf)
+# Option to choose target (default: native)
+option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
-# Create binary file
-add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
-add_custom_command(TARGET ${PROJECT_NAME}.bin
+if (BUILD_ARM)
+	# Set toolchain file
+	set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake)
+
+
+	# Place directories to include here
+	include_directories()
+
+
+	# Create elf file and link it
+	add_executable(${PROJECT_NAME}.elf ${SOURCES})
+	target_link_libraries(${PROJECT_NAME}.elf)
+
+	# Create binary file
+	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
+	add_custom_command(TARGET ${PROJECT_NAME}.bin
 	COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
+    
+else()
+	include(FetchContent)
+
+	FetchContent_Declare(
+	  googletest
+	  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+	)
+	FetchContent_MakeAvailable(googletest)
+
+	enable_testing()
+	### HOST COMPILATION TARGET (FOR UNIT TESTING) ###
+	# find_package(GTest REQUIRED)
+	enable_testing()
+
+	# Unit test target (Runs on PC)
+	add_executable(my_tests test_test/hello_test.cpp)
+	target_link_libraries(my_tests gtest_main gtest)
+
+	add_test(NAME RunTests COMMAND my_tests)
+endif()
 
 
-include(FetchContent)
-
-# Download GoogleTest
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-FetchContent_MakeAvailable(googletest)
-
-enable_testing()
-
-# Add test executable
-add_executable(my_tests test_test/hello_test.cpp)
-target_link_libraries(my_tests gtest gtest_main)
-
-target_compile_definitions(gtest PRIVATE GTEST_HAS_PTHREAD=0)
-target_compile_definitions(gtest_main PRIVATE GTEST_HAS_PTHREAD=0)
-target_compile_definitions(my_tests PRIVATE GTEST_HAS_PTHREAD=0)
-target_compile_definitions(my_tests PRIVATE _GLIBCXX_USE_CXX11_ABI=0)
-target_compile_definitions(gtest PRIVATE _GLIBCXX_USE_CXX11_ABI=0)
-target_compile_definitions(gtest_main PRIVATE _GLIBCXX_USE_CXX11_ABI=0)
