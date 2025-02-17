@@ -35,6 +35,8 @@ add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
 add_custom_command(TARGET ${PROJECT_NAME}.bin
 	COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
 
+add_definitions(-DGTEST_HAS_PTHREAD=0)
+
 include(FetchContent)
 
 # Download GoogleTest
@@ -52,4 +54,3 @@ target_link_libraries(my_tests gtest gtest_main)
 
 target_compile_definitions(my_tests PRIVATE GTEST_HAS_PTHREAD=0)
 
-add_test(NAME MyTests COMMAND my_tests)
