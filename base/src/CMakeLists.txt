@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.21.4)
 # Leave as debug for now
 set(CMAKE_BUILD_TYPE Debug)
 
+# Set toolchain file
+# set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake)
+
 # PLace your c and c++ files here
 set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
@@ -25,7 +28,7 @@ option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
 if (BUILD_ARM)
 	# Set toolchain file
-	set(CMAKE_TOOLCHAIN_FILE toolchain.cmake)
+	# set(CMAKE_TOOLCHAIN_FILE toolchain.cmake)
 
 
 	# Place directories to include here
