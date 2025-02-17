@@ -191,6 +191,8 @@ uint32_t* vector_table[] = {
     ISR_NOT_IMPL  /* Interrupt for all 6 wake-up pins */
 };
 
+uint32_t* vector_table_ram[166]__attribute__((aligned (512))); // Remapped vector table must be aligned to rounded up power of 2
+
 ///
 /// Enable the FPU coprocessor
 ///
@@ -403,6 +405,14 @@ __attribute__ ((noreturn)) void reset_handler(){
     for (uint32_t *bss_ptr = &_sbss; bss_ptr < &_ebss;) {
         *bss_ptr++ = 0;
     }
+
+    // Copy vector table to RAM location
+    for(unsigned int i = 0; i < sizeof(vector_table)/sizeof(*vector_table); i++){
+        vector_table_ram[i] = vector_table[i];
+    }
+
+    // Remap vector table to RAM location
+    SCB->VTOR = (uint32_t)vector_table_ram;
 
     enable_fpu();
 
