@@ -4,6 +4,7 @@
 #include "../uart/uart.hpp"
 #include "stdint.h"
 #include "stdio.h"
+#include "inttypes.h"
 #include "string.h"
 
 #define TEST_PRINT_WIDTH 16
@@ -28,16 +29,16 @@ static void print_buffer(uart::UartController* uart, void* buffer, uint8_t elem_
         }
         switch(elem_size){
             case 1: // uint8_t
-                sprintf(print_buff, "%, ", *(uint8_t*)buf_ptr);
+                sprintf(print_buff, "%" PRIu64, *(uint8_t*)buf_ptr);
                 break;
             case 2: // uin16_t
-                sprintf(print_buff, "%, ", *(uint16_t*)buf_ptr);
+                sprintf(print_buff, "%" PRIu64, *(uint16_t*)buf_ptr);
                 break;
             case 4: // uint32_t
-                sprintf(print_buff, "%, ", *(uint32_t*)buf_ptr);
+                sprintf(print_buff, "%" PRIu64, *(uint32_t*)buf_ptr);
                 break;
             case 8: // uint64_t
-                sprintf(print_buff, "%, ", *(uint64_t*)buf_ptr);
+                sprintf(print_buff, "%" PRIu64, *(uint64_t*)buf_ptr);
                 break;
         }
         uart->write(print_buff, strlen(print_buff));
