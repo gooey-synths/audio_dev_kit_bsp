@@ -2,15 +2,15 @@
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: CMake on multiple platforms
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
   build_arm:
     name: "Building firmware hardware"
+    on:
+      push:
+        branches: [ "master" ]
+      pull_request:
+        branches: [ "master" ]
     runs-on: ${{ matrix.os }}
 
     strategy:
