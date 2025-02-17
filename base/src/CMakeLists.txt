@@ -35,13 +35,8 @@ add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
 add_custom_command(TARGET ${PROJECT_NAME}.bin
 	COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
 
-add_subdirectory(thirdparty/googletest)
+find_package(GTest REQUIRED)
 
-enable_testing()
-
-add_executable(test_test test_test/hello_test.cpp)
-
-target_link_libraries(test_test gtest gtest_main)
-
-include(GoogleTest)
-gtest_discover_tests(test_test)
+add_executable(test_foo test_test/hello_test.cpp)
+target_include_directories( test_foo PRIVATE ${GTEST_INCLUDE_DIRS} )
+target_link_libraries( test_foo tested_library ${GTEST_BOTH_LIBRARIES} )
