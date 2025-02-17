@@ -2,4 +2,5 @@
 
 int main(){
     test_dma_single_buffer();
+    return 0;
 }
