@@ -34,7 +34,7 @@ set(CMAKE_AR           ${TARGET_TRIPLET}gcc-ar${TOOLCHAIN_EXT})
 set(CMAKE_RANLIB       ${TARGET_TRIPLET}gcc-ranlib${TOOLCHAIN_EXT})
 
 # Flags for your compilers
-set(CMAKE_C_FLAGS                   " -mfpu=fpv5-d16 -mfloat-abi=hard --specs=nosys.specs -fdata-sections -ffunction-sections" CACHE INTERNAL "")
+set(CMAKE_C_FLAGS                   " -mfpu=fpv5-d16 -mfloat-abi=hard --specs=nosys.specs -fdata-sections -ffunction-sections -ffreestanding -nostdlib" CACHE INTERNAL "")
 set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS} -fno-exceptions -fno-threadsafe-statics " CACHE INTERNAL "")
 
 set(CMAKE_C_FLAGS_DEBUG             "-mcpu=cortex-m7 -mthumb -O0 -g" CACHE INTERNAL "")
