@@ -25,7 +25,7 @@ option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
 if (BUILD_ARM)
 	# Set toolchain file
-	set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake)
+	set(CMAKE_TOOLCHAIN_FILE toolchain.cmake)
 
 
 	# Place directories to include here
@@ -38,8 +38,7 @@ if (BUILD_ARM)
 
 	# Create binary file
 	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
-	add_custom_command(TARGET ${PROJECT_NAME}.bin
-	COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
+	add_custom_command(TARGET ${PROJECT_NAME}.bin COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
     
 else()
 	include(FetchContent)
