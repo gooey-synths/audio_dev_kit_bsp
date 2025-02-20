@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/james/projects/synth/audio_dev_kit_bsp/base/src",
+  "command": "/usr/bin/c++  -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/include -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest -g -o CMakeFiles/my_tests.dir/test_test/hello_test.cpp.o -c /home/james/projects/synth/audio_dev_kit_bsp/base/src/test_test/hello_test.cpp",
+  "file": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/test_test/hello_test.cpp",
+  "output": "CMakeFiles/my_tests.dir/test_test/hello_test.cpp.o"
+},
+{
+  "directory": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock",
+  "command": "/usr/bin/c++  -I/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock/include -I/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/include -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest -g -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock/src/gmock-all.cc",
+  "file": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock/src/gmock-all.cc",
+  "output": "third_party/googletest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
+},
+{
+  "directory": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock",
+  "command": "/usr/bin/c++  -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock/include -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/include -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest -g -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock/src/gmock_main.cc",
+  "file": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googlemock/src/gmock_main.cc",
+  "output": "third_party/googletest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
+},
+{
+  "directory": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest",
+  "command": "/usr/bin/c++  -I/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/include -I/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest -g -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/src/gtest-all.cc",
+  "file": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/src/gtest-all.cc",
+  "output": "third_party/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
+},
+{
+  "directory": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest",
+  "command": "/usr/bin/c++  -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/include -isystem /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest -g -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/src/gtest_main.cc",
+  "file": "/home/james/projects/synth/audio_dev_kit_bsp/base/src/third_party/googletest/googletest/src/gtest_main.cc",
+  "output": "third_party/googletest/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+}
+]
