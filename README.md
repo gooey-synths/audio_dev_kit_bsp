@@ -33,4 +33,5 @@ This is the board support package for Gooey Synth's Audo Dev Kit.
 > $ cmake --build base/build/
 > $ cmake -S base/src/ -B base/build_host/
 > $ cmake --build base/build_host/
+> $ ./base/build_host/my_tests
 ```
