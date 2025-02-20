@@ -12,16 +12,17 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install clang-tidy
-        run: sudo apt-get update && sudo apt-get install -y clang-tidy
-      - name: Run clang-tidy
-        run: |
-          find . -name "*.cpp" -print0 | xargs -0 -n1 clang-tidy -checks='*'
-      - name: Install cppcheck
-        run: sudo apt-get update && sudo apt-get install -y cppcheck
-      - name: Run cppcheck
-        run: cppcheck --enable=all --suppress=missingIncludeSystem *.cpp
+      - name: C++ Linter
+        uses: cpp-linter/cpp-linter-action@v2
+        with:
+          # Optional: Specify the linters to use (clang-tidy, cppcheck, etc.)
+          linters: clang-tidy
+          
+          # Optional: Configure the linter (e.g., using a .clang-tidy file)
+          # config: .clang-tidy
+          
+          # Optional: Fail the build if linting errors are found
+          fail-on-error: true
 
   build_arm:
     name: "Building for hardware"
