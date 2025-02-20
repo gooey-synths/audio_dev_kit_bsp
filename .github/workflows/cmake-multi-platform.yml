@@ -12,17 +12,12 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: C++ Linter
-        uses: cpp-linter/cpp-linter-action@v2
+      - uses: actions/checkout@v4
+      - uses: cpp-linter/cpp-linter-action@v2
         with:
-          # Optional: Specify the linters to use (clang-tidy, cppcheck, etc.)
-          linters: clang-tidy
+          ignore: 'base/src/thirdparty'
+          database: 'base/src/compile_commands.json'
           
-          # Optional: Configure the linter (e.g., using a .clang-tidy file)
-          # config: .clang-tidy
-          
-          # Optional: Fail the build if linting errors are found
-          fail-on-error: true
 
   build_arm:
     name: "Building for hardware"
