@@ -1,3 +1,4 @@
+// NOLINTNEXTLINE
 #include <gtest/gtest.h> // NOLINT
 
 TEST(HelloTest, BasicAssertions) {
