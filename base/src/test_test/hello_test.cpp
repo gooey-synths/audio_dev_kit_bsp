@@ -1,5 +1,6 @@
-// NOLINTNEXTLINE
-#include <gtest/gtest.h> // NOLINT
+// NOLINTBEGIN
+#include <gtest/gtest.h>
+// NOLINTEND
 
 TEST(HelloTest, BasicAssertions) {
   EXPECT_STRNE("hello", "world");
