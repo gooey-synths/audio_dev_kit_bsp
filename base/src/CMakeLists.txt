@@ -44,24 +44,14 @@ if (BUILD_ARM)
 	add_custom_command(TARGET ${PROJECT_NAME}.bin COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
     
 else()
-	include(FetchContent)
-
-	FetchContent_Declare(
-	  googletest
-	  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-	)
-	FetchContent_MakeAvailable(googletest)
-
-	enable_testing()
-	### HOST COMPILATION TARGET (FOR UNIT TESTING) ###
-	# find_package(GTest REQUIRED)
-	enable_testing()
+        add_subdirectory(third_party/googletest)
 
 	# Unit test target (Runs on PC)
 	add_executable(my_tests test_test/hello_test.cpp)
 	target_link_libraries(my_tests gtest_main gtest)
 
-	add_test(NAME RunTests COMMAND my_tests)
+	include(GoogleTest)
+	gtest_discover_tests(my_tests)
 endif()
 
 
