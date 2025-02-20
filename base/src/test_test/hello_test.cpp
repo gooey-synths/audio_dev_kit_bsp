@@ -1,5 +1,5 @@
 // NOLINTBEGIN
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 // NOLINTEND
 
 TEST(HelloTest, BasicAssertions) {
