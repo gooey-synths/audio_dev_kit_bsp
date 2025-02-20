@@ -29,6 +29,8 @@ This is the board support package for Gooey Synth's Audo Dev Kit.
 
 ```
 > $ cd audio_dev_kit_bsp/
-> $ cmake -S base/src/ -B base/build/
-> $ cd base/build/ && make
+> $ cmake -DBUILD_ARM=ON -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -S base/src/ -B base/build/
+> $ cmake --build base/build/
+> $ cmake -S base/src/ -B base/build_host/
+> $ cmake --build base/build_host/
 ```
