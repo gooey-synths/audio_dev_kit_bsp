@@ -3,8 +3,8 @@
 // LED pins
 
 const GPIOPin led_pin = {
-    .port = 2, // Port C
-    .pin = 7  // Pin 7
+    .port = 1, // Port B
+    .pin = 1  // Pin 1
 };
 
 const GPIOConf led_pin_conf = {
