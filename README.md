@@ -25,20 +25,34 @@ This is the board support package for Gooey Synth's Audo Dev Kit.
 ## Directory structure ##
 Third party libraries are kept in base/src/thirdparty. They are managed as git submodules.
 
+## Project initialization ##
+```
+git clone https://github.com/gooey-synths/audio_dev_kit_bsp.git
+cd audio_dev_kit_bsp/
+git submodule update --init --recursive
+```
+
+## Linting ##
+Use clang-format as the linting tool. It is currently built into the pipeline. The base style is set to llvm
 
 ## Build instructions ##
+There are two different build types for this project. The first build type is meant for deploying new firmware to the phsical board. Creating build artifacts via the ARM cross-compiler should be run as follows:
 
 ```
 > $ cd audio_dev_kit_bsp/
-> $ git submodule update --init --recursive
 > $ cmake -DBUILD_ARM=ON -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -S base/src/ -B base/build/
 > $ cmake --build base/build/
+```
+
+The second build type is meant for running on a host machine (such as ubuntu). This build process uses the normal c++ compiler so that googletest can be built into the project and the unit tests can be run. To create the build run the following:
+```
+> $ cd audio_dev_kit_bsp/
 > $ cmake -S base/src/ -B base/build_host/
 > $ cmake --build base/build_host/
 ```
 
 ## Unit test instructions ##
-Run the build_host commands from the build instructions, then: 
+Unit tests are run using the Googletest library. They are included in the project as a git submodule. The above build specifies two builds. The first is for building and deploying the firmware to the physical board. The second is for building and running unit tests on a host machine. Run the second set of build commands(build_host) from the build instructions, then: 
 
 ```
 > $ ./base/build_host/my_tests
