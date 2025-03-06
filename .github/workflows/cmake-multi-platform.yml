@@ -69,9 +69,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test step
-        run: echo "Testing job 2"
-
       - uses: actions/checkout@v4
 
       - name: Set reusable strings
@@ -80,6 +77,10 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=${{ github.workspace }}/base/build_host" >> "$GITHUB_OUTPUT"
+
+      - name: Get dependencies
+        run: |
+          git submodule update --init --recursive
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
