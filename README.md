@@ -23,15 +23,23 @@ This is the board support package for Gooey Synth's Audo Dev Kit.
 [Black Magic Probe on a bluepill](https://github.com/koendv/blackmagic-bluepill)
 
 ## Directory structure ##
+Third party libraries are kept in base/src/thirdparty. They are managed as git submodules.
 
 
 ## Build instructions ##
 
 ```
 > $ cd audio_dev_kit_bsp/
+> $ git submodule update --init --recursive
 > $ cmake -DBUILD_ARM=ON -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -S base/src/ -B base/build/
 > $ cmake --build base/build/
 > $ cmake -S base/src/ -B base/build_host/
 > $ cmake --build base/build_host/
+```
+
+## Unit test instructions ##
+Run the build_host commands from the build instructions, then: 
+
+```
 > $ ./base/build_host/my_tests
 ```
