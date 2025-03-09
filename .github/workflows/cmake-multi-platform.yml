@@ -23,7 +23,7 @@ jobs:
         id: strings
         shell: bash
         run: |
-          echo "build-output-dir=${{ github.workspace }}/base/build" >> "$GITHUB_OUTPUT"
+          echo "build-output-dir=${{ github.workspace }}/base/build_host" >> "$GITHUB_OUTPUT"
 
       - name: Configure Cmake with compile commands
         run: >
