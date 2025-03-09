@@ -32,7 +32,7 @@ jobs:
 
       - uses: cpp-linter/cpp-linter-action@v2
         with:
-          compile-sommands: 'base/build_host/compile_commands.json'
+          database: 'base/build_host/compile_commands.json'
           ignore: 'base/src/thirdparty'
 
       - name: Fail fast?!
