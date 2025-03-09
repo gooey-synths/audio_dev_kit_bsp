@@ -13,10 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Get dependencies
+        run: |
+          git submodule update --init --recursive
+
       - uses: cpp-linter/cpp-linter-action@v2
         with:
           ignore: 'base/src/thirdparty'
-          database: 'base/src/compile_commands.json'
 
       - name: Fail fast?!
         if: steps.linter.outputs.clang-tidy-checks-failed > 0
