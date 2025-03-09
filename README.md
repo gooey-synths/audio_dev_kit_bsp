@@ -36,7 +36,7 @@ git submodule update --init --recursive
 Use clang-format as the linting tool. It is currently built into the pipeline. The base style is set to llvm
 
 ## Build instructions ##
-There are two different build types for this project. The first build type is meant for deploying new firmware to the phsical board. Creating build artifacts via the ARM cross-compiler should be run as follows:
+There are two different build types for this project. The first build type is meant for deploying new firmware to the physical board. Creating build artifacts via the ARM cross-compiler should be run as follows:
 
 ```
 > $ cd audio_dev_kit_bsp/
