@@ -18,8 +18,21 @@ jobs:
         run: |
           git submodule update --init --recursive
 
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/base/build" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Cmake with compile commands
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -S ${{ github.workspace }}/base/src -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
       - uses: cpp-linter/cpp-linter-action@v2
         with:
+          compile-sommands: 'base/build_host/compile_commands.json'
           ignore: 'base/src/thirdparty'
 
       - name: Fail fast?!
