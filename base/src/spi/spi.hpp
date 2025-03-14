@@ -115,12 +115,12 @@ protected:
     static void spi5Isr(){if(sInstances[4] != NULL){sInstances[4]->interrupt();}}
     static void spi6Isr(){if(sInstances[5] != NULL){sInstances[5]->interrupt();}}
 
-    uint8_t mSpiNum;         ///< Number of the SPI bus
+    uint8_t mSpiNum;         ///< Number of the SPI bus.
     volatile bool mIsActive; ///< True if the SPI is currently active.
     IRQn_Type mSpiIrqN;      ///< Interrupt number for the SPI controller.
-    SPI_TypeDef* mSpiHw;     ///< SPI peripheral pointer
+    SPI_TypeDef* mSpiHw;     ///< SPI peripheral pointer.
     SpiBusConfig mConfig;    ///< SPI bus configuration.
-    uint32_t mApbFreq;       ///< Frequency of the Advanced Peripheral Bus the controller is on
+    uint32_t mKerClkFreq;    ///< Frequency of the SPI_KER_CLK.
     dma::DmaController::DmaChannel* mTxDma; ///< TX DMA channel
     dma::DmaController::DmaChannel* mRxDma; ///< RX DMA channel
 

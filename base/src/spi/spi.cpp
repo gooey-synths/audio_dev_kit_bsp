@@ -14,7 +14,7 @@ SpiBusBase* sInstances[NUM_SPI_CONTROLLERS];
 SpiBusBase::SpiBusBase(size_t instance_num):
     mIsActive(false),
     mSpiNum(instance_num),
-    mApbFreq(0),
+    mKerClkFreq(0),
     // SPI 6 is connected to DMA2
     mTxDma(dma::DmaController::getInstance(1+(size_t)(instance_num>5))->claimAvailableChannel()),
     mRxDma(dma::DmaController::getInstance(1+(size_t)(instance_num>5))->claimAvailableChannel())
@@ -27,7 +27,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
         case 1:
             mSpiHw = SPI1;
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-            mApbFreq = APB2_TARGET;
+            mKerClkFreq = PLL1_DIVQ_TARGET;
             mSpiIrqN = SPI1_IRQn;
             RCC->APB2RSTR |= RCC_APB2RSTR_SPI1RST;
             RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI1RST);
@@ -38,7 +38,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
         case 2:
             mSpiHw = SPI2;
             RCC->APB1LENR |= RCC_APB1LENR_SPI2EN;
-            mApbFreq = APB1_TARGET;
+            mKerClkFreq = PLL1_DIVQ_TARGET;
             mSpiIrqN = SPI2_IRQn;
             RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI2RST;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI2RST);
@@ -49,7 +49,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
         case 3:
             mSpiHw = SPI3;
             RCC->APB1LENR |= RCC_APB1LENR_SPI3EN;
-            mApbFreq = APB1_TARGET;
+            mKerClkFreq = PLL1_DIVQ_TARGET; // todo: Update if needed.
             mSpiIrqN = SPI3_IRQn;
             RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI3RST;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI3RST);
@@ -60,7 +60,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
         case 4:
             mSpiHw = SPI4;
             RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
-            mApbFreq = APB2_TARGET;
+            mKerClkFreq = 0; // todo: Update if needed.
             mSpiIrqN = SPI4_IRQn;
             RCC->APB2RSTR |= RCC_APB2RSTR_SPI4RST;
             RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI4RST);
@@ -71,7 +71,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
         case 5:
             mSpiHw = SPI5;
             RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
-            mApbFreq = APB2_TARGET;
+            mKerClkFreq = 0;
             mSpiIrqN = SPI5_IRQn;
             RCC->APB2RSTR |= RCC_APB2RSTR_SPI5RST;
             RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI5RST);
@@ -82,7 +82,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
         case 6:
             mSpiHw = SPI6;
             RCC->APB4ENR |= RCC_APB4ENR_SPI6EN;
-            mApbFreq = APB4_TARGET;
+            mKerClkFreq = 0; // todo: Update if needed.
             mSpiIrqN = SPI6_IRQn;
             RCC->APB4RSTR |= RCC_APB4RSTR_SPI6RST;
             RCC->APB4RSTR &= ~(RCC_APB4RSTR_SPI6RST);
@@ -122,7 +122,7 @@ void SpiBusBase::configure(SpiBusConfig conf){
     for(uint8_t iDiv = 0; iDiv <= 7; iDiv++){
         mSpiHw->CFG1 &= ~(SPI_CFG1_MBR_Msk);  // Clear baud rate bits
         mSpiHw->CFG1 |= iDiv << SPI_CFG1_MBR_Pos; // Set baud rate bits
-        if(mApbFreq/(1<<iDiv) <= conf.mFreq/4){
+        if(mKerClkFreq/(1<<iDiv) <= conf.mFreq/4){
             break;
         }
     }
@@ -191,25 +191,25 @@ void HwSpiBus::prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, siz
 /// Inherit documentation.
 ///
 void HwSpiBus::transact(){
-    mSpiHw->CR1 &= ~(1<<0); // disable SPI
+    mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
 
-    mSpiHw->IER |= 1<<1 | 1<<0; //   tx and rx interrupt
+    mSpiHw->IER |= SPI_IER_TXPIE | SPI_IER_RXPIE; // TX and RX interrupt
 
 
-    mSpiHw->CFG1 &= ~(1<<15 | 1<<14); // Disable RX and TX DMA requests
+    mSpiHw->CFG1 &= ~(SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN); // Disable RX and TX DMA requests
 
-    mSpiHw->IFCR |= 0x1FF << 3; // clear interrupt flags
+    mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear interrupt flags
 
     mTxDma->begin();
     mRxDma->begin();
     
-    mSpiHw->CFG1 |= 1<<15 | 1<<14; // Enable RX and TX DMA requests
+    mSpiHw->CFG1 |= SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN; // Enable RX and TX DMA requests
 
-    mSpiHw->CR1 |= 1; // enable SPI
+    mSpiHw->CR1 |= SPI_CR1_SPE; // enable SPI
 
-    mSpiHw->CR1 &= ~(1<<12); // bring the CS pin low.
+    mSpiHw->CR1 &= ~(SPI_CR1_SSI_Msk); // bring the CS pin low.
 
-    mSpiHw->CR1 |= 1<<9; // START  
+    mSpiHw->CR1 |= SPI_CR1_CSTART; // START  
 
     mIsActive = true;
     NVIC_EnableIRQ(mSpiIrqN);

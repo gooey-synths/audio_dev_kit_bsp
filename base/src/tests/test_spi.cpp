@@ -1,5 +1,7 @@
 #include "../spi/spi.hpp"
+#include "../uart/uart.hpp"
 #include "../system/board_defs.h"
+#include "test_helper.hpp"
 
 using namespace spi;
 
@@ -26,6 +28,9 @@ static void setup_pins(){
     gpio_controller->setConfig(&spi3_cs0_pin,  &spi3_cs0_conf);
     gpio_controller->setConfig(&spi3_cs1_pin,  &spi3_cs1_conf);
     gpio_controller->setConfig(&spi3_cs2_pin,  &spi3_cs2_conf);
+
+    gpio_controller->setConfig(&uart_1_tx_pin, &uart_1_tx_conf);
+    gpio_controller->setConfig(&uart_1_rx_pin, &uart_1_rx_conf);
 }
 
 ///
@@ -36,13 +41,15 @@ void test_spi_hw_transaction(){
 
     HwSpiBus spiBus(2);
 
+    uart::UartController uart1(1);
+
     SpiBusConfig conf;
     conf.mFreq = 3000000U;
     conf.mPhase = 0;
     conf.mPolarity = 1;
     conf.mWordSize = 8;
 
-    // setup tx buffer
+    // Setup tx buffer to read device ID from DAC
     txBuff[0] = 0x81;
     txBuff[1] = 0x00;
     txBuff[2] = 0x81;
@@ -61,6 +68,9 @@ void test_spi_hw_transaction(){
         spiBus.transact();
         
         spiBus.waitForCompletion();
+
+        uint16_t devId = (uint16_t)rxBuff[1] << 8 | rxBuff[2];
+        print_buffer(&uart1, (void*)&devId, sizeof(devId), 1);
 
     }
 

@@ -34,7 +34,7 @@ const GPIOConf mco2_pin_conf = {
 
 const GPIOPin uart_1_tx_pin = {
     .port = 1,
-    .pin = 14
+    .pin = 6
 };
 
 const GPIOConf uart_1_tx_conf = {
@@ -42,12 +42,12 @@ const GPIOConf uart_1_tx_conf = {
     .mode = ALTERNATE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
-    .alternate_function = 4
+    .alternate_function = 7
 };
 
 const GPIOPin uart_1_rx_pin = {
     .port = 1,
-    .pin = 15
+    .pin = 7
 };
 
 const GPIOConf uart_1_rx_conf = {
@@ -55,7 +55,7 @@ const GPIOConf uart_1_rx_conf = {
     .mode = ALTERNATE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
-    .alternate_function = 4
+    .alternate_function = 7
 };
 
 // SPI pins

@@ -319,7 +319,7 @@ void start_clocks(){
         2 << 0 |  // HSE as PLL clock
         1 << 4;   // Prescale PLL1 by 1
     uint8_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ;
-    uint8_t pll1_divq = (uint32_t)D1_TARGET/48e6; // Use DIV Q as USB clock
+    uint8_t pll1_divq = (uint32_t)PLL1_DIVQ_TARGET;
 
     RCC->PLLCFGR = 
         //1 << 18 | // ENABLE pll1 divr
