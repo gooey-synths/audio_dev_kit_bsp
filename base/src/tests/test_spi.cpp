@@ -3,7 +3,7 @@
 
 using namespace spi;
 
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 3
 
 uint8_t txBuff[BUFFER_SIZE];
 uint8_t rxBuff[BUFFER_SIZE];
@@ -31,36 +31,36 @@ static void setup_pins(){
 ///
 /// Test a transaction on the hardware spi bus
 ///
-void  test_spi_hw_transaction(){
+void test_spi_hw_transaction(){
     setup_pins();
 
-    HwSpiBus spi_bus(2);
+    HwSpiBus spiBus(2);
 
     SpiBusConfig conf;
     conf.mFreq = 3000000U;
-    conf.mPhase = 1;
+    conf.mPhase = 0;
     conf.mPolarity = 1;
     conf.mWordSize = 8;
 
     // setup tx buffer
-    for(size_t i = 0; i < BUFFER_SIZE; i++){
-        txBuff[i] = i;
-    }
+    txBuff[0] = 0x81;
+    txBuff[1] = 0x00;
+    txBuff[2] = 0x81;
 
-    spi_bus.configure(conf);
+    spiBus.configure(conf);
 
-    spi_bus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0);
+    spiBus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0);
 
     while(1){
 
         // setup rx buffer
         for(size_t i = 0; i < BUFFER_SIZE; i++){
-            rxBuff[i] = 0;
+            rxBuff[i] = 1;
         }
 
-        spi_bus.transact();
+        spiBus.transact();
         
-        spi_bus.waitForCompletion();
+        spiBus.waitForCompletion();
 
     }
 

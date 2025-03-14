@@ -319,17 +319,19 @@ void start_clocks(){
         2 << 0 |  // HSE as PLL clock
         1 << 4;   // Prescale PLL1 by 1
     uint8_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ;
+    uint8_t pll1_divq = (uint32_t)D1_TARGET/48e6; // Use DIV Q as USB clock
 
     RCC->PLLCFGR = 
-        //1 << 18 | // Enable pll1 divr
-        //1 << 17 | // Enable pll1 divq
-        1 << 16 | // Enable pll1 divp
+        //1 << 18 | // ENABLE pll1 divr
+        1 << 17 | // ENABLE pll1 divq
+        1 << 16 | // ENABLE pll1 divp
         3 << 2  | // clock rate frequency is between 8 an 16MHz TODO: calculate clock range beforehand
         0 << 1  | // Wide VCO range 192 to 836 MHz
         0 << 0;  // No fractional divider.
 
     RCC->PLL1DIVR = 
         pll1_divn -1 << 0; // Set PLL1 divN divider
+        pll1_divq -1 << 16; // Set PLL1 divN divider
 
     RCC->CR |= 1 << 24; // Enable PLL1
 

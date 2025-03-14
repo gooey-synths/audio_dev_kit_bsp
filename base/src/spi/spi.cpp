@@ -4,7 +4,7 @@
 
 namespace spi{
 
-SpiBusBase* sInstances[NUM_CONTROLLERS];
+SpiBusBase* sInstances[NUM_SPI_CONTROLLERS];
 
 ///
 /// Constructor.
@@ -99,7 +99,7 @@ SpiBusBase::SpiBusBase(size_t instance_num):
     mSpiHw->CR1 &= ~SPI_CR1_SPE; // disable SPI
     mSpiHw->IER |= (SPI_IER_TXPIE | SPI_IER_RXPIE); // Enable tx and rx interrupt.
     mSpiHw->CR1 |= SPI_CR1_SSI; // Set CS pin high
-    mSpiHw->IFCR |= 0x1F << SPI_IFCR_EOTC_Pos; // Clear all interrupts
+    mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear all interrupts
     mSpiHw->CFG2 |= SPI_CFG2_MASTER | SPI_CFG2_SSOE; // SPI master, SS output enable
 
     mTxDma->setTransferType(dma::MEM2PER, true);
@@ -176,8 +176,10 @@ void HwSpiBus::prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, siz
 
     // Tx and Rx
     mTxDma->setSource(txBuff, dataSize, 1);
+    mTxDma->setDest((void*)&mSpiHw->TXDR, dataSize, 0);
     mTxDma->setNumTransfers(bufLen, 0);
 
+    mRxDma->setSource((void*)&mSpiHw->RXDR, dataSize, 0);
     mRxDma->setDest(rxBuff, dataSize, 1);
     mRxDma->setNumTransfers(bufLen, 0);
 
@@ -189,25 +191,25 @@ void HwSpiBus::prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, siz
 /// Inherit documentation.
 ///
 void HwSpiBus::transact(){
+    mSpiHw->CR1 &= ~(1<<0); // disable SPI
 
-    mSpiHw->CR1 &= ~SPI_CR1_SPE; // disable SPI
+    mSpiHw->IER |= 1<<1 | 1<<0; //   tx and rx interrupt
 
-    mSpiHw->IER |= (SPI_IER_TXPIE | SPI_IER_RXPIE); // Enable tx and rx interrupt.
 
-    mSpiHw->CFG1 &= ~(SPI_IER_TXPIE | SPI_IER_RXPIE); // Disable RX and TX DMA requests
+    mSpiHw->CFG1 &= ~(1<<15 | 1<<14); // Disable RX and TX DMA requests
 
-    mSpiHw->IFCR |= 0x1F << SPI_IFCR_EOTC_Pos; // Clear all interrupts
+    mSpiHw->IFCR |= 0x1FF << 3; // clear interrupt flags
 
     mTxDma->begin();
     mRxDma->begin();
+    
+    mSpiHw->CFG1 |= 1<<15 | 1<<14; // Enable RX and TX DMA requests
 
-    mSpiHw->IER |= (SPI_IER_TXPIE | SPI_IER_RXPIE); // Enable tx and rx interrupt.
+    mSpiHw->CR1 |= 1; // enable SPI
 
-    mSpiHw->CR1 |= SPI_CR1_SPE; // Disable SPI
+    mSpiHw->CR1 &= ~(1<<12); // bring the CS pin low.
 
-    mSpiHw->CR1 &= ~(SPI_CR1_SSI); // bring the CS pin low.
-
-    mSpiHw->CR1 |= SPI_CR1_CSTART; // START
+    mSpiHw->CR1 |= 1<<9; // START  
 
     mIsActive = true;
     NVIC_EnableIRQ(mSpiIrqN);

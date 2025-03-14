@@ -15,6 +15,10 @@ namespace spi{
 #define NUM_SPI_CONTROLLERS 6 ///< Number of spi controllers on the stm32h750.
 
 
+class SpiBusBase; ///< forward reference.
+
+extern SpiBusBase* sInstances[NUM_SPI_CONTROLLERS]; ///< instances of the spi buses 
+
 ///
 /// Configuration for SPI buses.
 ///
@@ -86,7 +90,7 @@ protected:
     void interrupt(){
 
         // transfer complete flag
-        if(mSpiHw->SR & SPI_SR_TXC){
+        if(mSpiHw->SR & SPI_SR_EOT){
             cleanup();
 
             NVIC_DisableIRQ(mSpiIrqN);

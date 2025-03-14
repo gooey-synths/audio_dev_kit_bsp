@@ -56,4 +56,34 @@ extern GPIOConf spi3_cs1_conf;
 extern GPIOPin spi3_cs2_pin;
 extern GPIOConf spi3_cs2_conf;
 
+extern GPIOPin spi2_clk_pin;
+extern GPIOConf spi2_clk_conf;
+
+extern GPIOPin spi2_cipo_pin;
+extern GPIOConf spi2_cipo_conf;
+
+extern GPIOPin spi2_copi_pin;
+extern GPIOConf spi2_copi_conf;
+
+extern GPIOPin spi2_cs0_pin;
+extern GPIOConf spi2_cs0_conf;
+
+extern GPIOPin spi3_clk_pin;
+extern GPIOConf spi3_clk_conf;
+
+extern GPIOPin spi3_cipo_pin;
+extern GPIOConf spi3_cipo_conf;
+
+extern GPIOPin spi3_copi_pin;
+extern GPIOConf spi3_copi_conf;
+
+extern GPIOPin spi3_cs0_pin;
+extern GPIOConf spi3_cs0_conf;
+
+extern GPIOPin spi3_cs1_pin;
+extern GPIOConf spi3_cs1_conf;
+
+extern GPIOPin spi3_cs2_pin;
+extern GPIOConf spi3_cs2_conf;
+
 #endif
