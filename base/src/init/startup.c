@@ -1,13 +1,13 @@
 #include "../system/stm32h750xx.h"
 #include "../system/board_defs.h"
-#include <cstdint>
+#include <stdint.h>
 
 // prototypes
 void reset_handler();
 void halt();
 extern int main(); // defined in main.c
 
-const uint32_t* ISR_NOT_IMPL ((uint32_t*) halt);
+#define ISR_NOT_IMPL ((uint32_t*) halt)
 
  /* These are defined in the linker script */
 extern const uint32_t _stext;  //< Start of text section
