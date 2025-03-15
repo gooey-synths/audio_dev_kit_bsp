@@ -39,6 +39,10 @@
  extern "C" {
 #endif
 
+#define __NOP() __asm volatile ("nop")
+#define __ISB() __asm volatile ("isb")
+#define __DSB() __asm volatile ("dsb")
+
 /**
   \page CMSIS_MISRA_Exceptions  MISRA-C:2004 Compliance Exceptions
   CMSIS violates the following MISRA-C:2004 rules:
@@ -1793,7 +1797,6 @@ typedef struct
   \defgroup CMSIS_Core_FunctionInterface Functions and Instructions Reference
 */
 
-#if 0
 
 /* ##########################   NVIC functions  #################################### */
 /**
@@ -2622,7 +2625,6 @@ __STATIC_INLINE int32_t ITM_CheckChar (void)
     return (1);                              /*    character available */
   }
 }
-#endif
 
 /*@} end of CMSIS_core_DebugFunctions */
 

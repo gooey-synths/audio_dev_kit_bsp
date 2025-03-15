@@ -5,19 +5,19 @@
 // prototypes
 void reset_handler();
 void halt();
-extern int main(void); // defined in main.c
+extern int main(); // defined in main.c
 
 #define ISR_NOT_IMPL ((uint32_t*) halt)
 
  /* These are defined in the linker script */
-extern uint32_t _stext;  //< Start of text section
-extern uint32_t _etext;  //< End of text section
-extern uint32_t _sbss;   //< Start of BSS section
-extern uint32_t _ebss;   //< End of BSS section
-extern uint32_t _sdata;  //< Start of data section
-extern uint32_t _edata;  //< End of data section
-extern uint32_t _sstack; //< Start of stack section
-extern uint32_t _estack; //< End of stack section
+extern const uint32_t _stext;  //< Start of text section
+extern const uint32_t _etext;  //< End of text section
+extern const uint32_t _sbss;   //< Start of BSS section
+extern const uint32_t _ebss;   //< End of BSS section
+extern const uint32_t _sdata;  //< Start of data section
+extern const uint32_t _edata;  //< End of data section
+extern const uint32_t _sstack; //< Start of stack section
+extern const uint32_t _estack; //< End of stack section
 
 #define STACK_START_ADDR   0x20020000
 
@@ -191,6 +191,8 @@ uint32_t* vector_table[] = {
     ISR_NOT_IMPL  /* Interrupt for all 6 wake-up pins */
 };
 
+uint32_t* vector_table_ram[166]__attribute__((aligned (512))); // Remapped vector table must be aligned to rounded up power of 2
+
 ///
 /// Enable the FPU coprocessor
 ///
@@ -317,17 +319,19 @@ void start_clocks(){
         2 << 0 |  // HSE as PLL clock
         1 << 4;   // Prescale PLL1 by 1
     uint8_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ;
+    uint8_t pll1_divq = (uint32_t)PLL1_DIVQ_TARGET;
 
     RCC->PLLCFGR = 
-        //1 << 18 | // Enable pll1 divr
-        //1 << 17 | // Enable pll1 divq
-        1 << 16 | // Enable pll1 divp
+        //1 << 18 | // ENABLE pll1 divr
+        1 << 17 | // ENABLE pll1 divq
+        1 << 16 | // ENABLE pll1 divp
         3 << 2  | // clock rate frequency is between 8 an 16MHz TODO: calculate clock range beforehand
         0 << 1  | // Wide VCO range 192 to 836 MHz
         0 << 0;  // No fractional divider.
 
     RCC->PLL1DIVR = 
         pll1_divn -1 << 0; // Set PLL1 divN divider
+        pll1_divq -1 << 16; // Set PLL1 divN divider
 
     RCC->CR |= 1 << 24; // Enable PLL1
 
@@ -403,6 +407,14 @@ __attribute__ ((noreturn)) void reset_handler(){
     for (uint32_t *bss_ptr = &_sbss; bss_ptr < &_ebss;) {
         *bss_ptr++ = 0;
     }
+
+    // Copy vector table to RAM location
+    for(unsigned int i = 0; i < sizeof(vector_table)/sizeof(*vector_table); i++){
+        vector_table_ram[i] = vector_table[i];
+    }
+
+    // Remap vector table to RAM location
+    SCB->VTOR = (uint32_t)vector_table_ram;
 
     enable_fpu();
 

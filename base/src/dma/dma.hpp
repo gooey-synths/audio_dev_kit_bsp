@@ -12,6 +12,24 @@ namespace dma{
 #define DMA1_CLEAR_INT_FLAG(channel, int_type) DMA1->IFCR |= 1 << ((channel-1)*4+(int_type+1))
 #endif
 
+constexpr uint8_t SPI1_TX_REQ = 38; // Request number for SPI TX DMA requests.
+constexpr uint8_t SPI1_RX_REQ = 37; // Request number for SPI RX DMA requests.
+
+constexpr uint8_t SPI2_TX_REQ = 40; // Request number for SPI TX DMA requests.
+constexpr uint8_t SPI2_RX_REQ = 39; // Request number for SPI RX DMA requests.
+
+constexpr uint8_t SPI3_TX_REQ = 62; // Request number for SPI TX DMA requests.
+constexpr uint8_t SPI3_RX_REQ = 61; // Request number for SPI RX DMA requests.
+
+constexpr uint8_t SPI4_TX_REQ = 84; // Request number for SPI TX DMA requests.
+constexpr uint8_t SPI4_RX_REQ = 83; // Request number for SPI RX DMA requests.
+
+constexpr uint8_t SPI5_TX_REQ = 86; // Request number for SPI TX DMA requests.
+constexpr uint8_t SPI5_RX_REQ = 85; // Request number for SPI RX DMA requests.
+
+constexpr uint8_t SPI6_TX_REQ = 12; // Request number for SPI TX DMA requests.
+constexpr uint8_t SPI6_RX_REQ = 11; // Request number for SPI RX DMA requests.
+
 enum eDmaTransferType{
 	PER2MEM = 0,
 	MEM2PER,

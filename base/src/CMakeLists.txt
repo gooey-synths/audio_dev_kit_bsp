@@ -14,6 +14,8 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_uart.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/dma/dma.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_dma.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/spi/spi.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_spi.cpp
 
 )
 
