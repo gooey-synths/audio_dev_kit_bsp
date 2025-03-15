@@ -32,8 +32,8 @@ SpiBusBase::SpiBusBase(size_t instance_num):
             RCC->APB2RSTR |= RCC_APB2RSTR_SPI1RST;
             RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI1RST);
             set_vector_table_entry((int)mSpiIrqN+16, (uint32_t*)spi1Isr);
-            mTxDma->setRequest(38);
-            mRxDma->setRequest(37);
+            mTxDma->setRequest(dma::SPI1_TX_REQ);
+            mRxDma->setRequest(dma::SPI1_RX_REQ);
             break;
         case 2:
             mSpiHw = SPI2;
@@ -43,8 +43,8 @@ SpiBusBase::SpiBusBase(size_t instance_num):
             RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI2RST;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI2RST);
             set_vector_table_entry((int)mSpiIrqN+16, (uint32_t*)spi2Isr);
-            mTxDma->setRequest(40);
-            mRxDma->setRequest(39);
+            mTxDma->setRequest(dma::SPI2_TX_REQ);
+            mRxDma->setRequest(dma::SPI2_RX_REQ);
             break;
         case 3:
             mSpiHw = SPI3;
@@ -54,8 +54,8 @@ SpiBusBase::SpiBusBase(size_t instance_num):
             RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI3RST;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI3RST);
             set_vector_table_entry((int)mSpiIrqN+16, (uint32_t*)spi3Isr);
-            mTxDma->setRequest(61);
-            mRxDma->setRequest(62);
+            mTxDma->setRequest(dma::SPI3_TX_REQ);
+            mRxDma->setRequest(dma::SPI3_RX_REQ);
             break;
         case 4:
             mSpiHw = SPI4;
@@ -65,8 +65,8 @@ SpiBusBase::SpiBusBase(size_t instance_num):
             RCC->APB2RSTR |= RCC_APB2RSTR_SPI4RST;
             RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI4RST);
             set_vector_table_entry((int)mSpiIrqN+16, (uint32_t*)spi4Isr);
-            mTxDma->setRequest(84);
-            mRxDma->setRequest(83);
+            mTxDma->setRequest(dma::SPI4_TX_REQ);
+            mRxDma->setRequest(dma::SPI4_RX_REQ);
             break;
         case 5:
             mSpiHw = SPI5;
@@ -76,8 +76,8 @@ SpiBusBase::SpiBusBase(size_t instance_num):
             RCC->APB2RSTR |= RCC_APB2RSTR_SPI5RST;
             RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI5RST);
             set_vector_table_entry((int)mSpiIrqN+16, (uint32_t*)spi5Isr);
-            mTxDma->setRequest(86);
-            mRxDma->setRequest(85);
+            mTxDma->setRequest(dma::SPI5_TX_REQ);
+            mRxDma->setRequest(dma::SPI5_RX_REQ);
             break;
         case 6:
             mSpiHw = SPI6;
@@ -87,8 +87,8 @@ SpiBusBase::SpiBusBase(size_t instance_num):
             RCC->APB4RSTR |= RCC_APB4RSTR_SPI6RST;
             RCC->APB4RSTR &= ~(RCC_APB4RSTR_SPI6RST);
             set_vector_table_entry((int)mSpiIrqN+16, (uint32_t*)spi6Isr);
-            mTxDma->setRequest(12);
-            mRxDma->setRequest(11);
+            mTxDma->setRequest(dma::SPI6_TX_REQ);
+            mRxDma->setRequest(dma::SPI6_RX_REQ);
             break;
     }
 
