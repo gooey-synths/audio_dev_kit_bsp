@@ -143,6 +143,15 @@ void SpiBusBase::configure(SpiBusConfig conf){
         mSpiHw->CFG2 &= ~(SPI_CFG2_CPOL);
     }
 
+    // Configure IO swap
+    if(conf.mIoSwap){
+        mSpiHw->CFG2 |= (SPI_CFG2_IOSWP);
+    }
+    else {
+        mSpiHw->CFG2 &= ~(SPI_CFG2_IOSWP);
+    }
+
+
     // Configure word size
     mSpiHw->CFG1 &= ~(SPI_CFG1_DSIZE_Msk); // Clear word size bits
     mSpiHw->CFG1 |= (conf.mWordSize-1 & 0x1F) << SPI_CFG1_DSIZE_Pos; // Set word size bits

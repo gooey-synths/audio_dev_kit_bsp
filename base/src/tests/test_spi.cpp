@@ -48,6 +48,7 @@ void test_spi_hw_transaction(){
     conf.mPhase = 0;
     conf.mPolarity = 1;
     conf.mWordSize = 8;
+    conf.mIoSwap = true;
 
     // Setup tx buffer to read device ID from DAC
     txBuff[0] = 0x81;

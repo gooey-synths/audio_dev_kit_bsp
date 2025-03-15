@@ -25,6 +25,7 @@ extern SpiBusBase* sInstances[NUM_SPI_CONTROLLERS]; ///< instances of the spi bu
 struct SpiBusConfig{
     bool mPolarity;             ///< Clock polarity
     bool mPhase;                ///< Clock phase
+    bool mIoSwap;               ///< True if IO lines should be swapped
     uint32_t mFreq;             ///< Clock frequency
     uint8_t mWordSize;          ///< Data word size in bits
     uint8_t mMidi;              ///< Master inter-data idleness. Only valid for HW spi bus
@@ -162,7 +163,6 @@ public:
 
     ///
     /// Inherit documentation.
-    /// @note Buffer lengths < 4 have shown to have issues?
     ///
     virtual void prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize=sizeof(uint8_t));
 
