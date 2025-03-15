@@ -10,3 +10,7 @@ extern void test_dma_single_buffer();
 // UART test
 extern void test_uart_hello_world();
 extern void test_uart_echo();
+
+// ADC tests
+extern void test_adc_single_conversion();
+extern void test_adc_continuous_conversion();
