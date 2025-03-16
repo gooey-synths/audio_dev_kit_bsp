@@ -1,6 +1,6 @@
 #include "../tests/tests.hpp"
 
 int main(){
-    test_gpio_blinky();
+    test_adc_single_conversion();
     return 0;
 }

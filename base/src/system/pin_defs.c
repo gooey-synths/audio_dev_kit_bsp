@@ -137,7 +137,7 @@ const GPIOPin adc1_15_pin = {
     .pin = 3
 };
 
-const GPIOConf adc1_14_conf = {
+const GPIOConf adc1_15_conf = {
     .type = PUSH_PULL_TYPE,
     .mode = ANALOG_MODE,
     .speed = VERY_HIGH_SPEED,

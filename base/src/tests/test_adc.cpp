@@ -8,7 +8,8 @@
 
 using namespace adc;
 
-uint8_t seq[] = {7,8,9,10}; // define conversion sequence here, remember to initialize the ADC pins
+// See schematic for organization of ADC channels
+uint8_t seq[] = {10,11,16,14,15,7,8,9}; // define conversion sequence here, remember to initialize the ADC pins
 
 ///
 /// Setup UART and ADC pins
@@ -34,7 +35,6 @@ void test_adc_single_conversion(){
 
     OnChipADC myADC(1);
 
-
     char char_buff[12];
     int num_chars = 0;
     uart::UartController uart1(1);
@@ -46,17 +46,14 @@ void test_adc_single_conversion(){
     for(;;){
         myADC.beginSingleConversion();
 
-        int i = 0;
-
-        for(i = 0; i < 0x1FFFFF; i++); // wait fo transfer to happen
+        for(int i = 0; i < 0x1FFFFF; i++); // wait fo transfer to happen
 
         uart1.write("============\r\n", sizeof("============\r\n"));
 
         // print out conversions
         for(uint8_t iConv = 0; iConv < seq_size; iConv++){
             uart1.write("ch ", sizeof("ch "));
-            //num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
-            num_chars = sprintf(char_buff, "%d: ", i);
+            num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
             uart1.write(char_buff, num_chars);
             num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv));
             uart1.write(char_buff, num_chars);

@@ -96,7 +96,7 @@ class OnChipADC {
         }
 
         // Configure dma channel
-        mDmaChannel->setTransferType(dma::PER2MEM, true);
+        mDmaChannel->setTransferType(dma::PER2MEM, false);
         mDmaChannel->setDest((void *)mConversions, sizeof(*mConversions), true);
         mDmaChannel->setSource((void *)&mControllerHw->DR, sizeof(uint16_t), 0);
         mDmaChannel->setRequest(dmaReq);
@@ -108,6 +108,7 @@ class OnChipADC {
     void stop() {
         mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
         while (mControllerHw->CR & ADC_CR_ADSTP) {
+            mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
             ; // wait for ADC to stop
         }
     }
@@ -142,10 +143,12 @@ class OnChipADC {
     /// @param len Length of the sequence, max 16
     ///
     void setSequence(uint8_t *sequence, uint8_t len) {
-        (--len) &= 0xF; // cap maximum sequence length
+        if(len > 16){
+            return;
+        }
 
         mControllerHw->SQR1 &= ~(ADC_SQR1_L_Msk); // clear sequence length bits
-        mControllerHw->SQR1 |= len
+        mControllerHw->SQR1 |= (len -1)
                                << ADC_SQR1_L_Pos; // set sequence length bits
 
         const uint8_t offsetDelta = (ADC_SQR1_SQ2_Pos - ADC_SQR1_SQ1_Pos);
