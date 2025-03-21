@@ -37,7 +37,7 @@ struct SpiBusConfig{
 /// Base class for SPI buses.
 /// @todo CRC?
 ///
-class SpiBusBase{
+class SpiBusBase {
 
 public:
 
@@ -46,7 +46,7 @@ public:
     ///
     /// Destructor.
     ///
-    virtual ~SpiBusBase(){
+    virtual ~SpiBusBase() override {
         sInstances[mSpiNum] = NULL;
     }
 

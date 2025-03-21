@@ -40,14 +40,28 @@ if (BUILD_ARM)
 	add_custom_command(TARGET ${PROJECT_NAME}.bin COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
     
 else()
+	# Include directories (so headers can be found)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/spi/example/spi_example/)
+
+	# Add the source files to the project
+	add_library(spi_example_test
+	    ${CMAKE_CURRENT_SOURCE_DIR}/spi/example/spi_example.cpp   # Your source files
+	    ${CMAKE_CURRENT_SOURCE_DIR}/spi/example/spi_device_example.cpp   # Your source files
+	)
         add_subdirectory(third_party/googletest)
 
 	# Unit test target (Runs on PC)
-	add_executable(my_tests test_test/hello_test.cpp)
-	target_link_libraries(my_tests gtest_main gtest)
+	add_executable(unit_tests unit_tests/hello_test.cpp)
+	target_link_libraries(
+		unit_tests
+		PRIVATE
+		spi_example_test
+		gtest_main
+		gmock_main
+		gtest)
 
 	include(GoogleTest)
-	gtest_discover_tests(my_tests)
+	gtest_discover_tests(unit_tests)
 endif()
 
 
