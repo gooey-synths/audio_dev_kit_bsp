@@ -60,9 +60,21 @@ const GPIOConf uart_1_rx_conf = {
 
 // ADC pins
 
-const GPIOPin adc1_7_pin = {
+const GPIOPin adc1_16_pin = {
     .port = 0,
     .pin = 0
+};
+
+const GPIOConf adc1_16_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL
+};
+
+const GPIOPin adc1_7_pin = {
+    .port = 0,
+    .pin = 6
 };
 
 const GPIOConf adc1_7_conf = {
