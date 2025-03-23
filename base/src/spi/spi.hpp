@@ -37,19 +37,14 @@ public:
         sInstances[mSpiNum] = NULL;
     }
 
-    void configure(SpiBusConfig conf);
+    void configure(SpiBusConfig conf) override;
 
-    SpiBusConfig getConfiguration();
-
-
-    virtual void prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize) = 0;
-
-    virtual void transact() = 0;
+    SpiBusConfig getConfiguration() override;
 
     ///
     /// Wait for the SPI bus to complete.
     ///
-    void waitForCompletion(){
+    void waitForCompletion() override{
         while(mIsActive){
             ; // Do nothing
         }
@@ -75,11 +70,6 @@ protected:
         }
 
     }
-
-    ///
-    /// This function is called at the end of a transaction
-    ///
-    virtual void cleanup() = 0;
 
     static void spi1Isr(){if(sInstances[0] != NULL){sInstances[0]->interrupt();}}
     static void spi2Isr(){if(sInstances[1] != NULL){sInstances[1]->interrupt();}}
@@ -136,19 +126,19 @@ public:
     ///
     /// Inherit documentation.
     ///
-    virtual void prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize=sizeof(uint8_t));
+    void prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize=sizeof(uint8_t)) override;
 
     ///
     /// Inherit documentation.
     ///
-    virtual void transact();
+    void transact() override;
 
 
 protected:
     ///
     /// Inherit documentation.
     ///
-    virtual void cleanup(){
+    virtual void cleanup() override{
         mSpiHw->CR1 |= SPI_CR1_SSI; // Set chip select high.
     }
 
