@@ -39,7 +39,7 @@ static void setup_pins(){
 void test_spi_hw_transaction(){
     setup_pins();
 
-    HwSpiBus spiBus(2);
+    HwCsSpiBus spiBus(2);
 
     uart::UartController uart1(1);
 
