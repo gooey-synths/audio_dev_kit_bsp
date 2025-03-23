@@ -184,7 +184,7 @@ SpiBusConfig SpiBusBase::getConfiguration(){
 ///
 /// Initialize HW control of the CS pin.
 ///
-void HwSpiBus::HwSpiInit(){
+void HwCsSpiBus::HwCsSpiBusInit(){
     mSpiHw->CFG2 &= ~(SPI_CFG2_SSM); // Clear software management of CS pin.
     mSpiHw->CFG2 |= (SPI_CFG2_SSOM); //  Set SSOM, allows for inter-data idleness
     mSpiHw->CFG2 |= SPI_CFG2_IOSWP; //  Swap CIPO and COPI
@@ -195,7 +195,7 @@ void HwSpiBus::HwSpiInit(){
 /// Inherit documentation.
 /// @todo add ability to only receive or transmit.
 ///
-void HwSpiBus::prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize){
+void HwCsSpiBus::prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize){
     (void)cs;
 
     mRxDma->disable();
@@ -217,7 +217,7 @@ void HwSpiBus::prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, siz
 ///
 /// Inherit documentation.
 ///
-void HwSpiBus::transact(){
+void HwCsSpiBus::transact(){
     mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
 
     mSpiHw->IER |= SPI_IER_TXPIE | SPI_IER_RXPIE; // TX and RX interrupt

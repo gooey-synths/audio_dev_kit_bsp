@@ -5,6 +5,7 @@
 #include "../system/board_defs.h"
 #include "../dma/dma.hpp"
 #include "../gpio/gpio.hpp"
+#include "spibus_interface.hpp"
 
 #include <cassert>
 #include <stdint.h>
@@ -20,24 +21,10 @@ class SpiBusBase; ///< forward reference.
 extern SpiBusBase* sInstances[NUM_SPI_CONTROLLERS]; ///< instances of the spi buses 
 
 ///
-/// Configuration for SPI buses.
-///
-struct SpiBusConfig{
-    bool mPolarity;             ///< Clock polarity
-    bool mPhase;                ///< Clock phase
-    bool mIoSwap;               ///< True if IO lines should be swapped
-    uint32_t mFreq;             ///< Clock frequency
-    uint8_t mWordSize;          ///< Data word size in bits
-    uint8_t mMidi;              ///< Master inter-data idleness. Only valid for HW spi bus
-};
-
-
-
-///
 /// Base class for SPI buses.
 /// @todo CRC?
 ///
-class SpiBusBase{
+class SpiBusBase : ISpiBus{
 
 public:
 
@@ -54,23 +41,10 @@ public:
 
     SpiBusConfig getConfiguration();
 
-    ///
-    /// Prepare for a transaction.
-    /// @param txBuff Pointer to transmission bufffer.
-    /// @param rxBuff Pointer to reception buffer.
-    /// @param buffLen BuffLen Length of buffer in bytes.
-    /// @param cs Chip select index to assert.
-    /// @param dataSize Size of a single data packet. 1,2,4 bytes.
-    /// @note Buffers must stay valid until transaction is finished.
-    ///
+
     virtual void prepare(void* txBuff, void* rxBuff, size_t bufLen, size_t cs, size_t dataSize) = 0;
 
-    ///
-    /// Perform a transaction on the SPI bus
-    /// @note The bus must have been previously prepared using @ref prepare. This method can be called multiple times for the same transaction.
-    ///
     virtual void transact() = 0;
-
 
     ///
     /// Wait for the SPI bus to complete.
@@ -146,17 +120,17 @@ extern SpiBusBase* sInstances[NUM_SPI_CONTROLLERS]; ///< instances of the spi bu
 /// Hw controlled chip select spi bus
 /// @note Can only control 1 chip select line
 ///
-class HwSpiBus : public SpiBusBase{
+class HwCsSpiBus : public SpiBusBase{
 
 public:
     ///
     /// Constructor.
     /// @param instance_num SPI bus number.
     ///
-    HwSpiBus(size_t instance_num):
+    HwCsSpiBus(size_t instance_num):
         SpiBusBase(instance_num)
     {
-        HwSpiInit();
+        HwCsSpiBusInit();
     }
 
     ///
@@ -180,9 +154,19 @@ protected:
 
 private:
 
-    void HwSpiInit();
+    void HwCsSpiBusInit();
 
 };
+
+///
+/// Sw controlled chip select spi bus
+/// @todo fill this in.
+///
+class SwCsSpiBus : SpiBusBase{
+
+};
+
+
 
 } // namespace spi
 
