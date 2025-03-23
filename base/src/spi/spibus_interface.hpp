@@ -33,4 +33,4 @@ protected:
 
 }
 
-#endif //SPIBUSINTERFACE_HPP
+#endif // SPIBUSINTERFACE_HPP

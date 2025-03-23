@@ -104,9 +104,6 @@ SpiBusBase::SpiBusBase(size_t instance_num):
 
     mTxDma->setTransferType(dma::MEM2PER, true);
     mRxDma->setTransferType(dma::PER2MEM, true);
-
-    mTxDma->setDest((void*)&mSpiHw->TXDR, sizeof(uint32_t), 0);
-    mRxDma->setSource((void*)&mSpiHw->RXDR, sizeof(uint32_t), 0);
 }
 
 
@@ -147,7 +144,7 @@ void SpiBusBase::configure(SpiBusConfig conf){
     if(conf.mIoSwap){
         mSpiHw->CFG2 |= (SPI_CFG2_IOSWP);
     }
-    else {
+    else{
         mSpiHw->CFG2 &= ~(SPI_CFG2_IOSWP);
     }
 
@@ -164,7 +161,7 @@ void SpiBusBase::configure(SpiBusConfig conf){
 
 ///
 /// Get the current bus configuration.
-/// @return The current bus configuration. 
+/// @return The current bus configuration.
 ///
 SpiBusConfig SpiBusBase::getConfiguration(){
     SpiBusConfig ret;

@@ -49,18 +49,27 @@ void test_spi_hw_transaction(){
     conf.mPolarity = 1;
     conf.mWordSize = 8;
     conf.mIoSwap = true;
+    conf.mMidi = 0;
 
     // Setup tx buffer to read device ID from DAC
     txBuff[0] = 0x81;
     txBuff[1] = 0x00;
-    txBuff[2] = 0x81;
+    txBuff[2] = 0x00;
 
     spiBus.configure(conf);
 
-    spiBus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0);
+    SpiBusConfig gotConf = spiBus.getConfiguration();
+
+    assert(gotConf.mFreq <= conf.mFreq);
+    assert(gotConf.mPhase == conf.mPhase);
+    assert(gotConf.mPolarity == conf.mPolarity);
+    assert(gotConf.mWordSize == conf.mWordSize);
+    assert(gotConf.mIoSwap == conf.mIoSwap);
+    assert(gotConf.mMidi == conf.mMidi);
+
+    spiBus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0, sizeof(*txBuff));
 
     while(1){
-
         // setup rx buffer
         for(size_t i = 0; i < BUFFER_SIZE; i++){
             rxBuff[i] = 1;
@@ -72,6 +81,9 @@ void test_spi_hw_transaction(){
 
         uint16_t devId = (uint16_t)rxBuff[1] << 8 | rxBuff[2];
         print_buffer(&uart1, (void*)&devId, sizeof(devId), 1);
+
+
+        for(int i = 0; i < 0x1FFFFF; i++); //delay...s
 
     }
 
