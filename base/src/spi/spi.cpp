@@ -162,6 +162,24 @@ void SpiBusBase::configure(SpiBusConfig conf){
 
 }
 
+///
+/// Get the current bus configuration.
+/// @return The current bus configuration. 
+///
+SpiBusConfig SpiBusBase::getConfiguration(){
+    SpiBusConfig ret;
+
+    uint32_t div = mSpiHw->CFG1 & (SPI_CFG1_MBR_Msk) >> SPI_CFG1_MBR_Pos;
+    ret.mFreq = mKerClkFreq/(1<<(div+1));
+    ret.mPhase = !!(mSpiHw->CFG2 & (SPI_CFG2_CPHA));
+    ret.mPolarity = !!(mSpiHw->CFG2 & (SPI_CFG2_CPOL));
+    ret.mIoSwap = !!(mSpiHw->CFG2 & (SPI_CFG2_IOSWP));
+    ret.mWordSize = 1 + (mSpiHw->CFG1 & SPI_CFG1_DSIZE_Msk) >> SPI_CFG1_DSIZE_Pos;
+    ret.mMidi = (mSpiHw->CFG2 & SPI_CFG2_MIDI_Msk) >> SPI_CFG2_MIDI_Pos;
+
+    return ret;
+}
+
 
 ///
 /// Initialize HW control of the CS pin.

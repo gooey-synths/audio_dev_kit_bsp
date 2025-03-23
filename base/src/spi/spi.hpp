@@ -50,11 +50,9 @@ public:
         sInstances[mSpiNum] = NULL;
     }
 
-    ///
-    /// Configure the bus
-    /// @param conf SPI bus configuration to set.
-    ///
     void configure(SpiBusConfig conf);
+
+    SpiBusConfig getConfiguration();
 
     ///
     /// Prepare for a transaction.
