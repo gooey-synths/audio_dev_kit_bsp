@@ -34,6 +34,7 @@
 #define __CORE_CM7_H_GENERIC
 
 #include <stdint.h>
+#include "stm32h750xx.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -42,8 +43,6 @@
 #define __NOP() __asm volatile ("nop")
 #define __ISB() __asm volatile ("isb")
 #define __DSB() __asm volatile ("dsb")
-
-typedef enum IRQn_Type; // Forward reference.
 
 /**
   \page CMSIS_MISRA_Exceptions  MISRA-C:2004 Compliance Exceptions
