@@ -10,14 +10,14 @@ extern int main(); // defined in main.c
 #define ISR_NOT_IMPL ((uint32_t*) halt)
 
  /* These are defined in the linker script */
-extern const uint32_t _stext;  //< Start of text section
-extern const uint32_t _etext;  //< End of text section
-extern const uint32_t _sbss;   //< Start of BSS section
-extern const uint32_t _ebss;   //< End of BSS section
-extern const uint32_t _sdata;  //< Start of data section
-extern const uint32_t _edata;  //< End of data section
-extern const uint32_t _sstack; //< Start of stack section
-extern const uint32_t _estack; //< End of stack section
+extern uint32_t _stext;  //< Start of text section
+extern uint32_t _etext;  //< End of text section
+extern uint32_t _sbss;   //< Start of BSS section
+extern uint32_t _ebss;   //< End of BSS section
+extern uint32_t _sdata;  //< Start of data section
+extern uint32_t _edata;  //< End of data section
+extern uint32_t _sstack; //< Start of stack section
+extern uint32_t _estack; //< End of stack section
 
 #define STACK_START_ADDR   0x20020000
 
@@ -414,7 +414,7 @@ __attribute__ ((noreturn)) void reset_handler(){
     }
 
     // Remap vector table to RAM location
-    SCB->VTOR = (uint32_t)vector_table_ram;
+    SCB->VTOR = (uint32_t)vector_table_ram; //NOLINT
 
     enable_fpu();
 

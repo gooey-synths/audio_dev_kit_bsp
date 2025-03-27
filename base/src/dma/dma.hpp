@@ -6,11 +6,7 @@
 
 namespace dma{
 
-#define DMA1_NUM_CHANNELS 8
-
-#if 0
-#define DMA1_CLEAR_INT_FLAG(channel, int_type) DMA1->IFCR |= 1 << ((channel-1)*4+(int_type+1))
-#endif
+constexpr size_t DMA1_NUM_CHANNELS = 8; ///< Number of channels that each DMA controller has.
 
 constexpr uint8_t SPI1_TX_REQ = 38; // Request number for SPI TX DMA requests.
 constexpr uint8_t SPI1_RX_REQ = 37; // Request number for SPI RX DMA requests.
@@ -93,17 +89,16 @@ public:
 			return mStreamHw->NDTR;
 		}
 
-	protected:
+	private:
+		friend class DmaController;
+		void claim();
+		void release();
+
 		uint8_t mChannelNum; ///< Channel number, 1 indexed to align with reference manual
 		uint8_t mChannelClaimed; ///< 1 if channel is claimed, 0 otherwise
 		uint8_t mChannelPriority; ///< Priority of channel
 		DmaController* mChannelController; ///< Pointer to controller for this channel
 		DMA_Stream_TypeDef* mStreamHw; ///< pointer to either DMA1 or DMA2 strean
-		void claim();
-		void release();
-
-	private:
-		friend class DmaController;
 		eDmaTransferType mTransferType; ///< Transfer type that the channel is configured for
 	};
 	

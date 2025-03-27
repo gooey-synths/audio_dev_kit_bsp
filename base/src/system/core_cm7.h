@@ -43,6 +43,8 @@
 #define __ISB() __asm volatile ("isb")
 #define __DSB() __asm volatile ("dsb")
 
+typedef enum IRQn_Type; // Forward reference.
+
 /**
   \page CMSIS_MISRA_Exceptions  MISRA-C:2004 Compliance Exceptions
   CMSIS violates the following MISRA-C:2004 rules:
