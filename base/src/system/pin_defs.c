@@ -72,12 +72,12 @@ const GPIOConf adc1_16_conf = {
     .pull = NO_PULL
 };
 
-const GPIOPin adc1_7_pin = {
+const GPIOPin adc1_3_pin = {
     .port = 0,
     .pin = 6
 };
 
-const GPIOConf adc1_7_conf = {
+const GPIOConf adc1_3_conf = {
     .type = PUSH_PULL_TYPE,
     .mode = ANALOG_MODE,
     .speed = VERY_HIGH_SPEED,

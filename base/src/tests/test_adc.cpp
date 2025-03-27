@@ -9,7 +9,7 @@
 using namespace adc;
 
 // See schematic for organization of ADC channels
-uint8_t seq[] = {10,11,16,14,15,7,8,9}; // Define conversion sequence here, remember to initialize the ADC pins
+uint8_t seq[] = {10,11,16,14,15,3,8,9}; // Define conversion sequence here, remember to initialize the ADC pins
 
 ///
 /// Setup UART and ADC pins
@@ -20,7 +20,7 @@ static void setup_pins(){
     gpioController->setConfig(&uart_1_tx_pin, &uart_1_tx_conf);
     gpioController->setConfig(&uart_1_rx_pin, &uart_1_rx_conf);
 
-    gpioController->setConfig(&adc1_7_pin, &adc1_7_conf);
+    gpioController->setConfig(&adc1_3_pin, &adc1_3_conf);
     gpioController->setConfig(&adc1_8_pin, &adc1_8_conf);
     gpioController->setConfig(&adc1_9_pin, &adc1_9_conf);
     gpioController->setConfig(&adc1_10_pin, &adc1_10_conf);
@@ -47,7 +47,7 @@ void test_adc_single_conversion(){
     for(;;){
         myADC.beginSingleConversion();
 
-        for(int i = 0; i < 0x4FFFFF; i++); // wait fo transfer to happen
+        for(int i = 0; i < 0x4FFFFF; i++); // wait for transfer to happen
 
         uart1.write("============\r\n", sizeof("============\r\n"));
 
@@ -82,7 +82,7 @@ void test_adc_continuous_conversion(){
     for(;;){
         //myADC.beginSingleConversion();
 
-        for(int i = 0; i < 0x1FFFFF; i++); // wait fo transfer to happen
+        for(int i = 0; i < 0x1FFFFF; i++); // wait for transfer to happen
 
         uart1.write("============\r\n", sizeof("============\r\n"));
 
@@ -91,10 +91,8 @@ void test_adc_continuous_conversion(){
             uart1.write("ch ", sizeof("ch "));
             num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
             uart1.write(char_buff, num_chars);
-            memset(char_buff, 0, sizeof char_buff);
             num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv)>>2);
             uart1.write(char_buff, num_chars);
-            memset(char_buff, 0, sizeof char_buff);
 
         }
 

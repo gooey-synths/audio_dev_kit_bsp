@@ -29,8 +29,8 @@ extern GPIOConf uart_1_rx_conf;
 extern GPIOPin  adc1_16_pin;
 extern GPIOConf adc1_16_conf;
 
-extern GPIOPin  adc1_7_pin;
-extern GPIOConf adc1_7_conf;
+extern GPIOPin  adc1_3_pin;
+extern GPIOConf adc1_3_conf;
 
 extern GPIOPin  adc1_8_pin;
 extern GPIOConf adc1_8_conf;
