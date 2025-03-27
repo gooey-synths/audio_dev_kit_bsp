@@ -12,6 +12,7 @@
 #define APB2_TARGET (AHB_AXI_TARGET/4)   //< Target Hz for APB2 peripherals
 #define APB4_TARGET (AHB_AXI_TARGET/4)   //< Target Hz for APB4 peripherals
 /* PLL targets */
+#define PLL1_DIVP_TARGET (D1_TARGET)     //< Frequency of PLL1 div P
 #define PLL1_DIVQ_TARGET (XTAL_FREQ*10)  //< Frequency of PLL1 div Q
 
 /* Pin definitions found in pin_defs.c */

@@ -318,8 +318,9 @@ void start_clocks(){
     RCC->PLLCKSELR =
         2 << 0 |  // HSE as PLL clock
         1 << 4;   // Prescale PLL1 by 1
-    uint8_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ;
-    uint8_t pll1_divq = (uint32_t)PLL1_DIVQ_TARGET/XTAL_FREQ;
+    uint16_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ; // This sets our VCO frequency.
+    uint8_t  pll1_divp = (uint32_t)D1_TARGET/PLL1_DIVP_TARGET; // We will be using DIVP as our D1 target.
+    uint8_t  pll1_divq = (uint32_t)D1_TARGET/PLL1_DIVQ_TARGET;
 
     RCC->PLLCFGR = 
         //1 << 18 | // ENABLE pll1 divr
@@ -329,9 +330,10 @@ void start_clocks(){
         0 << 1  | // Wide VCO range 192 to 836 MHz
         0 << 0;  // No fractional divider.
 
-    RCC->PLL1DIVR = 
-        pll1_divn -1 << 0; // Set PLL1 divN divider
-        pll1_divq -1 << 16; // Set PLL1 divN divider
+    RCC->PLL1DIVR =
+        ((pll1_divn - 1) & 0x1FF) << 0 | // Set PLL1 divN divider
+        ((pll1_divp - 1) & 0x7F)  << 9 | // Set PLL1 divP divider
+        ((pll1_divq - 1) & 0x7F) << 16;  // Set PLL1 divQ divider
 
     RCC->CR |= 1 << 24; // Enable PLL1
 
