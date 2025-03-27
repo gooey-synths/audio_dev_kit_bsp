@@ -1,6 +1,6 @@
 #include "adc.hpp"
 
-namespace adc{
+namespace adc {
 
 bool OnChipADC::sAdc12Reset = false;
 
@@ -11,58 +11,55 @@ bool OnChipADC::sAdc12Reset = false;
 /// together so they will be reset together.
 /// @todo probably clean this into an ADC12 or 3 controller, subclasses?
 ///
-OnChipADC::OnChipADC(uint8_t adcNum):
-    mAdcNum(adcNum),
-    mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel())
-{
+OnChipADC::OnChipADC(uint8_t adcNum)
+    : mAdcNum(adcNum), mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
     assert(adcNum > 0 && adcNum < 4);
     assert(mDmaChannel);
 
-    RCC->D3CCIPR |=
-        RCC_D3CCIPR_ADCSEL_1; // Select per_ck as kernel peripheral clock.
+    RCC->D3CCIPR |= RCC_D3CCIPR_ADCSEL_1; // Select per_ck as kernel peripheral clock.
 
     uint8_t dmaReq = 0;
 
     switch (adcNum) {
-        case 1:
-            mControllerHw = ADC1;
-            if (!sAdc12Reset) {
-                RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
-                RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
-                RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
-                ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-                // TODO: make this more dynamic.
-                ADC12_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
-                sAdc12Reset = true;
-            }
-            dmaReq = 9;
-            break;
-
-        case 2:
-            mControllerHw = ADC2;
-            if (!sAdc12Reset) {
-                RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
-                RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
-                RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
-                ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-                // TODO: make this more dynamic.
-                ADC12_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
-                sAdc12Reset = true;
-            }
-            dmaReq = 10;
-            break;
-
-        case 3:
-            mControllerHw = ADC3;
-            RCC->AHB1ENR |= RCC_AHB4ENR_ADC3EN;    // enable ADC 3
-            RCC->AHB1RSTR |= RCC_AHB4RSTR_ADC3RST; // reset ADC 3
-            RCC->AHB1RSTR &= ~(RCC_AHB4RSTR_ADC3RST);
-            ADC3_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
+    case 1:
+        mControllerHw = ADC1;
+        if (!sAdc12Reset) {
+            RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
+            RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
+            RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
+            ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
             // TODO: make this more dynamic.
-            ADC3_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
+            ADC12_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
             sAdc12Reset = true;
-            dmaReq = 115;
-            break;
+        }
+        dmaReq = 9;
+        break;
+
+    case 2:
+        mControllerHw = ADC2;
+        if (!sAdc12Reset) {
+            RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
+            RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
+            RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
+            ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
+            // TODO: make this more dynamic.
+            ADC12_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
+            sAdc12Reset = true;
+        }
+        dmaReq = 10;
+        break;
+
+    case 3:
+        mControllerHw = ADC3;
+        RCC->AHB1ENR |= RCC_AHB4ENR_ADC3EN;    // enable ADC 3
+        RCC->AHB1RSTR |= RCC_AHB4RSTR_ADC3RST; // reset ADC 3
+        RCC->AHB1RSTR &= ~(RCC_AHB4RSTR_ADC3RST);
+        ADC3_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
+        // TODO: make this more dynamic.
+        ADC3_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
+        sAdc12Reset = true;
+        dmaReq = 115;
+        break;
     }
 
     disable();
@@ -85,12 +82,12 @@ OnChipADC::OnChipADC(uint8_t adcNum):
 /// @param len Length of the sequence, max 16
 ///
 void OnChipADC::setSequence(uint8_t *sequence, uint8_t len) {
-    if(len > 16){
+    if (len > 16) {
         return;
     }
 
-    mControllerHw->SQR1 &= ~(ADC_SQR1_L_Msk); // clear sequence length bits
-    mControllerHw->SQR1 |= (len -1) << ADC_SQR1_L_Pos; // set sequence length bits
+    mControllerHw->SQR1 &= ~(ADC_SQR1_L_Msk);           // clear sequence length bits
+    mControllerHw->SQR1 |= (len - 1) << ADC_SQR1_L_Pos; // set sequence length bits
 
     const uint8_t offsetDelta = (ADC_SQR1_SQ2_Pos - ADC_SQR1_SQ1_Pos);
     uint8_t offsetCounter = ADC_SQR1_SQ1_Pos;
@@ -113,9 +110,8 @@ void OnChipADC::setSequence(uint8_t *sequence, uint8_t len) {
             break;
         }
 
-        *reg &= ~(0x1F << offsetCounter); // clear channel bits
-        *reg |= (sequence[iChannel] & 0x1F)
-                << offsetCounter; // set channel bits
+        *reg &= ~(0x1F << offsetCounter);                     // clear channel bits
+        *reg |= (sequence[iChannel] & 0x1F) << offsetCounter; // set channel bits
         mControllerHw->PCSEL |= 1 << (sequence[iChannel] & 0x1F);
         offsetCounter += offsetDelta;
 
@@ -139,7 +135,7 @@ void OnChipADC::beginSingleConversion() {
     mControllerHw->CFGR &= ~(ADC_CFGR_CONT);         // Clear continous bit
 
     mControllerHw->CFGR &= ~(ADC_CFGR_DMNGT_Msk); // clear DMNGT bits
-    mControllerHw->CFGR |= ADC_CFGR_DMNGT_0; // set DMNGT bits for one shot mode
+    mControllerHw->CFGR |= ADC_CFGR_DMNGT_0;      // set DMNGT bits for one shot mode
 
     mControllerHw->CFGR |= ADC_CFGR_AUTDLY; // enable AUTODLY
 
@@ -157,7 +153,7 @@ void OnChipADC::beginSingleConversion() {
 ///
 /// Begin continuously converting a sequence
 ///
-void OnChipADC::beginContinuousConversion(){
+void OnChipADC::beginContinuousConversion() {
     disable();
 
     mControllerHw->ISR = 0x3FF << ADC_ISR_ADRDY_Pos; // Clear interrupts
@@ -177,13 +173,12 @@ void OnChipADC::beginContinuousConversion(){
     mControllerHw->CR |= ADC_CR_ADSTART; // set start adc bit
 }
 
-
 ///
 /// Calibrate the ADC pg. 925 RM0433
 /// @todo Save calibration factors and load that instead of calibrating each
 /// time.
 ///
-void OnChipADC::calibrate(){
+void OnChipADC::calibrate() {
     disable();
 
     static bool linearityCal = false; // linearity calibration must be done only once
@@ -195,24 +190,24 @@ void OnChipADC::calibrate(){
         ; // Wait for the LDO to be enabled
     }
 
-    for (int i = 0; i < 0x1FFFFF; i++){
+    for (int i = 0; i < 0x1FFFFF; i++) {
         ; // Wait for transfer to happen, not sure if this is needed.
     }
-    
-    mControllerHw->CR &= ~(1 << ADC_CR_ADCALDIF_Pos); // Clear differential calibration bit for single ended calibration.
+
+    mControllerHw->CR &=
+        ~(1 << ADC_CR_ADCALDIF_Pos); // Clear differential calibration bit for single ended calibration.
     if (!linearityCal) {
         mControllerHw->CR |= ADC_CR_ADCALLIN; // Enable linearity calibration
     }
 
     mControllerHw->CR |= ADC_CR_ADCAL; // set ADC calibration bit
 
-    while ((mControllerHw->CR & ADC_CR_ADCAL)){
+    while ((mControllerHw->CR & ADC_CR_ADCAL)) {
         ; // Wait for the calibration to complete
     }
     if (!linearityCal) {
         linearityCal = true; // Linearity calibration must be done only once
     }
 }
-
 
 } // namespace adc

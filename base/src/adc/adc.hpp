@@ -16,7 +16,7 @@ enum eDivider {
 ///
 class OnChipADC {
 
-    static const uint8_t NUM_CONVERSIONS = 16; ///< Maximum number of conversion that can be done on the 
+    static const uint8_t NUM_CONVERSIONS = 16; ///< Maximum number of conversion that can be done on the
 
   public:
     OnChipADC(uint8_t adcNum);
@@ -28,7 +28,7 @@ class OnChipADC {
         mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
         while (mControllerHw->CR & ADC_CR_ADSTP) {
             mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
-            ; // wait for ADC to stop
+            ;                                    // wait for ADC to stop
         }
     }
 
@@ -58,7 +58,7 @@ class OnChipADC {
     ///
     /// Disable the ADC.
     ///
-    void disable(){
+    void disable() {
         stop();
         mControllerHw->CR |= (ADC_CR_ADDIS); // Disable the ADC
         while (mControllerHw->CR & ADC_CR_ADDIS) {
@@ -69,9 +69,9 @@ class OnChipADC {
     ///
     /// Enable the ADC.
     ///
-    void enable(){
+    void enable() {
         mControllerHw->ISR |= ADC_ISR_ADRDY; // clear the ADC ready flag by writing a 1
-        mControllerHw->CR |= ADC_CR_ADEN; // enable the ADC
+        mControllerHw->CR |= ADC_CR_ADEN;    // enable the ADC
         while (!(mControllerHw->ISR & ADC_ISR_ADRDY)) {
             ; // wait for ADC to enable
         }
