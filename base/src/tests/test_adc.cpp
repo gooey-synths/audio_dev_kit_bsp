@@ -9,7 +9,7 @@
 using namespace adc;
 
 // See schematic for organization of ADC channels
-uint8_t seq[] = {10,11,14,15,7,8,9,16}; // Define conversion sequence here, remember to initialize the ADC pins
+uint8_t seq[] = {10,11,16,14,15,7,8,9}; // Define conversion sequence here, remember to initialize the ADC pins
 
 ///
 /// Setup UART and ADC pins
@@ -91,8 +91,10 @@ void test_adc_continuous_conversion(){
             uart1.write("ch ", sizeof("ch "));
             num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
             uart1.write(char_buff, num_chars);
+            memset(char_buff, 0, sizeof char_buff);
             num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv)>>2);
             uart1.write(char_buff, num_chars);
+            memset(char_buff, 0, sizeof char_buff);
 
         }
 

@@ -41,62 +41,60 @@ class OnChipADC {
         uint8_t dmaReq = 0;
 
         switch (adcNum) {
-        case 1:
-            mControllerHw = ADC1;
-            if (!sAdc12Reset) {
-                RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
-                RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
-                RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
-                ADC12_COMMON->CCR &=
-                    ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-                // TODO: make this more dynamic.
-                ADC12_COMMON->CCR |= 0x0B
-                                     << ADC_CCR_PRESC_Pos; // set 256 prescaler
-                sAdc12Reset = true;
-            }
-            dmaReq = 9;
-            break;
+            case 1:
+                mControllerHw = ADC1;
+                if (!sAdc12Reset) {
+                    RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
+                    RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
+                    RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
+                    ADC12_COMMON->CCR &=
+                        ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
+                    // TODO: make this more dynamic.
+                    ADC12_COMMON->CCR |= 0x0B
+                                        << ADC_CCR_PRESC_Pos; // set 256 prescaler
+                    sAdc12Reset = true;
+                }
+                dmaReq = 9;
+                break;
 
-        case 2:
-            mControllerHw = ADC2;
-            if (!sAdc12Reset) {
-                RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
-                RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
-                RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
-                ADC12_COMMON->CCR &=
-                    ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-                // TODO: make this more dynamic.
-                ADC12_COMMON->CCR |= 0x0B
-                                     << ADC_CCR_PRESC_Pos; // set 256 prescaler
-                sAdc12Reset = true;
-            }
-            dmaReq = 10;
-            break;
+            case 2:
+                mControllerHw = ADC2;
+                if (!sAdc12Reset) {
+                    RCC->AHB1ENR |= RCC_AHB1ENR_ADC12EN;    // enable ADC 1 and 2
+                    RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
+                    RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
+                    ADC12_COMMON->CCR &=
+                        ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
+                    // TODO: make this more dynamic.
+                    ADC12_COMMON->CCR |= 0x0B
+                                        << ADC_CCR_PRESC_Pos; // set 256 prescaler
+                    sAdc12Reset = true;
+                }
+                dmaReq = 10;
+                break;
 
-        case 3:
-            mControllerHw = ADC3;
-            RCC->AHB1ENR |= RCC_AHB4ENR_ADC3EN;    // enable ADC 3
-            RCC->AHB1RSTR |= RCC_AHB4RSTR_ADC3RST; // reset ADC 3
-            RCC->AHB1RSTR &= ~(RCC_AHB4RSTR_ADC3RST);
-            ADC3_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-            // TODO: make this more dynamic.
-            ADC3_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
-            sAdc12Reset = true;
-            dmaReq = 115;
-            break;
+            case 3:
+                mControllerHw = ADC3;
+                RCC->AHB1ENR |= RCC_AHB4ENR_ADC3EN;    // enable ADC 3
+                RCC->AHB1RSTR |= RCC_AHB4RSTR_ADC3RST; // reset ADC 3
+                RCC->AHB1RSTR &= ~(RCC_AHB4RSTR_ADC3RST);
+                ADC3_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
+                // TODO: make this more dynamic.
+                ADC3_COMMON->CCR |= 0x0B << ADC_CCR_PRESC_Pos; // set 256 prescaler
+                sAdc12Reset = true;
+                dmaReq = 115;
+                break;
         }
 
         disable();
         calibrate();
 
-        for (uint8_t iConversion = 0;
-             iConversion < sizeof(mConversions) / sizeof(*mConversions);
-             iConversion++) {
+        for (uint8_t iConversion = 0; iConversion < sizeof(mConversions) / sizeof(*mConversions); iConversion++) {
             mConversions[iConversion] = 0;
         }
 
         // Configure dma channel
-        mDmaChannel->setTransferType(dma::PER2MEM, false);
+        mDmaChannel->setTransferType(dma::PER2MEM, true);
         mDmaChannel->setDest((void *)mConversions, sizeof(*mConversions), true);
         mDmaChannel->setSource((void *)&mControllerHw->DR, sizeof(uint16_t), 0);
         mDmaChannel->setRequest(dmaReq);
@@ -222,8 +220,7 @@ class OnChipADC {
         mControllerHw->ISR = 0x3FF << ADC_ISR_ADRDY_Pos; // Clear interrupts
         mControllerHw->CFGR |= ADC_CFGR_CONT;            // Set continous bit
 
-        mControllerHw->CFGR |=
-            0x03 << ADC_CFGR_DMNGT_Pos; // Set DMNGT bits DMA circulare mode.
+        mControllerHw->CFGR |= 0x03 << ADC_CFGR_DMNGT_Pos; // Set DMNGT bits DMA circulare mode.
 
         mControllerHw->CFGR |= ADC_CFGR_AUTDLY; // enable AUTODLY
 
