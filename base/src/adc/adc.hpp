@@ -22,8 +22,7 @@ class OnChipADC : IOnChipADC {
     /// Stop any ongoing conversions.
     ///
     void stop() {
-        mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
-        while (mControllerHw->CR & ADC_CR_ADSTP) {
+        while (!mControllerHw->CR & ADC_CR_ADSTP) {
             mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
         }
     }
@@ -56,6 +55,7 @@ class OnChipADC : IOnChipADC {
         stop();
         mControllerHw->CR |= (ADC_CR_ADDIS); // Disable the ADC
         while (mControllerHw->CR & ADC_CR_ADDIS) {
+            mControllerHw->CR |= (ADC_CR_ADDIS); // Disable the ADC
             ; // wait for ADC to disable
         }
     }

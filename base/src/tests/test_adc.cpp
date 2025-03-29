@@ -32,20 +32,31 @@ static void setup_pins(){
     gpioController->setConfig(&adc1_19_pin, &adc1_19_conf);
 }
 
-void test_adc_single_conversion(){
+///
+/// ADC test. See output on UART 1 for ADC conversions.
+/// @param continuous True if ADC should be tested in continuous mode
+///
+static void adc_test(bool continuous) {
+
+    setup_pins();
 
     OnChipADC myADC(1);
+    uint8_t seq_size = sizeof(seq)/sizeof(*seq);
+    myADC.setSequence(seq, seq_size);
 
     char char_buff[12];
     int num_chars = 0;
     uart::UartController uart1(1);
-    uint8_t seq_size = sizeof(seq)/sizeof(*seq);
-    myADC.setSequence(seq, seq_size);
 
-    setup_pins();
+    if(continuous) {
+        myADC.beginConversion(true);
+    }
 
     for(;;){
-        myADC.beginConversion(false);
+        
+        if(!continuous) {
+            myADC.beginConversion(false);
+        }
 
         for(int i = 0; i < 0x4FFFFF; i++); // wait for transfer to happen
 
@@ -56,46 +67,70 @@ void test_adc_single_conversion(){
             uart1.write("ch ", sizeof("ch "));
             num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
             uart1.write(char_buff, num_chars);
-            num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv)>>2);
+            num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv)>>4);
             uart1.write(char_buff, num_chars);
 
         }
 
     }
+}
+
+///
+/// Test that adc single conversion is always producing new samples.
+///
+void test_adc_single_conversion() {
+
+    adc_test(false);
 
 }
 
-void test_adc_continuous_conversion(){
-   
+///
+/// Test that adc continous conversion is always producing new samples.
+///
+void test_adc_continuous_conversion() {
+
+    adc_test(true);
+
+}
+
+
+///
+/// Test that calling adc stop actually stops converting and can be restarted.
+///
+void test_adc_stop() {
+
+    setup_pins();
+
     OnChipADC myADC(1);
+    uint8_t seq_size = sizeof(seq)/sizeof(*seq);
+    myADC.setSequence(seq, seq_size);
 
     char char_buff[12];
     int num_chars = 0;
     uart::UartController uart1(1);
-    uint8_t seq_size = sizeof(seq)/sizeof(*seq);
-    myADC.setSequence(seq, seq_size);
 
-    setup_pins();
+    for(;;) {
+        myADC.beginConversion(true);
+        for(int i = 0; i < 0x4FFFFF; i++); // wait for transfer to happen
 
-    myADC.beginConversion(true);
-
-    for(;;){
-        //myADC.beginSingleConversion();
-
-        for(int i = 0; i < 0x1FFFFF; i++); // wait for transfer to happen
+        //myADC.stop();
 
         uart1.write("============\r\n", sizeof("============\r\n"));
-
-        // print out conversions
+        
         for(uint8_t iConv = 0; iConv < seq_size; iConv++){
-            uart1.write("ch ", sizeof("ch "));
+
+            uint16_t prevConversion = myADC.getConversion(iConv)>>4;
+            for(int i = 0; i < 0xFFFFF; i++); // Wait for a bit
+            uint16_t newConversion = myADC.getConversion(iConv)>>4;
+
             num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
             uart1.write(char_buff, num_chars);
-            num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv)>>2);
+            num_chars = sprintf(char_buff, "%d ->", prevConversion);
+            uart1.write(char_buff, num_chars);
+            num_chars = sprintf(char_buff, "%d\r\n", newConversion);
             uart1.write(char_buff, num_chars);
 
         }
-
+        
     }
-
 }
