@@ -5,7 +5,7 @@
 // prototypes
 void reset_handler();
 void halt();
-extern int main(void); // defined in main.c
+extern int main(); // defined in main.c
 
 #define ISR_NOT_IMPL ((uint32_t*) halt)
 
@@ -191,6 +191,8 @@ uint32_t* vector_table[] = {
     ISR_NOT_IMPL  /* Interrupt for all 6 wake-up pins */
 };
 
+uint32_t* vector_table_ram[166]__attribute__((aligned (512))); // Remapped vector table must be aligned to rounded up power of 2
+
 ///
 /// Enable the FPU coprocessor
 ///
@@ -316,18 +318,22 @@ void start_clocks(){
     RCC->PLLCKSELR =
         2 << 0 |  // HSE as PLL clock
         1 << 4;   // Prescale PLL1 by 1
-    uint8_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ;
+    uint16_t pll1_divn = (uint32_t)D1_TARGET/XTAL_FREQ; // This sets our VCO frequency.
+    uint8_t  pll1_divp = (uint32_t)D1_TARGET/PLL1_DIVP_TARGET; // We will be using DIVP as our D1 target.
+    uint8_t  pll1_divq = (uint32_t)D1_TARGET/PLL1_DIVQ_TARGET;
 
     RCC->PLLCFGR = 
-        //1 << 18 | // Enable pll1 divr
-        //1 << 17 | // Enable pll1 divq
-        1 << 16 | // Enable pll1 divp
+        //1 << 18 | // ENABLE pll1 divr
+        1 << 17 | // ENABLE pll1 divq
+        1 << 16 | // ENABLE pll1 divp
         3 << 2  | // clock rate frequency is between 8 an 16MHz TODO: calculate clock range beforehand
         0 << 1  | // Wide VCO range 192 to 836 MHz
         0 << 0;  // No fractional divider.
 
-    RCC->PLL1DIVR = 
-        pll1_divn -1 << 0; // Set PLL1 divN divider
+    RCC->PLL1DIVR =
+        ((pll1_divn - 1) & 0x1FF) << 0 | // Set PLL1 divN divider
+        ((pll1_divp - 1) & 0x7F)  << 9 | // Set PLL1 divP divider
+        ((pll1_divq - 1) & 0x7F) << 16;  // Set PLL1 divQ divider
 
     RCC->CR |= 1 << 24; // Enable PLL1
 
@@ -403,6 +409,14 @@ __attribute__ ((noreturn)) void reset_handler(){
     for (uint32_t *bss_ptr = &_sbss; bss_ptr < &_ebss;) {
         *bss_ptr++ = 0;
     }
+
+    // Copy vector table to RAM location
+    for(unsigned int i = 0; i < sizeof(vector_table)/sizeof(*vector_table); i++){
+        vector_table_ram[i] = vector_table[i];
+    }
+
+    // Remap vector table to RAM location
+    SCB->VTOR = (uint32_t)vector_table_ram; //NOLINT
 
     enable_fpu();
 
