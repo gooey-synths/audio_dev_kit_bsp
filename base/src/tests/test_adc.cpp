@@ -45,7 +45,7 @@ void test_adc_single_conversion(){
     setup_pins();
 
     for(;;){
-        myADC.beginSingleConversion();
+        myADC.beginConversion(false);
 
         for(int i = 0; i < 0x4FFFFF; i++); // wait for transfer to happen
 
@@ -77,7 +77,7 @@ void test_adc_continuous_conversion(){
 
     setup_pins();
 
-    myADC.beginContinuousConversion();
+    myADC.beginConversion(true);
 
     for(;;){
         //myADC.beginSingleConversion();

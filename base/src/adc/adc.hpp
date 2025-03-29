@@ -1,22 +1,19 @@
 #ifndef ADC_HPP
 #define ADC_HPP
 
+#include "adc_interface.hpp"
 #include "../dma/dma.hpp"
 #include "../system/stm32h750xx.h"
 #include <cassert>
 
 namespace adc {
 
-enum eDivider {
-
-};
-
 ///
 /// Class for controlling the ADC on the STM32H750.
 ///
-class OnChipADC {
+class OnChipADC : IOnChipADC {
 
-    static const uint8_t NUM_CONVERSIONS = 16; ///< Maximum number of conversion that can be done on the
+    static const uint8_t NUM_CONVERSIONS = 16; ///< Maximum number of conversion that can be done on the ADC.
 
   public:
     OnChipADC(uint8_t adcNum);
@@ -28,15 +25,12 @@ class OnChipADC {
         mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
         while (mControllerHw->CR & ADC_CR_ADSTP) {
             mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
-            ;                                    // wait for ADC to stop
         }
     }
 
     void setSequence(uint8_t *sequence, uint8_t len);
 
-    void beginSingleConversion();
-
-    void beginContinuousConversion();
+    void beginConversion(bool continuous);
 
     ///
     /// Get a conversion result for a certain conversion number.

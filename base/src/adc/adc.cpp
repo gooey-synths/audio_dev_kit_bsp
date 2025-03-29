@@ -33,11 +33,11 @@ OnChipADC::OnChipADC(uint8_t adcNum)
             RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
             RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
             ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-            // TODO: make this more dynamic.
+            // TODO: make this more dynamic if needed.
             ADC12_COMMON->CCR |= 0x00 << ADC_CCR_PRESC_Pos; // set 1 prescaler
             sAdc12Reset = true;
         }
-        dmaReq = 9;
+        dmaReq = dma::ADC1_REQ;
         break;
 
     case 2:
@@ -47,11 +47,11 @@ OnChipADC::OnChipADC(uint8_t adcNum)
             RCC->AHB1RSTR |= RCC_AHB1RSTR_ADC12RST; // reset ADC 1 and 2
             RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
             ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-            // TODO: make this more dynamic.
+            // TODO: make this more dynamic if needed.
             ADC12_COMMON->CCR |= 0x00 << ADC_CCR_PRESC_Pos; // set 1 prescaler
             sAdc12Reset = true;
         }
-        dmaReq = 10;
+        dmaReq = dma::ADC2_REQ;
         break;
 
     case 3:
@@ -60,11 +60,13 @@ OnChipADC::OnChipADC(uint8_t adcNum)
         RCC->AHB1RSTR |= RCC_AHB4RSTR_ADC3RST; // reset ADC 3
         RCC->AHB1RSTR &= ~(RCC_AHB4RSTR_ADC3RST);
         ADC3_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-        // TODO: make this more dynamic.
+            // TODO: make this more dynamic if needed.
         ADC3_COMMON->CCR |= 0x00 << ADC_CCR_PRESC_Pos; // set 1 prescaler
         sAdc12Reset = true;
-        dmaReq = 115;
+        dmaReq = dma::ADC3_REQ;
         break;
+    default:
+        assert(false); // Todo: change to a throw if exceptions are added.
     }
 
     disable();
@@ -132,50 +134,32 @@ void OnChipADC::setSequence(uint8_t *sequence, uint8_t len) {
 }
 
 ///
-/// Begin a single sequence conversion
+/// Begin conversion of the set sequence.
+/// @param continuous True if sequence should be repeated until explicitly stopped.
 ///
-void OnChipADC::beginSingleConversion() {
+void OnChipADC::beginConversion(bool continuous) {
     disable();
 
     mControllerHw->ISR = 0x3FF << ADC_ISR_ADRDY_Pos; // Clear interrupts
-    mControllerHw->CFGR &= ~(ADC_CFGR_CONT);         // Clear continous bit
+    if(continuous) {
+        mControllerHw->CFGR |= ADC_CFGR_CONT; // Set continous bit
+    } else {
+        mControllerHw->CFGR &= ~(ADC_CFGR_CONT);  // Clear continous bit
+    }
 
     mControllerHw->CFGR &= ~(ADC_CFGR_DMNGT_Msk); // clear DMNGT bits
-    mControllerHw->CFGR |= ADC_CFGR_DMNGT_0;      // set DMNGT bits for one shot mode
+    mControllerHw->CFGR |= continuous ? 3 : 1;  // set DMNGT bits for circular or 1 shot mode respectivley.
 
     mControllerHw->CFGR |= ADC_CFGR_AUTDLY; // enable AUTODLY
 
     mDmaChannel->disable();
 
-    mDmaChannel->setNumTransfers(mSeqLen, false);
+    mDmaChannel->setNumTransfers(mSeqLen, continuous);
 
     mDmaChannel->begin();
 
     enable();
 
-    mControllerHw->CR |= ADC_CR_ADSTART; // set start adc bit
-}
-
-///
-/// Begin continuously converting a sequence
-///
-void OnChipADC::beginContinuousConversion() {
-    disable();
-
-    mControllerHw->ISR = 0x3FF << ADC_ISR_ADRDY_Pos; // Clear interrupts
-    mControllerHw->CFGR |= ADC_CFGR_CONT;            // Set continous bit
-
-    mControllerHw->CFGR |= 0x03 << ADC_CFGR_DMNGT_Pos; // Set DMNGT bits DMA circulare mode.
-
-    mControllerHw->CFGR |= ADC_CFGR_AUTDLY; // enable AUTODLY
-
-    mDmaChannel->disable();
-
-    mDmaChannel->setNumTransfers(mSeqLen, true);
-
-    mDmaChannel->begin();
-
-    enable();
     mControllerHw->CR |= ADC_CR_ADSTART; // set start adc bit
 }
 
