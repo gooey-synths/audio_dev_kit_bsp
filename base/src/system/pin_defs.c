@@ -58,6 +58,136 @@ const GPIOConf uart_1_rx_conf = {
     .alternate_function = 7
 };
 
+// SPI pins
+
+const GPIOPin spi2_clk_pin = {
+    .port = 1,
+    .pin = 13
+};
+
+const GPIOConf spi2_clk_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 5
+};
+
+const GPIOPin spi2_cipo_pin = {
+    .port = 1,
+    .pin = 15
+};
+
+const GPIOConf spi2_cipo_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 5
+};
+
+const GPIOPin spi2_copi_pin = {
+    .port = 1,
+    .pin = 14
+};
+
+const GPIOConf spi2_copi_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 5
+};
+
+const GPIOPin spi2_cs0_pin = {
+    .port = 1,
+    .pin = 12
+};
+
+const GPIOConf spi2_cs0_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 5
+};
+
+const GPIOPin spi3_clk_pin = {
+    .port = 2,
+    .pin = 10
+};
+
+const GPIOConf spi3_clk_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 6
+};
+
+const GPIOPin spi3_cipo_pin = {
+    .port = 2,
+    .pin = 11
+};
+
+const GPIOConf spi3_cipo_conf = {
+    .type = OPEN_DRAIN_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 6
+};
+
+const GPIOPin spi3_copi_pin = {
+    .port = 2,
+    .pin = 12
+};
+
+const GPIOConf spi3_copi_conf = {
+    .type = OPEN_DRAIN_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 6
+};
+
+const GPIOPin spi3_cs0_pin = {
+    .port = 2,
+    .pin = 6
+};
+
+const GPIOConf spi3_cs0_conf = {
+    .type = OPEN_DRAIN_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+
+const GPIOPin spi3_cs1_pin = {
+    .port = 2,
+    .pin = 7
+};
+
+const GPIOConf spi3_cs1_conf = {
+    .type = OPEN_DRAIN_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin spi3_cs2_pin = {
+    .port = 2,
+    .pin = 8
+};
+
+const GPIOConf spi3_cs2_conf = {
+    .type = OPEN_DRAIN_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
 // ADC pins
 
 const GPIOPin adc1_16_pin = {

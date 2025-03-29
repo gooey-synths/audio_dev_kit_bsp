@@ -14,3 +14,6 @@ extern void test_uart_echo();
 // ADC tests
 extern void test_adc_single_conversion();
 extern void test_adc_continuous_conversion();
+
+// SPI tests
+extern void test_spi_hw_transaction();
