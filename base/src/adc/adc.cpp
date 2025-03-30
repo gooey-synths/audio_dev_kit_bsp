@@ -13,11 +13,11 @@ bool OnChipADC::sAdc12Reset = false;
 /// @todo probably clean this into an ADC12 or 3 controller, subclasses?
 ///
 OnChipADC::OnChipADC(uint8_t adcNum)
-    : mSeqLen(0), mControllerNum(adcNum),
-    mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
+    : mConversions{0}, mSeqLen(0), mControllerNum(adcNum),
+      mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
     assert(adcNum > 0 && adcNum < 4);
     assert(mDmaChannel);
-    
+
     RCC->D3CCIPR |= RCC_D3CCIPR_ADCSEL_1;
     // Select per_ck as kernel clock. Currently per_ck is set to be HSI
     // This only matters if ADCx_CCR CKMODE is 0.
@@ -75,7 +75,7 @@ OnChipADC::OnChipADC(uint8_t adcNum)
     calibrate();
 
     // Zero conversion buffer
-    for (uint16_t& iConversion : mConversions) {
+    for (uint16_t &iConversion : mConversions) {
         iConversion = 0;
     }
 
@@ -111,16 +111,17 @@ void OnChipADC::setBoostBits() {
 
     default:
         assert(false); // Todo: change to a throw if exceptions are added.
-
     };
 
     // God ST can you make a consistent pattern for once? >:(
-    if(prescalerBits == 0) {
+    if (prescalerBits == 0) {
         prescaler = 1;
-    } else if(prescalerBits < 0b111) {
+    } else if (prescalerBits < 0b0111) {
         prescaler = (prescalerBits) * 2;
-    } else {
+    } else if (prescalerBits < 0b110) {
         prescaler = 1 << (prescalerBits - 3);
+    } else {
+        assert(false); // Todo: change to a throw if exceptions are added.
     }
 
     uint32_t prescFreq = adc_ckFreq / prescaler;
@@ -138,7 +139,7 @@ void OnChipADC::setBoostBits() {
         assert(false); // Todo: change to a throw if exceptions are added.
     }
 
-    mControllerHw->CR &= ~(ADC_CR_BOOST_Msk); // Clear boost bits.
+    mControllerHw->CR &= ~(ADC_CR_BOOST_Msk);           // Clear boost bits.
     mControllerHw->CR |= boostBits << ADC_CR_BOOST_Pos; // Set boost bits.
 }
 
@@ -199,14 +200,14 @@ void OnChipADC::beginConversion(bool continuous) {
     disable();
 
     mControllerHw->ISR = 0x3FF << ADC_ISR_ADRDY_Pos; // Clear interrupts
-    if(continuous) {
+    if (continuous) {
         mControllerHw->CFGR |= ADC_CFGR_CONT; // Set continous bit
     } else {
-        mControllerHw->CFGR &= ~(ADC_CFGR_CONT);  // Clear continous bit
+        mControllerHw->CFGR &= ~(ADC_CFGR_CONT); // Clear continous bit
     }
 
     mControllerHw->CFGR &= ~(ADC_CFGR_DMNGT_Msk); // clear DMNGT bits
-    mControllerHw->CFGR |= continuous ? 3 : 1;  // set DMNGT bits for circular or 1 shot mode respectivley.
+    mControllerHw->CFGR |= continuous ? 3 : 1;    // set DMNGT bits for circular or 1 shot mode respectivley.
 
     mControllerHw->CFGR |= ADC_CFGR_AUTDLY; // enable AUTODLY
 

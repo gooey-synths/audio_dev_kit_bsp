@@ -1,9 +1,9 @@
 #ifndef ADC_HPP
 #define ADC_HPP
 
-#include "adc_interface.hpp"
 #include "../dma/dma.hpp"
 #include "../system/stm32h750xx.h"
+#include "adc_interface.hpp"
 #include <cassert>
 
 namespace adc {
@@ -23,7 +23,7 @@ class OnChipADC : IOnChipADC {
     ///
     void stop() {
         mDmaChannel->disable();
-        
+
         mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
         while (mControllerHw->CR & ADC_CR_ADSTP) {
             ; // Wait for stop command to process
@@ -77,13 +77,14 @@ class OnChipADC : IOnChipADC {
     }
 
     static bool sAdc12Reset; ///< True if ADCs 1 and 2 have been reset. They are reset together.
-    uint8_t mSeqLen; ///< Current set sequence length
-    uint8_t mControllerNum; ///< ADC controller number.
+
+    uint16_t mConversions[NUM_CONVERSIONS];
+
+    uint8_t mSeqLen;            ///< Current set sequence length
+    uint8_t mControllerNum;     ///< ADC controller number.
     ADC_TypeDef *mControllerHw; ///< Pointer to the controller hw registers
 
     dma::DmaController::DmaChannel *mDmaChannel;
-
-    uint16_t mConversions[NUM_CONVERSIONS];
 };
 
 } // namespace adc
