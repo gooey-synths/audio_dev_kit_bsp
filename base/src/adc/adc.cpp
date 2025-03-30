@@ -13,7 +13,7 @@ bool OnChipADC::sAdc12Reset = false;
 /// @todo probably clean this into an ADC12 or 3 controller, subclasses?
 ///
 OnChipADC::OnChipADC(uint8_t adcNum)
-    : mAdcNum(adcNum), mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
+    : mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
     assert(adcNum > 0 && adcNum < 4);
     assert(mDmaChannel);
     
@@ -34,7 +34,7 @@ OnChipADC::OnChipADC(uint8_t adcNum)
             RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
             ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
             // TODO: make this more dynamic if needed.
-            ADC12_COMMON->CCR |= 0x00 << ADC_CCR_PRESC_Pos; // set 1 prescaler
+            ADC12_COMMON->CCR |= 0x01 << ADC_CCR_PRESC_Pos; // set 2 prescaler
             sAdc12Reset = true;
         }
         dmaReq = dma::ADC1_REQ;
@@ -48,7 +48,7 @@ OnChipADC::OnChipADC(uint8_t adcNum)
             RCC->AHB1RSTR &= ~(RCC_AHB1RSTR_ADC12RST);
             ADC12_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
             // TODO: make this more dynamic if needed.
-            ADC12_COMMON->CCR |= 0x00 << ADC_CCR_PRESC_Pos; // set 1 prescaler
+            ADC12_COMMON->CCR |= 0x01 << ADC_CCR_PRESC_Pos; // set 2 prescaler
             sAdc12Reset = true;
         }
         dmaReq = dma::ADC2_REQ;
@@ -60,8 +60,8 @@ OnChipADC::OnChipADC(uint8_t adcNum)
         RCC->AHB1RSTR |= RCC_AHB4RSTR_ADC3RST; // reset ADC 3
         RCC->AHB1RSTR &= ~(RCC_AHB4RSTR_ADC3RST);
         ADC3_COMMON->CCR &= ~(ADC_CCR_PRESC_Msk); // clear prescaler bits
-            // TODO: make this more dynamic if needed.
-        ADC3_COMMON->CCR |= 0x00 << ADC_CCR_PRESC_Pos; // set 1 prescaler
+        // TODO: make this more dynamic if needed.
+        ADC3_COMMON->CCR |= 0x01 << ADC_CCR_PRESC_Pos; // set 2 prescaler
         sAdc12Reset = true;
         dmaReq = dma::ADC3_REQ;
         break;
@@ -82,6 +82,62 @@ OnChipADC::OnChipADC(uint8_t adcNum)
     mDmaChannel->setDest((void *)mConversions, sizeof(*mConversions), true);
     mDmaChannel->setSource((void *)&mControllerHw->DR, sizeof(uint16_t), 0);
     mDmaChannel->setRequest(dmaReq);
+}
+
+///
+/// Set the boost bits of the control register based on freq.
+/// @note This assumes a rev. V microcontroller.
+/// @note This assumes using the HSI oscillator as kernel clock.
+///
+void OnChipADC::setBoostBits() {
+    const uint32_t adc_ckFreq = 64e6;
+
+    uint8_t prescaler = 0;
+    uint8_t prescalerBits = 0;
+
+    uint8_t boostBits = 0;
+
+    switch ((uint32_t)mControllerHw) {
+    case (uint32_t)ADC1:
+    case (uint32_t)ADC2:
+        prescalerBits = (ADC12_COMMON->CCR & ADC_CCR_PRESC_Msk) >> ADC_CCR_PRESC_Pos;
+        break;
+
+    case (uint32_t)ADC3:
+        prescalerBits = (ADC3_COMMON->CCR & ADC_CCR_PRESC_Msk) >> ADC_CCR_PRESC_Pos;
+        break;
+
+    default:
+        assert(false); // Todo: change to a throw if exceptions are added.
+
+    };
+
+    // God ST can you make a consistent pattern for once? >:(
+    if(prescalerBits == 0) {
+        prescaler = 1;
+    } else if(prescalerBits < 0b111) {
+        prescaler = (prescalerBits) * 2;
+    } else {
+        prescaler = 1 << (prescalerBits - 3);
+    }
+
+    uint32_t prescFreq = adc_ckFreq / prescaler;
+
+    // There is probably some better way to do this...
+    if (prescFreq <= 6.25e6) {
+        boostBits = 0b00;
+    } else if (prescFreq <= 12.5e6) {
+        boostBits = 0b01;
+    } else if (prescFreq <= 25e6) {
+        boostBits = 0b10;
+    } else if (prescFreq <= 50e6) {
+        boostBits = 0b11;
+    } else {
+        assert(false); // Todo: change to a throw if exceptions are added.
+    }
+
+    mControllerHw->CR &= ~(ADC_CR_BOOST_Msk); // Clear boost bits.
+    mControllerHw->CR |= boostBits << ADC_CR_BOOST_Pos; // Set boost bits.
 }
 
 ///
@@ -151,8 +207,6 @@ void OnChipADC::beginConversion(bool continuous) {
     mControllerHw->CFGR |= continuous ? 3 : 1;  // set DMNGT bits for circular or 1 shot mode respectivley.
 
     mControllerHw->CFGR |= ADC_CFGR_AUTDLY; // enable AUTODLY
-
-    mDmaChannel->disable();
 
     mDmaChannel->setNumTransfers(mSeqLen, continuous);
 

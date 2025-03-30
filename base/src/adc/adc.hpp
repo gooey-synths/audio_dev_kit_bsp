@@ -22,8 +22,11 @@ class OnChipADC : IOnChipADC {
     /// Stop any ongoing conversions.
     ///
     void stop() {
-        while (!mControllerHw->CR & ADC_CR_ADSTP) {
-            mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
+        mDmaChannel->disable();
+        
+        mControllerHw->CR |= (ADC_CR_ADSTP); // Stop the ADC
+        while (mControllerHw->CR & ADC_CR_ADSTP) {
+            ; // Wait for stop command to process
         }
     }
 
@@ -46,6 +49,8 @@ class OnChipADC : IOnChipADC {
     }
 
   private:
+    void setBoostBits();
+
     void calibrate();
 
     ///
@@ -55,8 +60,7 @@ class OnChipADC : IOnChipADC {
         stop();
         mControllerHw->CR |= (ADC_CR_ADDIS); // Disable the ADC
         while (mControllerHw->CR & ADC_CR_ADDIS) {
-            mControllerHw->CR |= (ADC_CR_ADDIS); // Disable the ADC
-            ; // wait for ADC to disable
+            ; // Wait for disable command to process.
         }
     }
 
@@ -74,7 +78,6 @@ class OnChipADC : IOnChipADC {
 
     static bool sAdc12Reset; ///< True if ADCs 1 and 2 have been reset. They are reset together.
     uint8_t mSeqLen;
-    uint8_t mAdcNum;            ///< Number of the ADC channel: 1, 2, or 3
     ADC_TypeDef *mControllerHw; ///< Pointer to the controller hw registers
 
     dma::DmaController::DmaChannel *mDmaChannel;
