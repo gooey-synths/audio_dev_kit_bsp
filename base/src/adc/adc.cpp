@@ -70,6 +70,7 @@ OnChipADC::OnChipADC(uint8_t adcNum)
     }
 
     disable();
+    setBoostBits();
     calibrate();
 
     // Zero conversion buffer
