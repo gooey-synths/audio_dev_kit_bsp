@@ -89,10 +89,10 @@ OnChipADC::OnChipADC(uint8_t adcNum)
 ///
 /// Set the boost bits of the control register based on freq.
 /// @note This assumes a rev. V microcontroller.
-/// @note This assumes using the HSI oscillator as kernel clock.
+/// @note This assumes using the undivided HSI oscillator as kernel clock.
 ///
 void OnChipADC::setBoostBits() {
-    const uint32_t adc_ckFreq = 64e6;
+    const uint32_t adc_ckFreq = 64e6; // Undivided HSI oscillator freq
 
     uint8_t prescaler = 0;
     uint8_t prescalerBits = 0;
