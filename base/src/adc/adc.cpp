@@ -13,7 +13,8 @@ bool OnChipADC::sAdc12Reset = false;
 /// @todo probably clean this into an ADC12 or 3 controller, subclasses?
 ///
 OnChipADC::OnChipADC(uint8_t adcNum)
-    : mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
+    : mSeqLen(0), mControllerNum(adcNum),
+    mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
     assert(adcNum > 0 && adcNum < 4);
     assert(mDmaChannel);
     
@@ -25,7 +26,7 @@ OnChipADC::OnChipADC(uint8_t adcNum)
 
     uint8_t dmaReq = 0;
 
-    switch (adcNum) {
+    switch (mControllerNum) {
     case 1:
         mControllerHw = ADC1;
         if (!sAdc12Reset) {
@@ -98,13 +99,13 @@ void OnChipADC::setBoostBits() {
 
     uint8_t boostBits = 0;
 
-    switch ((uint32_t)mControllerHw) {
-    case (uint32_t)ADC1:
-    case (uint32_t)ADC2:
+    switch (mControllerNum) {
+    case 1:
+    case 2:
         prescalerBits = (ADC12_COMMON->CCR & ADC_CCR_PRESC_Msk) >> ADC_CCR_PRESC_Pos;
         break;
 
-    case (uint32_t)ADC3:
+    case 3:
         prescalerBits = (ADC3_COMMON->CCR & ADC_CCR_PRESC_Msk) >> ADC_CCR_PRESC_Pos;
         break;
 

@@ -77,7 +77,8 @@ class OnChipADC : IOnChipADC {
     }
 
     static bool sAdc12Reset; ///< True if ADCs 1 and 2 have been reset. They are reset together.
-    uint8_t mSeqLen;
+    uint8_t mSeqLen; ///< Current set sequence length
+    uint8_t mControllerNum; ///< ADC controller number.
     ADC_TypeDef *mControllerHw; ///< Pointer to the controller hw registers
 
     dma::DmaController::DmaChannel *mDmaChannel;

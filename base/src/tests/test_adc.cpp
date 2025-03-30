@@ -96,6 +96,7 @@ void test_adc_continuous_conversion() {
 
 ///
 /// Test that calling adc stop actually stops converting and can be restarted.
+/// See output on UART 1 for ADC conversions, check they do not change betweend the "->".
 ///
 void test_adc_stop() {
 
@@ -111,9 +112,9 @@ void test_adc_stop() {
 
     for(;;) {
         myADC.beginConversion(true);
-        for(int i = 0; i < 0x4FFFFF; i++); // wait for transfer to happen
+        for(int i = 0; i < 0x4FFFFFF; i++); // wait for transfer to happen
 
-        //myADC.stop();
+        myADC.stop();
 
         uart1.write("============\r\n", sizeof("============\r\n"));
         
@@ -127,7 +128,7 @@ void test_adc_stop() {
             uart1.write(char_buff, num_chars);
             num_chars = sprintf(char_buff, "%d ->", prevConversion);
             uart1.write(char_buff, num_chars);
-            num_chars = sprintf(char_buff, "%d\r\n", newConversion);
+            num_chars = sprintf(char_buff, " %d\r\n", newConversion);
             uart1.write(char_buff, num_chars);
 
         }
