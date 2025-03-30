@@ -1,5 +1,7 @@
 #include "../tests/tests.hpp"
 
-int main(){
-    test_spi_hw_transaction();
+int main() {
+    test_DAC60508();
+
+    return 0;
 }

@@ -22,7 +22,7 @@ extern SpiBusBase *sInstances[NUM_SPI_CONTROLLERS]; ///< instances of the spi bu
 /// Base class for SPI buses.
 /// @todo CRC?
 ///
-class SpiBusBase : ISpiBus {
+class SpiBusBase : public ISpiBus {
 
   public:
     SpiBusBase(size_t);

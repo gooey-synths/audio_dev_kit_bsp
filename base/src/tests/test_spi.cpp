@@ -1,4 +1,5 @@
 #include "../spi/spi.hpp"
+#include "../spi/dacx050y.hpp"
 #include "../uart/uart.hpp"
 #include "../system/board_defs.h"
 #include "test_helper.hpp"
@@ -83,8 +84,40 @@ void test_spi_hw_transaction(){
         print_buffer(&uart1, (void*)&devId, sizeof(devId), 1);
 
 
-        for(int i = 0; i < 0x1FFFFF; i++); //delay...s
+        for(int i = 0; i < 0x1FFFFF; i++); //delay...
 
     }
+
+}
+
+void test_DAC60508() {
+    setup_pins();
+
+    HwCsSpiBus spiBus(2);
+
+    DAC60508 dac(spiBus, 0);
+
+    dac.setup();
+
+    // Check that register mode works
+    dac.setMode(eDACx050yMode::DACx050y_REG_MODE);
+    assert(dac.getMode() == eDACx050yMode::DACx050y_REG_MODE);
+
+    uint16_t devId = dac.ReadReg(eDACx050yRegAddr::DACx050y_ID);
+    assert(devId == 10340);
+
+    // Check that stream mode works
+    dac.setMode(eDACx050yMode::DACx050y_STREAM_MODE);
+    assert(dac.getMode() == eDACx050yMode::DACx050y_STREAM_MODE);
+
+    for (;;) {
+        uint16_t counter = 0;
+        for(size_t iDac = 0; iDac < 8; iDac++) {
+            dac.setStreamVal(iDac, counter);
+        }
+        dac.updateStream();
+        spiBus.waitForCompletion();
+    }
+
 
 }

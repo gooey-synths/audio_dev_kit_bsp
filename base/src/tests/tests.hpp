@@ -13,3 +13,4 @@ extern void test_uart_echo();
 
 // SPI tests
 extern void test_spi_hw_transaction();
+extern void test_DAC60508();
