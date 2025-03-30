@@ -26,6 +26,10 @@ constexpr uint8_t SPI5_RX_REQ = 85; // Request number for SPI RX DMA requests.
 constexpr uint8_t SPI6_TX_REQ = 12; // Request number for SPI TX DMA requests.
 constexpr uint8_t SPI6_RX_REQ = 11; // Request number for SPI RX DMA requests.
 
+constexpr uint8_t ADC1_REQ = 9;   // Request number for ADC1 DMA requests.
+constexpr uint8_t ADC2_REQ = 10;  // Request number for ADC2 DMA requests.
+constexpr uint8_t ADC3_REQ = 115; // Request number for ADC3 DMA requests.
+
 enum eDmaTransferType{
 	PER2MEM = 0,
 	MEM2PER,

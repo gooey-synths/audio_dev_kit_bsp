@@ -1,5 +1,8 @@
 #include "../tests/tests.hpp"
+#include <cstdlib>
+#include <cstdint>
 
 int main(){
-    test_spi_hw_transaction();
+    test_adc_stop();
+    return 0;
 }

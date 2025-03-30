@@ -19,7 +19,7 @@ extern uint32_t _edata;  //< End of data section
 extern uint32_t _sstack; //< Start of stack section
 extern uint32_t _estack; //< End of stack section
 
-#define STACK_START_ADDR   0x20020000
+#define STACK_START_ADDR   0x24080000
 
 __attribute__ ((section(".isrvectors")))
 uint32_t* vector_table[] = {
