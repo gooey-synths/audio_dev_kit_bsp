@@ -8,8 +8,8 @@ using namespace spi;
 
 #define BUFFER_SIZE 3
 
-uint8_t txBuff[BUFFER_SIZE];
-uint8_t rxBuff[BUFFER_SIZE];
+uint32_t txBuff[BUFFER_SIZE];
+uint32_t rxBuff[BUFFER_SIZE];
 
 
 ///
@@ -54,8 +54,8 @@ void test_spi_hw_transaction(){
 
     // Setup tx buffer to read device ID from DAC
     txBuff[0] = 0x81;
-    txBuff[1] = 0x00;
-    txBuff[2] = 0x00;
+    txBuff[1] = 0x18;
+    txBuff[2] = 0x55;
 
     spiBus.configure(conf);
 
@@ -75,6 +75,7 @@ void test_spi_hw_transaction(){
         for(size_t i = 0; i < BUFFER_SIZE; i++){
             rxBuff[i] = 1;
         }
+
 
         spiBus.transact();
         
@@ -104,19 +105,31 @@ void test_DAC60508() {
     assert(dac.getMode() == eDACx050yMode::DACx050y_REG_MODE);
 
     uint16_t devId = dac.ReadReg(eDACx050yRegAddr::DACx050y_ID);
-    assert(devId == 10340);
+    assert(devId == 10390);
+
+    // Set gain register for gain of 2 and div of 2.
+    dac.WriteReg(eDACx050yRegAddr::DACx050y_GAIN, 0x1FF);
+
+    uint16_t gainReg = dac.ReadReg(eDACx050yRegAddr::DACx050y_GAIN);
+    assert(gainReg == 0x1FF);
 
     // Check that stream mode works
     dac.setMode(eDACx050yMode::DACx050y_STREAM_MODE);
     assert(dac.getMode() == eDACx050yMode::DACx050y_STREAM_MODE);
 
+    uint16_t counter = 0;
+
     for (;;) {
-        uint16_t counter = 0;
         for(size_t iDac = 0; iDac < 8; iDac++) {
             dac.setStreamVal(iDac, counter);
         }
         dac.updateStream();
         spiBus.waitForCompletion();
+
+        counter+=1024;
+
+        //for(int i = 0; i < 0x1FFFFF; i++); //delay...
+
     }
 
 

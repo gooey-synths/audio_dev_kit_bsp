@@ -100,6 +100,7 @@ class SpiBusBase : public ISpiBus {
     SPI_TypeDef *mSpiHw;                    ///< SPI peripheral pointer.
     SpiBusConfig mConfig;                   ///< SPI bus configuration.
     uint32_t mKerClkFreq;                   ///< Frequency of the SPI_KER_CLK.
+    size_t mNumTransfers;
     dma::DmaController::DmaChannel *mTxDma; ///< TX DMA channel
     dma::DmaController::DmaChannel *mRxDma; ///< RX DMA channel
 

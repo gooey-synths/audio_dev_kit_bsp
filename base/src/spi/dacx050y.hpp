@@ -28,18 +28,16 @@ enum eDACx050yRegAddr {
 };
 
 ///
-/// Structure defining a single transaction to a DACx050ys
+/// Structure defining a single transaction to a DACx050y
 ///
 struct DACx050yTransaction {
-    uint8_t mDataLsb; ///< Data LSB.
+    uint32_t mData : 16;    ///< Register data.
 
-    uint8_t mDataMsb; ///< Data MSB.
+    uint32_t mAddr : 4;     ///< Register adress.
+    uint32_t mReserved : 3; ///< Reserved.
+    uint32_t mRW : 1;       ///< Read/write bit.
 
-    uint8_t mAddr : 4;     ///< Register adress.
-    uint8_t mReserved : 3; ///< Reserved.
-    uint8_t mRW : 1;       ///< Read/write bit.
-
-    uint8_t mPadding; ///< Padding to 32 bits.
+    uint32_t mPadding : 8; ///< Padding to 32 bits.
 
     ///
     /// @brief Constructor.
@@ -48,7 +46,7 @@ struct DACx050yTransaction {
     /// @param data Data portion
     ///
     DACx050yTransaction(bool readWrite, uint8_t addr, uint16_t data)
-        : mRW(readWrite), mReserved(0), mAddr(addr), mPadding(0), mDataMsb(data >> 8), mDataLsb(data & 0xFF) {
+        : mRW(readWrite), mReserved(0), mAddr(addr), mPadding(0), mData(data) {
         ; // Do nothing.
     }
 
@@ -60,11 +58,10 @@ struct DACx050yTransaction {
 
     void setAddr(uint8_t addr) { mAddr = addr; }
 
-    uint16_t getData() { return (uint16_t)mDataMsb << 8 | mDataLsb; }
+    uint16_t getData() { return mData; }
 
     void setData(uint16_t data) {
-        mDataMsb = data >> 8;
-        mDataLsb = data & 0xFF;
+        mData = data;
     }
 };
 
@@ -101,7 +98,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     /// @param spiBus SpiBus that the DAC is connected to.
     /// @param cs Chip select the the DAC is connected to.
     ///
-    DACx050y(ISpiBus &spiBus, size_t cs) : mSpiBus(mSpiBus), mCs(cs), mMode(DACx050y_REG_MODE), mTransactioBuf{0} {
+    DACx050y(ISpiBus &spiBus, size_t cs) : mSpiBus(spiBus), mCs(cs), mMode(DACx050y_REG_MODE) {
         setMode(mMode);
     }
 
@@ -111,20 +108,21 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     /// @note Calling functions without setting the proper mode may result in undefined behavoir!
     ///
     virtual void setMode(eDACx050yMode mode) {
-        size_t bufSize;
+        size_t bufLen;
         switch (mode) {
         case eDACx050yMode::DACx050y_REG_MODE:
-            bufSize = 1;
+            bufLen = 1;
             break;
 
         case eDACx050yMode::DACx050y_STREAM_MODE:
-            bufSize = tY;
+            bufLen = tY;
             for (size_t iDac = 0; iDac < tY; iDac++) {
                 mTxBuf[iDac].mAddr = DACx050y_DAC0 + iDac;
             }
             break;
         };
-        mSpiBus.prepare(mTxBuf, mRxBuf, bufSize, mCs, sizeof(*mTxBuf)) mMode = mode;
+        mSpiBus.prepare(mTxBuf, mRxBuf, bufLen, mCs, sizeof(*mTxBuf));
+        mMode = mode;
     }
 
     ///
@@ -197,12 +195,12 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
 
     /// SPI bus configuration for the DAC60508
     static constexpr SpiBusConfig scSpiConf = {
-        .mFreq = 6000000U,
-        .mPhase = 0,
         .mPolarity = 1,
+        .mPhase = 0,
+        .mIoSwap = 1,
+        .mFreq = 300000000U,
         .mWordSize = 24,
-        .mMidi = 0xF,
-        .mIoSwap = false,
+        .mMidi = 0x7
     };
 
     ISpiBus &mSpiBus;               ///< Reference to the SPI bus that the DAC60508 is connected to.
