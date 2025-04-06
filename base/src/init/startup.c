@@ -18,10 +18,11 @@ extern uint32_t _sdata;  //< Start of data section
 extern uint32_t _edata;  //< End of data section
 extern uint32_t _sstack; //< Start of stack section
 extern uint32_t _estack; //< End of stack section
+extern uint32_t _sidata; //< 
 
 #define STACK_START_ADDR   0x20020000
 
-__attribute__ ((section(".isrvectors")))
+__attribute__ ((section(".isr_vector")))
 uint32_t* vector_table[] = {
     (uint32_t*) STACK_START_ADDR,   
     (uint32_t*) reset_handler,
@@ -396,7 +397,7 @@ void start_clocks(){
 __attribute__ ((noreturn)) void reset_handler(){
 
     /* Copy init values from text to data */
-    uint32_t *init_values_ptr = &_etext  + (&_sdata - &_edata);
+    uint32_t *init_values_ptr = &_sidata;
     uint32_t *data_ptr = &_sdata;
 
     if (init_values_ptr != data_ptr) {
