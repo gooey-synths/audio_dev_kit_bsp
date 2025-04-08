@@ -6,6 +6,8 @@
 
 namespace gpio{
 
+static constexpr char* scInvalidPin = "Invalid pin";
+
 #define NUM_GPIO_PORTS 11
 
 class GPIOPort{
@@ -74,7 +76,7 @@ public:
     ///
     Pin getPin(GPIOPin* pin){
         if(!pin || pin->port > NUM_GPIO_PORTS || pin->pin > 15){
-            return Pin(&mPorts[0], 0); // Should throw exception here.
+            throw scInvalidPin;
         }
         return Pin(&mPorts[pin->port], pin->pin);
     }
@@ -85,11 +87,14 @@ public:
     /// @param conf Pointer to GPIOConf struct. 
     ///
     void setConfig(GPIOPin *pin, GPIOConf* conf){
-        if(!pin || !conf){
-            return; // Null pointers not allowed.
+        if(!pin){
+            throw scInvalidPin;
+        }
+        if(!conf){
+            throw "Invalid pin conf";
         }
         if(pin->port > NUM_GPIO_PORTS){
-            return; // Port does not exist.
+            throw "Invalid port";
         }
         mPorts[pin->port].setPinMode(pin->pin, conf->mode);
         mPorts[pin->port].setPinType(pin->pin, conf->type);

@@ -61,7 +61,8 @@ _Min_Stack_Size = 0x1000;	/* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x24000000,   LENGTH = 512K
+  DTCM   (rwx)   : ORIGIN = 0x24000000,   LENGTH = 128K
+  RAM    (rwx)   : ORIGIN = 0x24000000,   LENGTH = 512K
   ROM    (rx)    : ORIGIN = 0x08000000,   LENGTH = 128K
 }
 

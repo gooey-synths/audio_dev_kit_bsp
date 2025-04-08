@@ -6,6 +6,8 @@
 
 namespace dma{
 
+static constexpr char* scInvaliChannel = "Invalid DMA channel";
+
 constexpr size_t DMA1_NUM_CHANNELS = 8; ///< Number of channels that each DMA controller has.
 
 constexpr uint8_t SPI1_TX_REQ = 38; // Request number for SPI TX DMA requests.
@@ -118,7 +120,7 @@ private:
 	///
 	inline void clearInterrupt(uint8_t intMask, uint8_t channel){
 		if(channel < 1 || channel > DMA1_NUM_CHANNELS){
-			return; // Invalid channel
+			throw scInvaliChannel;
 		}
 		channel--;
 		intMask &= 0x3F;

@@ -5,6 +5,7 @@
 namespace spi {
 
 SpiBusBase *sInstances[NUM_SPI_CONTROLLERS];
+static constexpr char* scIsActive = "SPI controller is active";
 
 ///
 /// Constructor.
@@ -16,6 +17,7 @@ SpiBusBase::SpiBusBase(size_t instance_num)
       // SPI 6 is connected to DMA2
       mTxDma(dma::DmaController::getInstance(1 + (size_t)(instance_num > 5))->claimAvailableChannel()),
       mRxDma(dma::DmaController::getInstance(1 + (size_t)(instance_num > 5))->claimAvailableChannel()) {
+
     errorIfTaken(instance_num);
 
     // enable and set SPI hardware.
@@ -109,6 +111,9 @@ SpiBusBase::SpiBusBase(size_t instance_num)
 /// @note This might undershoot target frequency.
 ///
 void SpiBusBase::configure(SpiBusConfig conf) {
+    if(mIsActive) {
+        throw scIsActive;
+    }
 
     // Calculate and set divider for target frequency
     for (uint8_t iDiv = 0; iDiv <= 7; iDiv++) {
@@ -183,6 +188,10 @@ void HwCsSpiBus::HwCsSpiBusInit() {
 void HwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
     (void)cs;
 
+    if(mIsActive) {
+        throw scIsActive;
+    }
+
     mRxDma->disable();
     mTxDma->disable();
 
@@ -202,6 +211,10 @@ void HwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, s
 /// Inherit documentation.
 ///
 void HwCsSpiBus::transact() {
+    if(mIsActive) {
+        throw scIsActive;
+    }
+
     mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
 
     mSpiHw->IER |= SPI_IER_TXPIE | SPI_IER_RXPIE; // TX and RX interrupt

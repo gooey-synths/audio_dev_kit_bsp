@@ -2,6 +2,9 @@
 
 using namespace gpio;
 
+static const char* scInvalidPin = "Invalid pin";
+
+
 ///
 /// Constructor.
 /// @param port pointer to GPIO port struct
@@ -10,7 +13,6 @@ using namespace gpio;
 GPIOPort::GPIOPort(GPIO_TypeDef* port):
 mPort(port)
 {
-
     mPortNum = ((unsigned long)port - GPIOA_BASE) / 0x400;
 
     RCC->AHB4ENR |= 1 << mPortNum; // Start clock to GPIO port;
@@ -23,7 +25,7 @@ mPort(port)
 ///
 void GPIOPort::setPinData(uint8_t pin, bool data){
     if(pin > 15){
-        return; // invalid pin, do nothing.
+        throw scInvalidPin;
     }
     if(data){
         mPort->ODR |= 1 << pin;
@@ -40,7 +42,7 @@ void GPIOPort::setPinData(uint8_t pin, bool data){
 ///
 bool GPIOPort::getPinData(uint8_t pin){
     if(pin > 15){
-        return false; // invalid pin, return false.
+        throw scInvalidPin;
     }
 
     return !!(mPort->IDR & 1<< pin);
@@ -53,7 +55,7 @@ bool GPIOPort::getPinData(uint8_t pin){
 ///
 void GPIOPort::setPinMode(uint8_t pin, eGPIOPinMode mode){
     if(pin > 15){
-        return; // invalid pin, do nothing.
+        throw scInvalidPin;
     }
 
     mPort->MODER &= ~(3 << (pin*2)); // clear mode bits.
@@ -67,7 +69,7 @@ void GPIOPort::setPinMode(uint8_t pin, eGPIOPinMode mode){
 ///
 void GPIOPort::setPinSpeed(uint8_t pin, eGPIOPinSpeed speed){
     if(pin > 15){
-        return; // invalid pin, do nothing.
+        throw scInvalidPin;
     }
 
     mPort->OSPEEDR &= ~(3 << (pin*2)); // clear speed bits.
@@ -81,7 +83,7 @@ void GPIOPort::setPinSpeed(uint8_t pin, eGPIOPinSpeed speed){
 ///
 void GPIOPort::setPinType(uint8_t pin, eGPIOPinType type){
     if(pin > 15){
-        return; // invalid pin, do nothing.
+        throw scInvalidPin;
     }
 
     mPort->OTYPER &= ~(1 << pin); // clear type bits.
@@ -95,16 +97,24 @@ void GPIOPort::setPinType(uint8_t pin, eGPIOPinType type){
 ///
 void GPIOPort::setPinPull(uint8_t pin, eGPIOPinPull pull){
     if(pin > 15){
-        return; // invalid pin, do nothing.
+        throw scInvalidPin;
     }
 
     mPort->PUPDR &= ~(3 << (pin*2)); // clear pull bits.
     mPort->PUPDR |= (uint8_t)pull << (pin*2);
 }
 
+///
+/// Set the pull of a pin.
+/// @param pin pin number (0-15)
+/// @param alt alt setting to set the pin to (0-15)
+///
 void GPIOPort::setPinAlt(uint8_t pin, uint8_t alt){
-    if(pin > 15 || alt > 15){
-        return; // invalid pin or allernate function, do nothing.
+    if(pin > 15){
+        throw scInvalidPin;
+    }
+    if(alt > 15){
+        throw "Invalid pin alt";
     }
 
     if(pin < 8){

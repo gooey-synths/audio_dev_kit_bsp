@@ -8,12 +8,19 @@ using namespace dma;
 
 #define DMA_CHANNEL_OFFSET(mChannelNum) 6*(mChannelNum-1) // word indexing
 
+/// Message when unable to claim a DMA channel.
+static const char* scCouldNotClaim = "Could not claim DMA channel";
+static const char* scInvalidSize = "Invalid data size";
+
 ///
 /// Constructor
 ///
 DmaController::DmaController(uint8_t controller_num):
 	mControllerHwNum(controller_num)
 	{
+	if(controller_num  > 2 || controller_num < 1) {
+		throw "Invalid DMA controller";
+	}
 	for (uint8_t iChannel = 0; iChannel < DMA1_NUM_CHANNELS; iChannel++){
 		mChannels[iChannel].mChannelNum = iChannel + 1;
 		mChannels[iChannel].mChannelClaimed = 0;
@@ -28,6 +35,7 @@ DmaController::DmaController(uint8_t controller_num):
 				mControllerHw = DMA2;
 				break;
 		}
+
 	}
 
 	RCC->AHB1ENR |= 1 << (mControllerHwNum -1); // enable DMA controller
@@ -54,13 +62,13 @@ void DmaController::setRequest(uint8_t perID, uint8_t channel){
 ///
 DmaController::DmaChannel* DmaController::claimChannel(uint8_t channelNum){
 	if(channelNum < 1 || channelNum > DMA1_NUM_CHANNELS){
-		return NULL;
+		throw scInvaliChannel;
 	}
 	if(mChannels[channelNum-1].mChannelClaimed == 0){
 		mChannels[channelNum-1].claim();
 		return &mChannels[channelNum-1];
 	}
-	return NULL;
+	throw scCouldNotClaim;
 }
 
 ///
@@ -84,7 +92,7 @@ DmaController::DmaChannel* DmaController::claimAvailableChannel(){
 			return claimChannel(iChannel+1);
 		}
 	}
-	return NULL;
+	throw scCouldNotClaim;
 }
 
 ///
@@ -99,17 +107,14 @@ DmaController::DmaChannel::DmaChannel(){
 ///
 void DmaController::DmaChannel::claim(){
 	mChannelClaimed = 1;
-
 }
 
 ///
 /// Release the DMA channel
 ///
 void DmaController::DmaChannel::release(){
-
 	mStreamHw->CR &= ~(1 << 0);
 	mChannelClaimed = 0;
-
 }
 
 ///
@@ -136,7 +141,6 @@ void DmaController::DmaChannel::setTransferType(eDmaTransferType type, bool dma_
 	else{
 		mStreamHw->CR |= (1<<5); // Target peripheral is the flow controller
 	}
-	volatile uint32_t debug = (uint32_t)mStreamHw->CR | 1<<0;
 
 	mTransferType = type;
 }
@@ -149,8 +153,8 @@ void DmaController::DmaChannel::setTransferType(eDmaTransferType type, bool dma_
 /// @note The transfer type must be configured first using @ref dma::DmaController::DmaChannel::setmTransferType
 ///
 void DmaController::DmaChannel::setSource(void* src, size_t size, uint8_t inc){
-if(size < 1 || size > 4){
-		return; // should throw here.
+	if(size < 1 || size > 4 || size == 3){
+		throw scInvalidSize;
 	}
 
 	uint8_t mincpinc, msizepsize;
@@ -187,8 +191,8 @@ if(size < 1 || size > 4){
 /// @note The transfer type must be configured first using @ref dma::DmaController::DmaChannel::setmTransferType
 ///
 void DmaController::DmaChannel::setDest(void* dst, size_t size, uint8_t inc){
-	if(size < 1 || size > 4){
-		return; // should throw here.
+	if(size < 1 || size > 4 || size == 3){
+		throw scInvalidSize;
 	}
 
 	uint8_t mincpinc, msizepsize; 
@@ -228,8 +232,6 @@ void DmaController::DmaChannel::setNumTransfers(uint16_t numTransfers, uint8_t c
 		mStreamHw->CR &= ~(1 << 8); // clear circ bit
 	}
 	mStreamHw->NDTR = numTransfers;
-	uint32_t debug = (uint32_t)mStreamHw->NDTR;
-
 }
 
 ///
