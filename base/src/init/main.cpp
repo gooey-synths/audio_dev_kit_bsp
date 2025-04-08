@@ -3,13 +3,5 @@
 #include <cstdint>
 
 int main() {
-    //uint8_t* a = (uint8_t*)malloc(40);
-    //free(a);
-
-    try {
-        throw "test";
-    } catch( ... ) {
-        ;
-    }
-    return 0;
+    test_gpio_exceptions();
 }

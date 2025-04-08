@@ -7,6 +7,9 @@
 #include "string.h"
 
 #define TEST_PRINT_WIDTH 16
+#define MAX_STR_LEN 64
+
+static constexpr char* scExceptionNotThrown = "Exception not thrown!";
 
 ///
 /// Print a buffer to a Uart
@@ -47,5 +50,39 @@ static void print_buffer(uart::UartController* uart, void* buffer, uint8_t elem_
     uart->write((char*)"\r\n\r\n", sizeof("\r\n\r\n"));
 }
 
+///
+/// Print a string to a UART.
+/// @param uart UART to print the string to.
+/// @param s String to print.
+/// @note String length is clipped to @ref MAX_STR_LEN characters.
+/// 
+static void print_str(uart::UartController* uart, char* s) {
+    size_t len = strlen(s);
+
+    // Clip length
+    if(len > MAX_STR_LEN) {
+        len = MAX_STR_LEN;
+    }
+
+    uart->write(s, len);
+}
+
+///
+/// Helper macro to call statements that may have exceptions and print if the exception happened.
+/// @note uart::UartController uart1 and bool exceptionCaught must be defined before using this macro.
+///
+#define EXPECT_EXCEPTION(statement)              \
+do{                                              \
+    exceptionCaught = false;                     \
+    try {                                        \
+        statement;                               \
+    } catch (char* e) {                          \
+        print_str(&uart1, e);                    \
+        exceptionCaught = true;                  \
+    }                                            \
+    if(!exceptionCaught) {                       \
+        print_str(&uart1, scExceptionNotThrown); \
+    }                                            \
+} while(0)                                       \
 
 #endif // TEST_HELPER_HPP
