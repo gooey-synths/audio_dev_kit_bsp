@@ -6,8 +6,8 @@
 #include "stdio.h"
 #include "string.h"
 
-#define TEST_PRINT_WIDTH 16
-#define MAX_STR_LEN 64
+static constexpr size_t scTestPrintWidth = 16;
+static constexpr size_t scTestStrLen = 64;
 
 static constexpr char* scExceptionNotThrown = "Exception not thrown!";
 
@@ -25,7 +25,7 @@ static void print_buffer(uart::UartController* uart, void* buffer, uint8_t elem_
     uint8_t elem_ctr = 0;
     char print_buff[13]; // 10 characters plus comma, space, and null termintor
     for(;buf_ptr < (uint8_t*) buffer + buffer_len; buf_ptr+=elem_size){
-        if(elem_ctr >= TEST_PRINT_WIDTH){
+        if(elem_ctr >= scTestPrintWidth){
             uart->write((char*)"\r\n", sizeof("\r\n"));
             elem_ctr = 0;
         }
@@ -54,14 +54,14 @@ static void print_buffer(uart::UartController* uart, void* buffer, uint8_t elem_
 /// Print a string to a UART.
 /// @param uart UART to print the string to.
 /// @param s String to print.
-/// @note String length is clipped to @ref MAX_STR_LEN characters.
+/// @note String length is clipped to @ref scTestStrLen characters.
 /// 
 static void print_str(uart::UartController* uart, char* s) {
     size_t len = strlen(s);
 
     // Clip length
-    if(len > MAX_STR_LEN) {
-        len = MAX_STR_LEN;
+    if(len > scTestStrLen) {
+        len = scTestStrLen;
     }
 
     uart->write(s, len);
@@ -72,7 +72,7 @@ static void print_str(uart::UartController* uart, char* s) {
 /// @note uart::UartController uart1 and bool exceptionCaught must be defined before using this macro.
 ///
 #define EXPECT_EXCEPTION(statement)              \
-do{                                              \
+do {                                             \
     exceptionCaught = false;                     \
     try {                                        \
         statement;                               \
