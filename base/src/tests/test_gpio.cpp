@@ -46,6 +46,10 @@ void test_gpio_mco2(){
     }
 }
 
+///
+/// Test that GPIO exceptions are caught
+/// @note To check for success check that exception messages are printed to UART1
+///
 void test_gpio_exceptions(){
     bool exceptionCaught = false;
 

@@ -78,7 +78,10 @@ void test_dma_single_buffer(){
 
 }
 
-
+///
+/// Test that DMA exceptions are caught
+/// @note To check for success check that exception messages are printed to UART1
+///
 void test_dma_exceptions()
 {
     bool exceptionCaught = false;
