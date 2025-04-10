@@ -93,6 +93,8 @@ mFramingConfig(UartController::DEFAULT_FRAME)
             RCC->APB1LENR |= 1 << 31; // Start.
             break;
 
+        default:
+            throw "Invalid UART controller";
 
     }
 

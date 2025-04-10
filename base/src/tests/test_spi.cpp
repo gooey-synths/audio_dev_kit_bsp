@@ -100,7 +100,7 @@ void test_spi_hw_exceptions()
     uart::UartController uart1(1);
 
     // Test getting an invalid controller
-    EXPECT_EXCEPTION(HwCsSpiBus spiBus(0));
+    EXPECT_EXCEPTION(HwCsSpiBus badSpiBus(0));
     
     HwCsSpiBus spiBus(2);
 
