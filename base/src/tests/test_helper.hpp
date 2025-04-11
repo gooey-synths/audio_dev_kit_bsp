@@ -7,7 +7,7 @@
 #include "string.h"
 
 static constexpr size_t scTestPrintWidth = 16;
-static constexpr size_t scTestStrLen = 64;
+static constexpr size_t scTestStrLen = 128;
 
 static constexpr char* scExceptionNotThrown = "Exception not thrown!";
 
@@ -76,13 +76,14 @@ do {                                             \
     exceptionCaught = false;                     \
     try {                                        \
         statement;                               \
-    } catch (char* e) {                          \
-        print_str(&uart1, e);                    \
+    } catch (const char* e) {                    \
+        print_str(&uart1, (char*)e);             \
         exceptionCaught = true;                  \
     }                                            \
     if(!exceptionCaught) {                       \
         print_str(&uart1, scExceptionNotThrown); \
     }                                            \
+    print_str(&uart1, "\r\n");                   \
 } while(0)                                       \
 
 #endif // TEST_HELPER_HPP
