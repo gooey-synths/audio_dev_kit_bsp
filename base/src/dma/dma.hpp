@@ -69,7 +69,7 @@ public:
 				return &instance2;
 		}
 
-		return NULL;
+		throw "Invalid DMA controller";
 	
 	}
 	class DmaChannel{
