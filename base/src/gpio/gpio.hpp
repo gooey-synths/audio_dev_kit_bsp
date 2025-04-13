@@ -6,7 +6,7 @@
 
 namespace gpio{
 
-static constexpr char* scInvalidPin = "Invalid pin";
+static constexpr const char* scInvalidPin = "Invalid pin";
 
 #define NUM_GPIO_PORTS 11
 

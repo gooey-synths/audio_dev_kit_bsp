@@ -5,7 +5,7 @@
 namespace spi {
 
 SpiBusBase *sInstances[NUM_SPI_CONTROLLERS];
-static constexpr char* scIsActive = "SPI controller is active";
+static constexpr const char* scIsActive = "SPI controller is active";
 
 ///
 /// Constructor.

@@ -9,7 +9,7 @@
 static constexpr size_t scTestPrintWidth = 16;
 static constexpr size_t scTestStrLen = 128;
 
-static constexpr char* scExceptionNotThrown = "Exception not thrown!";
+static const char* scExceptionNotThrown = "Exception not thrown!";
 
 ///
 /// Print a buffer to a Uart
@@ -56,7 +56,7 @@ static void print_buffer(uart::UartController* uart, void* buffer, uint8_t elem_
 /// @param s String to print.
 /// @note String length is clipped to @ref scTestStrLen characters.
 /// 
-static void print_str(uart::UartController* uart, char* s) {
+static void print_str(uart::UartController* uart, const char* s) {
     size_t len = strlen(s);
 
     // Clip length
@@ -64,7 +64,7 @@ static void print_str(uart::UartController* uart, char* s) {
         len = scTestStrLen;
     }
 
-    uart->write(s, len);
+    uart->write((char*)s, len);
 }
 
 ///

@@ -6,7 +6,7 @@
 
 namespace dma{
 
-static constexpr char* scInvaliChannel = "Invalid DMA channel";
+static constexpr const char* scInvaliChannel = "Invalid DMA channel";
 
 constexpr size_t DMA1_NUM_CHANNELS = 8; ///< Number of channels that each DMA controller has.
 

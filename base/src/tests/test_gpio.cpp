@@ -77,19 +77,19 @@ void test_gpio_exceptions(){
     EXPECT_EXCEPTION(gpio_controller->getPin(NULL));
 
     // test invalid port
-    my_pin.port = 1000;
+    my_pin.port = 255;
     EXPECT_EXCEPTION(gpio_controller->setConfig(&my_pin, &my_pin_conf));
     my_pin = good_pin;
     my_pin_conf = good_conf;
 
     // test invalid pin
-    my_pin.pin = 1000;
+    my_pin.pin = 255;
     EXPECT_EXCEPTION(gpio_controller->setConfig(&my_pin, &my_pin_conf));
     my_pin = good_pin;
     my_pin_conf = good_conf;
 
     // test invalid alt
-    my_pin_conf.alternate_function = 1000;
+    my_pin_conf.alternate_function = 255;
     EXPECT_EXCEPTION(gpio_controller->setConfig(&my_pin, &my_pin_conf));
     my_pin = good_pin;
     my_pin_conf = good_conf;
