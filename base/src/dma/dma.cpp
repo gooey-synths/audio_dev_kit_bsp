@@ -6,11 +6,11 @@
 
 using namespace dma;
 
-#define DMA_CHANNEL_OFFSET(mChannelNum) 6*(mChannelNum-1) // word indexing
+constexpr int DMA_CHANNEL_OFFSET(size_t channelNum){ return 6*(channelNum-1); } // word indexing
 
 /// Message when unable to claim a DMA channel.
-static const char* scCouldNotClaim = "Could not claim DMA channel";
-static const char* scInvalidSize = "Invalid data size";
+static const char* const scCouldNotClaim = "Could not claim DMA channel";
+static const char* const scInvalidSize = "Invalid data size";
 
 ///
 /// Constructor
