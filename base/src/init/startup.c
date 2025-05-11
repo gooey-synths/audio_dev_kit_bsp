@@ -415,7 +415,7 @@ __attribute__ ((noreturn)) void reset_handler(){
     }
 
     // Remap vector table to RAM location
-    SCB->VTOR = (uint32_t)vector_table_ram; //NOLINT
+    SCB->VTOR = (uint32_t)vector_table_ram; // NOLINT
 
     enable_fpu();
 

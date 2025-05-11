@@ -6,10 +6,9 @@
 
 using namespace dma;
 
-constexpr int DMA_CHANNEL_OFFSET(size_t channelNum){ return 6*(channelNum-1); } // word indexing
-
 /// Message when unable to claim a DMA channel.
 static const char* const scCouldNotClaim = "Could not claim DMA channel";
+/// Message when datasize is invalid.
 static const char* const scInvalidSize = "Invalid data size";
 
 ///
@@ -27,12 +26,12 @@ DmaController::DmaController(uint8_t controller_num):
 		mChannels[iChannel].mChannelController = this;
 		switch(mControllerHwNum){
 			case 1:
-				mChannels[iChannel].mStreamHw = DMA1_Stream0+iChannel;
-				mControllerHw = DMA1;
+				mChannels[iChannel].mStreamHw = DMA1_Stream0+iChannel; // NOLINT
+				mControllerHw = DMA1; // NOLINT
 				break;
 			case 2:
-				mChannels[iChannel].mStreamHw = DMA2_Stream0+iChannel;
-				mControllerHw = DMA2;
+				mChannels[iChannel].mStreamHw = DMA2_Stream0+iChannel; // NOLINT
+				mControllerHw = DMA2; // NOLINT
 				break;
 		}
 
@@ -51,7 +50,7 @@ DmaController::DmaController(uint8_t controller_num):
 void DmaController::setRequest(uint8_t perID, uint8_t channel){
 	perID &= 0x3F; // keep it to 6 bits.
 
-	*(&(DMAMUX1_Channel0->CCR)+(channel-1) + ((mControllerHwNum-1)*8)) = perID;
+	*(&(DMAMUX1_Channel0->CCR)+(channel-1) + ((mControllerHwNum-1)*8)) = perID;  // NOLINT
 }
 
 
