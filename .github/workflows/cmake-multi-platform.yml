@@ -32,6 +32,8 @@ jobs:
 
       - uses: cpp-linter/cpp-linter-action@v2
         with:
+          style: 'file'  # Use .clang-format config file
+          tidy-checks: '' # Use .clang-tidy config file
           database: 'base/build_host/compile_commands.json'
           ignore: 'base/src/thirdparty'
 
