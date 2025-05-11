@@ -1,3 +1,5 @@
 */base/build/*
 */base/build_host/*
 */base/src/thirdparty/*
+*/*.h
+*/*.c

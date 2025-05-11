@@ -93,6 +93,8 @@ mFramingConfig(UartController::DEFAULT_FRAME)
             RCC->APB1LENR |= 1 << 31; // Start.
             break;
 
+        default:
+            throw "Invalid UART controller";
 
     }
 
@@ -170,7 +172,7 @@ void UartController::write(char* buf, uint8_t buf_len){
 
     // Write the data to transmitter
     for(uint8_t iByte = 0; iByte < buf_len; iByte++){
-        while(!mUsart->ISR & (1 << 7)); // If the fifo is full, wait.
+        while(!(mUsart->ISR & (1 << 7))); // If the fifo is full, wait.
         mUsart->TDR = buf[iByte];
     } 
 
