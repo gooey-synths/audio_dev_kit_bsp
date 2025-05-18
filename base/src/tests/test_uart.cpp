@@ -1,6 +1,7 @@
 #include "../gpio/gpio.hpp"
 #include "../uart/uart.hpp"
 #include "../system/board_defs.h"
+#include "test_helper.hpp"
 
 using namespace uart;
 
@@ -56,4 +57,18 @@ void test_uart_echo(){
         uart_1.write(&in, sizeof(in));
     }
 
+}
+
+///
+/// Test that UART exceptions are caught
+/// @note To check for success check that exception messages are printed to UART1
+///
+void test_uart_exceptions(){
+    bool exceptionCaught = false;
+    setup_pins();
+    uart::UartController uart1(1);
+
+
+    // Test invalid controller
+    EXPECT_EXCEPTION(UartController badUart(0));
 }
