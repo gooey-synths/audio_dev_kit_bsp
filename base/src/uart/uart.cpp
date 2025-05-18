@@ -12,6 +12,8 @@ const UartFrameConfig UartController::DEFAULT_FRAME = {
     .mStopBits = ONE_STOP_BIT
 };
 
+static const char* const scInvalidUartController = "Invalid UART controller";
+
 ///
 /// Constructor
 /// @param usart Pointer to usart registers
@@ -93,6 +95,8 @@ mFramingConfig(UartController::DEFAULT_FRAME)
             RCC->APB1LENR |= 1 << 31; // Start.
             break;
 
+        default:
+            throw scInvalidUartController;
 
     }
 
@@ -170,7 +174,7 @@ void UartController::write(char* buf, uint8_t buf_len){
 
     // Write the data to transmitter
     for(uint8_t iByte = 0; iByte < buf_len; iByte++){
-        while(!mUsart->ISR & (1 << 7)); // If the fifo is full, wait.
+        while(!(mUsart->ISR & (1 << 7))); // If the fifo is full, wait.
         mUsart->TDR = buf[iByte];
     } 
 
