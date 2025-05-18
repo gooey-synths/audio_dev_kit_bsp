@@ -18,7 +18,7 @@ DmaController::DmaController(uint8_t controller_num):
 	mControllerHwNum(controller_num)
 	{
 	if(controller_num  > 2 || controller_num < 1) {
-		throw "Invalid DMA controller";
+		throw scInvalidController;
 	}
 	for (uint8_t iChannel = 0; iChannel < DMA1_NUM_CHANNELS; iChannel++){
 		mChannels[iChannel].mChannelNum = iChannel + 1;

@@ -2,8 +2,8 @@
 
 using namespace gpio;
 
-static const char* scInvalidPin = "Invalid pin";
-
+static const char* const scInvalidPin = "Invalid pin";
+static const char* const scInvalidAlt = "Invalid pin alt";
 
 ///
 /// Constructor.
@@ -114,7 +114,7 @@ void GPIOPort::setPinAlt(uint8_t pin, uint8_t alt){
         throw scInvalidPin;
     }
     if(alt > 15){
-        throw "Invalid pin alt";
+        throw scInvalidAlt;
     }
 
     if(pin < 8){

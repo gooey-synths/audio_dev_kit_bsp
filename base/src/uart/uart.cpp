@@ -12,6 +12,8 @@ const UartFrameConfig UartController::DEFAULT_FRAME = {
     .mStopBits = ONE_STOP_BIT
 };
 
+static const char* const scInvalidUartController = "Invalid UART controller";
+
 ///
 /// Constructor
 /// @param usart Pointer to usart registers
@@ -94,7 +96,7 @@ mFramingConfig(UartController::DEFAULT_FRAME)
             break;
 
         default:
-            throw "Invalid UART controller";
+            throw scInvalidUartController;
 
     }
 

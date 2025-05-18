@@ -28,6 +28,8 @@ constexpr uint8_t SPI5_RX_REQ = 85; // Request number for SPI RX DMA requests.
 constexpr uint8_t SPI6_TX_REQ = 12; // Request number for SPI TX DMA requests.
 constexpr uint8_t SPI6_RX_REQ = 11; // Request number for SPI RX DMA requests.
 
+static constexpr const char* const scInvalidController = "Invalid DMA controller";
+
 enum eDmaTransferType{
 	PER2MEM = 0,
 	MEM2PER,
@@ -69,7 +71,7 @@ public:
 				return &instance2;
 		}
 
-		throw "Invalid DMA controller";
+		throw scInvalidController;
 	
 	}
 	class DmaChannel{

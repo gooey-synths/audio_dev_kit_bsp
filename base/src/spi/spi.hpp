@@ -18,6 +18,8 @@ class SpiBusBase; ///< forward reference.
 
 extern SpiBusBase *sInstances[NUM_SPI_CONTROLLERS]; ///< instances of the spi buses
 
+static constexpr const char* const scInvalidInstance = "Invalid SPI instance";
+
 ///
 /// Base class for SPI buses.
 /// @todo CRC?
@@ -111,7 +113,7 @@ class SpiBusBase : ISpiBus {
     static void errorIfTaken(size_t instanceNum) {
         instanceNum -= 1; // 1 index to 0 index conversion
         if (instanceNum > NUM_SPI_CONTROLLERS || sInstances[instanceNum]) {
-            throw "Invalid SPI instance";
+            throw scInvalidInstance;
         }
     }
 };

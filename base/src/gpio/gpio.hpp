@@ -7,6 +7,8 @@
 namespace gpio{
 
 static constexpr const char* scInvalidPin = "Invalid pin";
+static constexpr const char* scInvalidConf = "Invalid pin conf";
+static constexpr const char* scInvalidPort = "Invalid pin port";
 
 #define NUM_GPIO_PORTS 11
 
@@ -59,7 +61,6 @@ private:
 class GPIOController{
 
 public:
-
     ///
     /// Get a pointer to the GPIOController instance.
     /// @return Pointer to the GPIOController instance
@@ -91,10 +92,10 @@ public:
             throw scInvalidPin;
         }
         if(!conf){
-            throw "Invalid pin conf";
+            throw scInvalidConf;
         }
         if(pin->port > NUM_GPIO_PORTS){
-            throw "Invalid port";
+            throw scInvalidPort;
         }
         mPorts[pin->port].setPinMode(pin->pin, conf->mode);
         mPorts[pin->port].setPinType(pin->pin, conf->type);
