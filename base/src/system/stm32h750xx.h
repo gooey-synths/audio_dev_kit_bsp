@@ -34,6 +34,10 @@
 #ifndef STM32H750xx_H
 #define STM32H750xx_H
 
+#if __cplusplus > 199711L
+#define register      // Deprecated in C++11.
+#endif  // #if __cplusplus > 199711L
+
 #ifdef __cplusplus
  extern "C" {
 #endif /* __cplusplus */

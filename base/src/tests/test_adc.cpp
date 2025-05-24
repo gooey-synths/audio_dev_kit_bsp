@@ -60,11 +60,11 @@ static void adc_test(bool continuous) {
 
         for(int i = 0; i < 0x4FFFFF; i++); // wait for transfer to happen
 
-        uart1.write("============\r\n", sizeof("============\r\n"));
+        uart1.write((char*)"============\r\n", sizeof("============\r\n"));
 
         // print out conversions
         for(uint8_t iConv = 0; iConv < seq_size; iConv++){
-            uart1.write("ch ", sizeof("ch "));
+            uart1.write((char*)"ch ", sizeof("ch "));
             num_chars = sprintf(char_buff, "%d: ", seq[iConv]);
             uart1.write(char_buff, num_chars);
             num_chars = sprintf(char_buff, "%d\r\n", myADC.getConversion(iConv)>>4);
@@ -116,7 +116,7 @@ void test_adc_stop() {
 
         myADC.stop();
 
-        uart1.write("============\r\n", sizeof("============\r\n"));
+        uart1.write((char*)"============\r\n", sizeof("============\r\n"));
         
         for(uint8_t iConv = 0; iConv < seq_size; iConv++){
 
