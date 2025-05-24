@@ -3,6 +3,7 @@
 #include <cstdint>
 
 int main(){
-    test_adc_stop();
+    test_adc_exceptions();
+    test_adc_continuous_conversion();
     return 0;
 }

@@ -15,8 +15,6 @@ bool OnChipADC::sAdc12Reset = false;
 OnChipADC::OnChipADC(uint8_t adcNum)
     : mConversions{0}, mSeqLen(0), mControllerNum(adcNum),
       mDmaChannel(dma::DmaController::getInstance(1)->claimAvailableChannel()) {
-    assert(adcNum > 0 && adcNum < 4);
-    assert(mDmaChannel);
 
     RCC->D3CCIPR |= RCC_D3CCIPR_ADCSEL_1;
     // Select per_ck as kernel clock. Currently per_ck is set to be HSI
@@ -67,7 +65,7 @@ OnChipADC::OnChipADC(uint8_t adcNum)
         dmaReq = dma::ADC3_REQ;
         break;
     default:
-        assert(false); // Todo: change to a throw if exceptions are added.
+        throw scInvalidADC;
     }
 
     disable();
@@ -110,7 +108,7 @@ void OnChipADC::setBoostBits() {
         break;
 
     default:
-        assert(false); // Todo: change to a throw if exceptions are added.
+        throw scInvalidADC;
     };
 
     // God ST can you make a consistent pattern for once? >:(
@@ -121,7 +119,7 @@ void OnChipADC::setBoostBits() {
     } else if (prescalerBits < 0b110) {
         prescaler = 1 << (prescalerBits - 3);
     } else {
-        assert(false); // Todo: change to a throw if exceptions are added.
+        throw scInvalidPrescaler;
     }
 
     uint32_t prescFreq = adc_ckFreq / prescaler;
@@ -136,7 +134,7 @@ void OnChipADC::setBoostBits() {
     } else if (prescFreq <= 50e6) {
         boostBits = 0b11;
     } else {
-        assert(false); // Todo: change to a throw if exceptions are added.
+        throw scInvalidBoost;
     }
 
     mControllerHw->CR &= ~(ADC_CR_BOOST_Msk);           // Clear boost bits.

@@ -13,6 +13,10 @@ namespace adc {
 ///
 class OnChipADC : IOnChipADC {
 
+    static constexpr const char* const scInvalidADC = "Invalid ADC";
+    static constexpr const char* const scInvalidPrescaler = "Invalid ADC prescaler";
+    static constexpr const char* const scInvalidBoost = "Invalid ADC prescaler";
+
     static const uint8_t NUM_CONVERSIONS = 16; ///< Maximum number of conversion that can be done on the ADC.
 
   public:

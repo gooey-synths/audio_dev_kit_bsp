@@ -2,6 +2,7 @@
 #include "../gpio/gpio.hpp"
 #include "../uart/uart.hpp"
 #include "../system/board_defs.h"
+#include "test_helper.hpp"
 #include "stdint.h"
 #include "stdio.h"
 #include "string.h"
@@ -93,7 +94,6 @@ void test_adc_continuous_conversion() {
 
 }
 
-
 ///
 /// Test that calling adc stop actually stops converting and can be restarted.
 /// See output on UART 1 for ADC conversions, check they do not change betweend the "->".
@@ -134,4 +134,20 @@ void test_adc_stop() {
         }
         
     }
+}
+
+///
+/// Test that ADC exceptions are caught
+/// @note To check for success check that exception messages are printed to UART1
+///
+void test_adc_exceptions(){
+    bool exceptionCaught = false;
+    setup_pins();
+    uart::UartController uart1(1);
+
+    // Test that ivalid ADC throws an exceotion
+    EXPECT_EXCEPTION(OnChipADC(4));
+
+    // Test that ivalid ADC throws an exceotion
+    EXPECT_EXCEPTION(OnChipADC(0));
 }
