@@ -34,6 +34,10 @@
 #ifndef STM32H750xx_H
 #define STM32H750xx_H
 
+#if __cplusplus > 199711L
+#define register      // Deprecated in C++11.
+#endif  // #if __cplusplus > 199711L
+
 #ifdef __cplusplus
  extern "C" {
 #endif /* __cplusplus */
@@ -2838,6 +2842,9 @@ typedef struct
 #define ADC_ISR_JQOVF_Pos                 (10U)
 #define ADC_ISR_JQOVF_Msk                 (0x1UL << ADC_ISR_JQOVF_Pos)         /*!< 0x00000400 */
 #define ADC_ISR_JQOVF                     ADC_ISR_JQOVF_Msk                    /*!< ADC Injected Context Queue Overflow flag */
+#define ADC_ISR_LDORDY_Pos                (12U)
+#define ADC_ISR_LDORDY_Msk                (0x1UL << ADC_ISR_LDORDY_Pos)        /*!< 0x00001000 */
+#define ADC_ISR_LDORDY                    ADC_ISR_LDORDY_Msk                   /*!< ADC LDO Ready flag */
 
 /********************  Bit definition for ADC_IER register  ********************/
 #define ADC_IER_ADRDYIE_Pos               (0U)

@@ -187,3 +187,126 @@ const GPIOConf spi3_cs2_conf = {
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
+
+// ADC pins
+
+const GPIOPin adc1_16_pin = {
+    .port = 0,
+    .pin = 0
+};
+
+const GPIOConf adc1_16_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL
+};
+
+const GPIOPin adc1_3_pin = {
+    .port = 0,
+    .pin = 6
+};
+
+const GPIOConf adc1_3_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_8_pin = {
+    .port = 2,
+    .pin = 5
+};
+
+const GPIOConf adc1_8_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_9_pin = {
+    .port = 1,
+    .pin = 0
+};
+
+const GPIOConf adc1_9_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_10_pin = {
+    .port = 2,
+    .pin = 0
+};
+
+const GPIOConf adc1_10_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_11_pin = {
+    .port = 2,
+    .pin = 1
+};
+
+const GPIOConf adc1_11_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_14_pin = {
+    .port = 0,
+    .pin = 2
+};
+
+const GPIOConf adc1_14_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_15_pin = {
+    .port = 0,
+    .pin = 3
+};
+
+const GPIOConf adc1_15_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOPin adc1_18_pin = {
+    .port = 0,
+    .pin = 4
+};
+
+const GPIOConf adc1_18_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+
+const GPIOPin adc1_19_pin = {
+    .port = 0,
+    .pin = 5
+};
+
+const GPIOConf adc1_19_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ANALOG_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};

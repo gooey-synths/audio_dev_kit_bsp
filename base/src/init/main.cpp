@@ -1,10 +1,9 @@
 #include "../tests/tests.hpp"
-#include <malloc.h>
+#include <cstdlib>
 #include <cstdint>
 
-int main() {
-    test_gpio_exceptions();
-    test_dma_exceptions();
-    test_spi_hw_exceptions();
-    test_uart_exceptions();
+int main(){
+    test_adc_exceptions();
+    test_adc_continuous_conversion();
+    return 0;
 }
