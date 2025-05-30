@@ -134,3 +134,50 @@ void test_DAC60508() {
 
 
 }
+///
+/// Test that DMA exceptions are caught
+/// @note To check for success check that exception messages are printed to UART1
+///
+void test_spi_hw_exceptions()
+{
+    bool exceptionCaught = false;
+    setup_pins();
+    uart::UartController uart1(1);
+
+    // Test getting an invalid controller
+    EXPECT_EXCEPTION(HwCsSpiBus badSpiBus(0));
+    
+    HwCsSpiBus spiBus(2);
+
+    SpiBusConfig conf;
+    conf.mFreq = 30000U;
+    conf.mPhase = 0;
+    conf.mPolarity = 1;
+    conf.mWordSize = 8;
+    conf.mIoSwap = true;
+    conf.mMidi = 0;
+
+    // Setup tx buffer to read device ID from DAC
+    txBuff[0] = 0x81;
+    txBuff[1] = 0x00;
+    txBuff[2] = 0x00;
+
+    spiBus.configure(conf);
+    spiBus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0, sizeof(*txBuff));
+
+
+    spiBus.transact();
+    // Test transacting while active
+    EXPECT_EXCEPTION(spiBus.transact());
+    spiBus.waitForCompletion();
+
+    spiBus.transact();
+    // Test configuring while active
+    EXPECT_EXCEPTION(spiBus.configure(conf));
+    spiBus.waitForCompletion();
+
+    spiBus.transact();
+    // Test preparing while active
+    EXPECT_EXCEPTION(spiBus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0, sizeof(*txBuff)));
+    spiBus.waitForCompletion();
+}

@@ -77,3 +77,39 @@ void test_dma_single_buffer(){
     }
 
 }
+
+///
+/// Test that DMA exceptions are caught
+/// @note To check for success check that exception messages are printed to UART1
+///
+void test_dma_exceptions()
+{
+    bool exceptionCaught = false;
+    setup_pins();
+    uart::UartController uart1(1);
+
+    // Test invalid controller.
+    EXPECT_EXCEPTION(dma::DmaController::getInstance(0));
+
+    dma::DmaController* dma_controller = dma::DmaController::getInstance(TEST_CONTROLLER);
+    // Test invalid channel
+    EXPECT_EXCEPTION(dma_controller->claimChannel(0));
+
+    dma::DmaController::DmaChannel* channels[dma::DMA1_NUM_CHANNELS];
+    for(dma::DmaController::DmaChannel*& channel: channels) {
+        channel = dma_controller->claimAvailableChannel();
+    }
+
+    // Test no available channels
+    EXPECT_EXCEPTION(dma_controller->claimAvailableChannel());
+
+    for(dma::DmaController::DmaChannel*& channel: channels) {
+        dma_controller->releaseChannel(channel);
+    }
+
+    dma::DmaController::DmaChannel* channel = dma_controller->claimChannel(TEST_CHANNEL);
+    // Test invalid data sizes
+    EXPECT_EXCEPTION(channel->setDest(dstBuffer, 3, 0));
+    EXPECT_EXCEPTION(channel->setSource(srcBuffer, 3, 0));
+
+}

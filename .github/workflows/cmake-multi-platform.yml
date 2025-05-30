@@ -32,6 +32,8 @@ jobs:
 
       - uses: cpp-linter/cpp-linter-action@v2
         with:
+          style: 'file'  # Use .clang-format config file
+          tidy-checks: '' # Use .clang-tidy config file
           database: 'base/build_host/compile_commands.json'
           ignore: 'base/src/thirdparty'
 
@@ -64,9 +66,9 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/base/build" >> "$GITHUB_OUTPUT"
 
     - name: arm-none-eabi-gcc
-      uses: ryanwinter/arm-none-eabi-gcc@master
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '10-2021.10'
+        release: '14.2.Rel1' # <-- The compiler release to use
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

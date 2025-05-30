@@ -18,12 +18,11 @@ extern uint32_t _sdata;  //< Start of data section
 extern uint32_t _edata;  //< End of data section
 extern uint32_t _sstack; //< Start of stack section
 extern uint32_t _estack; //< End of stack section
+extern uint32_t _sidata; //< Startup initialization data
 
-#define STACK_START_ADDR   0x24080000
-
-__attribute__ ((section(".isrvectors")))
+__attribute__ ((section(".isr_vector")))
 uint32_t* vector_table[] = {
-    (uint32_t*) STACK_START_ADDR,   
+    (uint32_t*) &_estack,
     (uint32_t*) reset_handler,
     ISR_NOT_IMPL, /* NMI */
     ISR_NOT_IMPL, /* Hard fault */
@@ -396,7 +395,7 @@ void start_clocks(){
 __attribute__ ((noreturn)) void reset_handler(){
 
     /* Copy init values from text to data */
-    uint32_t *init_values_ptr = &_etext  + (&_sdata - &_edata);
+    uint32_t *init_values_ptr = &_sidata;
     uint32_t *data_ptr = &_sdata;
 
     if (init_values_ptr != data_ptr) {
@@ -416,7 +415,7 @@ __attribute__ ((noreturn)) void reset_handler(){
     }
 
     // Remap vector table to RAM location
-    SCB->VTOR = (uint32_t)vector_table_ram; //NOLINT
+    SCB->VTOR = (uint32_t)vector_table_ram; // NOLINT
 
     enable_fpu();
 
