@@ -40,14 +40,18 @@ if (BUILD_ARM)
 	add_custom_command(TARGET ${PROJECT_NAME}.bin COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
     
 else()
-        add_subdirectory(third_party/googletest)
+	add_subdirectory(third_party/googletest)
 
 	# Unit test target (Runs on PC)
 	add_executable(my_tests test_test/hello_test.cpp)
-	target_link_libraries(my_tests gtest_main gtest)
+	add_executable(dac_tests test_test/dac_test.cpp)
+
+	target_link_libraries(my_tests PRIVATE gtest_main gmock_main gtest)
+	target_link_libraries(dac_tests PRIVATE gtest_main gmock_main gtest)
 
 	include(GoogleTest)
-	gtest_discover_tests(my_tests)
+	gtest_discover_tests(dac_tests)
+	gtest_discover_tests(dac_tests)
 endif()
 
 
