@@ -117,17 +117,17 @@ private:
 };
 
 
-// Test Fixture for SpiDevice
-class SpiDeviceTest : public ::testing::Test {
+// Test Fixture for DAC60508
+class DacTest : public ::testing::Test {
 protected:
     DAC60508Sim mockDevice;
     spi::DAC60508 interface;
 
-    SpiDeviceTest() : interface(mockDevice, 0)  {}
+    DacTest() : interface(mockDevice, 0)  {}
 
 };
 
-TEST_F(SpiDeviceTest, testDacMode) {
+TEST_F(DacTest, testDacMode) {
     // Check that the default mode is in reg mode.
     spi::eDACx050yMode mode = interface.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
@@ -144,14 +144,14 @@ TEST_F(SpiDeviceTest, testDacMode) {
     ASSERT_EQ(mockDevice.getBufLen(), 1);
 }
 
-TEST_F(SpiDeviceTest, testDacSetup) {
+TEST_F(DacTest, testDacSetup) {
     // Check that the configuration is set when calling setup
     interface.setup();
     spi::SpiBusConfig conf = mockDevice.getConfiguration();
     ASSERT_EQ(conf, spi::DAC60508::scSpiConf);
 }
 
-TEST_F(SpiDeviceTest, testInvalidMode) {
+TEST_F(DacTest, testInvalidMode) {
     // Check that we can't perform a register transaction in stream mode.
     interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
     EXPECT_THROW({
@@ -164,7 +164,7 @@ TEST_F(SpiDeviceTest, testInvalidMode) {
     }, const char*);
 }
 
-TEST_F(SpiDeviceTest, testInvalidIdx) {
+TEST_F(DacTest, testInvalidIdx) {
     // Check that we can't set an invalid DAC idx
     interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);    
     EXPECT_THROW({
@@ -179,7 +179,6 @@ TEST_F(SpiDeviceTest, testInvalidIdx) {
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
-    // Capture the stderr output
-    CaptureStderr();
+
     return RUN_ALL_TESTS();
 }
