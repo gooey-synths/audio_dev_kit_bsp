@@ -93,6 +93,19 @@ template <size_t tX, size_t tY> class IDACx050y {
 ///
 template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
   public:
+    /// SPI bus configuration for the DACX050Y
+    static constexpr SpiBusConfig scSpiConf = {
+        .mPolarity = 1,
+        .mPhase = 0,
+        .mIoSwap = 1,
+        .mFreq = 300000000U,
+        .mWordSize = 24,
+        .mMidi = 0x7
+    };
+
+    static constexpr const char* const scInvalidIdx = "Invalid DAC index";
+    static constexpr const char* const scInvalidMode = "Invalid DAC mode";
+
     ///
     /// Constructor.
     /// @param spiBus SpiBus that the DAC is connected to.
@@ -120,6 +133,9 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
                 mTxBuf[iDac].mAddr = DACx050y_DAC0 + iDac;
             }
             break;
+
+        default:
+            throw scInvalidMode;        
         };
         mSpiBus.prepare(mTxBuf, mRxBuf, bufLen, mCs, sizeof(*mTxBuf));
         mMode = mode;
@@ -156,7 +172,8 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     ///
     /// Write a register of the DACx050y.
     /// @param addr Address of the register to write.
-    /// @param value
+    /// @param value Value of register to write.
+    ///
     virtual void WriteReg(eDACx050yRegAddr addr, uint16_t value) { regTransaction(addr, value, false); }
 
     ///
@@ -166,7 +183,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     ///
     virtual void setStreamVal(uint8_t dacIdx, uint16_t val) {
         if (dacIdx > tY) {
-            return;
+            throw scInvalidIdx;
         }
         mTxBuf[dacIdx].setData(val);
     }
@@ -185,6 +202,10 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     /// @param read True if read bit should be set.
     ///
     inline void regTransaction(eDACx050yRegAddr addr, uint16_t value, bool read) {
+        if (mMode != eDACx050yMode::DACx050y_REG_MODE) {
+            throw scInvalidMode;
+        }
+
         mTxBuf[0].mRW = read;
         mTxBuf[0].setAddr(addr);
         mTxBuf[0].setData(value);
@@ -192,16 +213,6 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
         mSpiBus.transact();
         mSpiBus.waitForCompletion();
     }
-
-    /// SPI bus configuration for the DAC60508
-    static constexpr SpiBusConfig scSpiConf = {
-        .mPolarity = 1,
-        .mPhase = 0,
-        .mIoSwap = 1,
-        .mFreq = 300000000U,
-        .mWordSize = 24,
-        .mMidi = 0x7
-    };
 
     ISpiBus &mSpiBus;               ///< Reference to the SPI bus that the DAC60508 is connected to.
     size_t mCs;                     ///< Chip select the DAC60508 uses.

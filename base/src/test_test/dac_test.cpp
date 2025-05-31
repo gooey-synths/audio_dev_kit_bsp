@@ -13,9 +13,11 @@ public:
     virtual void configure(spi::SpiBusConfig conf) {
         mConf = conf;
     }
+
     virtual spi::SpiBusConfig getConfiguration() {
         return mConf;
     }
+
     virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
         mTxBuff = txBuff;
         mRxBuff = rxBuff;
@@ -23,10 +25,11 @@ public:
         mDataSize = dataSize;
     }
 
-
     MOCK_METHOD(void, interrupt, (), (override));
     MOCK_METHOD(void, cleanup, (), (override));
     MOCK_METHOD(void, waitForCompletion, (), (override));
+
+    size_t getBufLen() { return mBufLen; }
 
 protected:
     void* mTxBuff;
@@ -124,10 +127,7 @@ protected:
 
 };
 
-TEST_F(SpiDeviceTest, checkMode) {
-    // Capture the stdout output
-    CaptureStderr();
-
+TEST_F(SpiDeviceTest, testDacMode) {
     // Check that the default mode is in reg mode.
     spi::eDACx050yMode mode = interface.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
@@ -136,13 +136,50 @@ TEST_F(SpiDeviceTest, checkMode) {
     interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
     mode = interface.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    ASSERT_EQ(mockDevice.getBufLen(), 8);
     
     interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
     mode = interface.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
+    ASSERT_EQ(mockDevice.getBufLen(), 1);
+}
+
+TEST_F(SpiDeviceTest, testDacSetup) {
+    // Check that the configuration is set when calling setup
+    interface.setup();
+    spi::SpiBusConfig conf = mockDevice.getConfiguration();
+    ASSERT_EQ(conf, spi::DAC60508::scSpiConf);
+}
+
+TEST_F(SpiDeviceTest, testInvalidMode) {
+    // Check that we can't perform a register transaction in stream mode.
+    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    EXPECT_THROW({
+        try {
+            interface.WriteReg(spi::eDACx050yRegAddr::DACx050y_NOP, 0);
+        } catch (const char* e) {
+            ASSERT_EQ(e, spi::DAC60508::scInvalidMode);
+            throw;
+        }
+    }, const char*);
+}
+
+TEST_F(SpiDeviceTest, testInvalidIdx) {
+    // Check that we can't set an invalid DAC idx
+    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);    
+    EXPECT_THROW({
+        try {
+            interface.setStreamVal(255, 0);
+        } catch (const char* e) {
+            ASSERT_EQ(e, spi::DAC60508::scInvalidIdx);
+            throw;
+        }
+    }, const char*);
 }
 
 int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+    ::testing::InitGoogleTest(&argc, argv);
+    // Capture the stderr output
+    CaptureStderr();
+    return RUN_ALL_TESTS();
 }
