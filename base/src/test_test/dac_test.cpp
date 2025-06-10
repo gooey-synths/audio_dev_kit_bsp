@@ -8,6 +8,11 @@ using ::testing::_;
 using ::testing::internal::CaptureStderr;
 using ::testing::internal::GetCapturedStderr;
 
+constexpr uint16_t cDefaultId = 10340;
+constexpr uint16_t cDefaultSync = 0xFF00;
+constexpr uint16_t cDefaultGain = 0x00FF;
+constexpr uint16_t cDefaultDac = 0x8000;
+
 class MockSpiBus : public spi::ISpiBus {
 public:
     virtual void configure(spi::SpiBusConfig conf) {
@@ -30,6 +35,9 @@ public:
     MOCK_METHOD(void, waitForCompletion, (), (override));
 
     size_t getBufLen() { return mBufLen; }
+    size_t getDataSize() { return mDataSize; }
+    void* getTxBuff() { return mTxBuff; }
+    void* getRxBuff() { return mRxBuff; }
 
 protected:
     void* mTxBuff;
@@ -46,11 +54,11 @@ public:
     DAC60508Sim() {
         // Set default register values.
         memset(mRegs, sizeof(mRegs), 0);
-        mRegs[spi::eDACx050yRegAddr::DACx050y_ID] = 10340;
-        mRegs[spi::eDACx050yRegAddr::DACx050y_SYNC] = 0xFF00; 
-        mRegs[spi::eDACx050yRegAddr::DACx050y_GAIN] = 0x00FF; 
+        mRegs[spi::eDACx050yRegAddr::DACx050y_ID] = cDefaultId;
+        mRegs[spi::eDACx050yRegAddr::DACx050y_SYNC] = cDefaultSync; 
+        mRegs[spi::eDACx050yRegAddr::DACx050y_GAIN] = cDefaultGain; 
         for(size_t iDac = 0; iDac < 8; iDac++) {
-            mRegs[spi::eDACx050yRegAddr::DACx050y_DAC0+iDac] = 0x8000;
+            mRegs[spi::eDACx050yRegAddr::DACx050y_DAC0+iDac] = cDefaultDac;
         }
     }
 
@@ -67,31 +75,7 @@ public:
                     sim(reinterpret_cast<spi::DACx050yTransaction*>(mTxBuff)[iTransaction]);
             }
         } else {
-            if(mDataSize != 1) {
-                return; // Unsupported data size.
-            }
-            if(mConf.mWordSize != 8) {
-                return; // Unsupported word size.
-            }
-            if(mBufLen != 3){
-                return; // Unsupported buffer length.
-            }
-
-            uint32_t tx;
-            const size_t mask = (1 << mConf.mWordSize) - 1; 
-
-            for(size_t iBuf = 0; iBuf < mBufLen; iBuf++) {
-                tx << mConf.mWordSize;
-                tx |= reinterpret_cast<uint32_t*>(mTxBuff)[iBuf] & mask;
-            }
-            
-            spi::DACx050yTransaction rx = (*reinterpret_cast<spi::DACx050yTransaction*>(&tx));
-
-            for(size_t iBuf = 0; iBuf < mBufLen; iBuf++) {
-                reinterpret_cast<uint32_t*>(mRxBuff)[iBuf] = *reinterpret_cast<uint32_t*>(&rx) & mask;
-                *reinterpret_cast<uint32_t*>(&rx) >> mConf.mWordSize;
-            }
-
+            return; // Unsupported midi setting.
         }
     }
 
@@ -103,10 +87,11 @@ private:
 
         if(transaction.mRW) {
             // read.
-            ret.setData(mRegs[transaction.getAddr()]);
+            mNextTransaction.setData(mRegs[transaction.getAddr()]);
+            mNextTransaction.setAddr(transaction.getAddr());
         } else {
             // write.
-            mRegs[ret.getAddr()] = transaction.getData();
+            mRegs[transaction.getAddr()] = transaction.getData();
         }
 
         return ret;
@@ -177,6 +162,52 @@ TEST_F(DacTest, testInvalidIdx) {
     }, const char*);
 }
 
+TEST_F(DacTest, testRegisterWrite) {
+    interface.setup();
+    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+    uint16_t testGain = 0x1F;
+
+    EXPECT_CALL(mockDevice, waitForCompletion());
+    interface.WriteReg(spi::eDACx050yRegAddr::DACx050y_GAIN, testGain);
+
+    spi::DACx050yTransaction* txBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockDevice.getTxBuff());
+
+    ASSERT_EQ(txBuff->getAddr(), spi::eDACx050yRegAddr::DACx050y_GAIN);
+    ASSERT_EQ(txBuff->getData(), testGain);
+}
+
+TEST_F(DacTest, testRegisterRead) {
+    interface.setup();
+    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+
+    EXPECT_CALL(mockDevice, waitForCompletion()).Times(2);
+    interface.ReadReg(spi::eDACx050yRegAddr::DACx050y_ID);
+
+    spi::DACx050yTransaction* rxBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockDevice.getRxBuff());
+
+    ASSERT_EQ(rxBuff->getAddr(), spi::eDACx050yRegAddr::DACx050y_ID);
+    ASSERT_EQ(rxBuff->getData(), 10340);
+}
+
+TEST_F(DacTest, testStream) {
+    interface.setup();
+    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+
+    for(size_t idx = 0; idx < 8; idx++) {
+        interface.setStreamVal(idx, idx);
+    }
+
+    interface.updateStream();
+
+    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+
+    for(size_t idx = 0; idx < 8; idx++) {
+        EXPECT_CALL(mockDevice, waitForCompletion()).Times(2);
+        
+        uint16_t dacData = interface.ReadReg(static_cast<spi::eDACx050yRegAddr>(spi::eDACx050yRegAddr::DACx050y_DAC0 + idx));
+        ASSERT_EQ(dacData, idx);
+    }
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 

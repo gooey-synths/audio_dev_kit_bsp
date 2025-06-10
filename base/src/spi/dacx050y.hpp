@@ -164,7 +164,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
         regTransaction(addr, 0x0000, true);
 
         // Send NOP command to get data back.
-        regTransaction(eDACx050yRegAddr::DACx050y_NOP, 0x0000, false);
+        regTransaction(eDACx050yRegAddr::DACx050y_NOP, 0x0420, false);
 
         return mRxBuf[0].getData();
     }
