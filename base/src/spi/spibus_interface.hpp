@@ -2,6 +2,7 @@
 #define SPIBUSINTERFACE_HPP
 
 #include <cstdint>
+#include <stddef.h>
 
 namespace spi {
 
