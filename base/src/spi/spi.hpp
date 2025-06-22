@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <stdint.h>
+#include <stddef.h>
 
 namespace spi {
 

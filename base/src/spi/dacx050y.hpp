@@ -95,9 +95,9 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
   public:
     /// SPI bus configuration for the DACX050Y
     static constexpr SpiBusConfig scSpiConf = {
-        .mPolarity = 1,
-        .mPhase = 0,
-        .mIoSwap = 1,
+        .mPolarity = true,
+        .mPhase = false,
+        .mIoSwap = true,
         .mFreq = 300000000U,
         .mWordSize = 24,
         .mMidi = 0x7
@@ -116,12 +116,17 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     }
 
     ///
+    /// Default destructor.
+    ///
+    virtual ~DACx050y() = default;
+
+    ///
     /// Set the current mode of the DACx050y
     /// @param mode Mode for the DAC to operate in
     /// @note Calling functions without setting the proper mode may result in undefined behavoir!
     ///
     virtual void setMode(eDACx050yMode mode) {
-        size_t bufLen;
+        size_t bufLen = 0;
         switch (mode) {
         case eDACx050yMode::DACx050y_REG_MODE:
             bufLen = 1;
@@ -135,9 +140,10 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
             break;
 
         default:
-            throw scInvalidMode;        
+            throw scInvalidMode;
         };
-        mSpiBus.prepare(mTxBuf, mRxBuf, bufLen, mCs, sizeof(*mTxBuf));
+
+        mSpiBus.prepare(reinterpret_cast<void*>(&mTxBuf[0]), reinterpret_cast<void*>(&mRxBuf[0]), bufLen, mCs, sizeof(mTxBuf[0]));
         mMode = mode;
     }
 
