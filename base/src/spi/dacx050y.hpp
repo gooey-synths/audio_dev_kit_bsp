@@ -116,11 +116,6 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     }
 
     ///
-    /// Default destructor.
-    ///
-    virtual ~DACx050y() = default;
-
-    ///
     /// Set the current mode of the DACx050y
     /// @param mode Mode for the DAC to operate in
     /// @note Calling functions without setting the proper mode may result in undefined behavoir!
