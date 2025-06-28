@@ -13,9 +13,14 @@ constexpr uint16_t cDefaultSync = 0xFF00;
 constexpr uint16_t cDefaultGain = 0x00FF;
 constexpr uint16_t cDefaultDac = 0x8000;
 
+const char* const cSpiBusy = "Spi bus";
+
 class MockSpiBus : public spi::ISpiBus {
 public:
     virtual void configure(spi::SpiBusConfig conf) {
+        if(mBusy) {
+            throw cSpiBusy;
+        }
         mConf = conf;
     }
 
@@ -24,10 +29,19 @@ public:
     }
 
     virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
+        if(mBusy) {
+            throw cSpiBusy;
+        }
         mTxBuff = txBuff;
         mRxBuff = rxBuff;
         mBufLen = bufLen;
         mDataSize = dataSize;
+    }
+
+    virtual void transact() {
+        if(mBusy) {
+            throw cSpiBusy;
+        }
     }
 
     MOCK_METHOD(void, interrupt, (), (override));
@@ -39,15 +53,18 @@ public:
     void* getTxBuff() { return mTxBuff; }
     void* getRxBuff() { return mRxBuff; }
 
+    void setBusy(bool busy) { mBusy = busy; }
+
 protected:
+    bool mBusy = false;
     void* mTxBuff;
     void* mRxBuff;
-    size_t mBufLen;
-    size_t mDataSize;
+    size_t mBufLen = 0;
+    size_t mDataSize = 1;
     spi::SpiBusConfig mConf;
 };
 
-
+#if 0
 class DAC60508Sim : public MockSpiBus {
 public:
 
@@ -100,48 +117,49 @@ private:
     uint16_t mRegs[16];
     spi::DACx050yTransaction mNextTransaction;
 };
+#endif
 
 
 // Test Fixture for DAC60508
 class DacTest : public ::testing::Test {
 protected:
-    DAC60508Sim mockDevice;
-    spi::DAC60508 interface;
+    MockSpiBus mockBus;
+    spi::DAC60508 dac;
 
-    DacTest() : interface(mockDevice, 0)  {}
+    DacTest() : dac(mockBus, 0)  {}
 
 };
 
 TEST_F(DacTest, testDacMode) {
     // Check that the default mode is in reg mode.
-    spi::eDACx050yMode mode = interface.getMode();
+    spi::eDACx050yMode mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
 
     // Check that we can set and get the mode.
-    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
-    mode = interface.getMode();
+    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_STREAM_MODE);
-    ASSERT_EQ(mockDevice.getBufLen(), 8);
+    ASSERT_EQ(mockBus.getBufLen(), 8);
     
-    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
-    mode = interface.getMode();
+    dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+    mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
-    ASSERT_EQ(mockDevice.getBufLen(), 1);
+    ASSERT_EQ(mockBus.getBufLen(), 1);
 }
 
 TEST_F(DacTest, testDacSetup) {
     // Check that the configuration is set when calling setup
-    interface.setup();
-    spi::SpiBusConfig conf = mockDevice.getConfiguration();
+    dac.setup();
+    spi::SpiBusConfig conf = mockBus.getConfiguration();
     ASSERT_EQ(conf, spi::DAC60508::scSpiConf);
 }
 
 TEST_F(DacTest, testInvalidMode) {
     // Check that we can't perform a register transaction in stream mode.
-    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
     EXPECT_THROW({
         try {
-            interface.WriteReg(spi::eDACx050yRegAddr::DACx050y_NOP, 0);
+            dac.WriteReg(spi::eDACx050yRegAddr::DACx050y_NOP, 0);
         } catch (const char* e) {
             ASSERT_EQ(e, spi::DAC60508::scInvalidMode);
             throw;
@@ -151,10 +169,10 @@ TEST_F(DacTest, testInvalidMode) {
 
 TEST_F(DacTest, testInvalidIdx) {
     // Check that we can't set an invalid DAC idx
-    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);    
+    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);    
     EXPECT_THROW({
         try {
-            interface.setStreamVal(255, 0);
+            dac.setStreamVal(255, 0);
         } catch (const char* e) {
             ASSERT_EQ(e, spi::DAC60508::scInvalidIdx);
             throw;
@@ -163,51 +181,75 @@ TEST_F(DacTest, testInvalidIdx) {
 }
 
 TEST_F(DacTest, testRegisterWrite) {
-    interface.setup();
-    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+    dac.setup();
+    dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
     uint16_t testGain = 0x1F;
 
-    EXPECT_CALL(mockDevice, waitForCompletion());
-    interface.WriteReg(spi::eDACx050yRegAddr::DACx050y_GAIN, testGain);
+    EXPECT_CALL(mockBus, waitForCompletion());
+    dac.WriteReg(spi::eDACx050yRegAddr::DACx050y_GAIN, testGain);
 
-    spi::DACx050yTransaction* txBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockDevice.getTxBuff());
+    spi::DACx050yTransaction* txBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockBus.getTxBuff());
 
     ASSERT_EQ(txBuff->getAddr(), spi::eDACx050yRegAddr::DACx050y_GAIN);
     ASSERT_EQ(txBuff->getData(), testGain);
 }
 
 TEST_F(DacTest, testRegisterRead) {
-    interface.setup();
-    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+    dac.setup();
+    dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
 
-    EXPECT_CALL(mockDevice, waitForCompletion()).Times(2);
-    interface.ReadReg(spi::eDACx050yRegAddr::DACx050y_ID);
+    EXPECT_CALL(mockBus, waitForCompletion()).Times(2);
+    dac.ReadReg(spi::eDACx050yRegAddr::DACx050y_ID);
 
-    spi::DACx050yTransaction* rxBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockDevice.getRxBuff());
+    spi::DACx050yTransaction* rxBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockBus.getRxBuff());
 
     ASSERT_EQ(rxBuff->getAddr(), spi::eDACx050yRegAddr::DACx050y_ID);
     ASSERT_EQ(rxBuff->getData(), 10340);
 }
 
 TEST_F(DacTest, testStream) {
-    interface.setup();
-    interface.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    dac.setup();
+    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
 
     for(size_t idx = 0; idx < 8; idx++) {
-        interface.setStreamVal(idx, idx);
+        dac.setStreamVal(idx, idx);
     }
 
-    interface.updateStream();
+    dac.updateStream();
 
-    interface.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+    dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
 
     for(size_t idx = 0; idx < 8; idx++) {
-        EXPECT_CALL(mockDevice, waitForCompletion()).Times(2);
-        
-        uint16_t dacData = interface.ReadReg(static_cast<spi::eDACx050yRegAddr>(spi::eDACx050yRegAddr::DACx050y_DAC0 + idx));
+        EXPECT_CALL(mockBus, waitForCompletion()).Times(2);
+
+        uint16_t dacData = dac.ReadReg(static_cast<spi::eDACx050yRegAddr>(spi::eDACx050yRegAddr::DACx050y_DAC0 + idx));
         ASSERT_EQ(dacData, idx);
     }
 }
+
+TEST_F(DacTest, testBusy) {
+    mockBus.setBusy(true);
+
+    EXPECT_THROW({
+        try {
+            dac.setup();
+        } catch (const char* e) {
+            ASSERT_EQ(e, cSpiBusy);
+            throw;
+        }
+    }, const char*);
+
+    EXPECT_THROW({
+        try {
+            dac.WriteReg(spi::eDACx050yRegAddr::DACx050y_NOP, 0);
+        } catch (const char* e) {
+            ASSERT_EQ(e, cSpiBusy);
+            throw;
+        }
+    }, const char*);
+
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 
