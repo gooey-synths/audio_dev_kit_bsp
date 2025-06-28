@@ -4,10 +4,14 @@
 #include <cstdint>
 #include <cstddef>
 
+/// @todo Serial IO, File IO, filter engine?
 namespace board {
 
 /// Data type for data coming to and from the board.
 typedef uint16_t BoardData;
+
+/// Callback function typedef.
+typedef void (*CallbackFunc)();
 
 ///
 /// Enumeration for IO speed.
@@ -82,6 +86,23 @@ class DigitalInput : public Input<bool> {};
 class DigitalOutput : public Output<bool> {};
 
 ///
+/// Timer class
+///
+class Timer {
+    ///
+    /// Set the frequency of the timer.
+    /// @param frequency Frequency of the timer.
+    ///
+    virtual void SetFrequency(float frequency) = 0;
+
+    ///
+    /// Set the callback function to execute.
+    /// @param callback Callback function to execute. Null for no callback.
+    ///
+    virtual void SetCallback(CallbackFunc callback) = 0;
+};
+
+///
 /// Structure defining the IO configuration.
 ///
 struct IOConfig {
@@ -95,8 +116,9 @@ struct IOConfig {
 /// Structure defining the board configuration.
 ///
 struct BoardConfig {
-    IOConfig slowIO; ///< Slow IO configuration.
-    IOConfig fastIO; ///< Fast IO configuration.
+    IOConfig slowIO;  ///< Slow IO configuration.
+    IOConfig fastIO;  ///< Fast IO configuration.
+    size_t numTimers; ///< Number of timers the board provides.
 };
 
 ///
@@ -114,7 +136,7 @@ public:
     /// Get a reference to an analog input on the board.
     /// @param speed Speed of the analog input to get a reference to.
     /// @param idx Index of the analog input to get.
-    /// @return A reference to an analog input on the board
+    /// @return A reference to an analog input on the board.
     ///
     virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) const = 0;
     
@@ -122,7 +144,7 @@ public:
     /// Get a reference to an analog output on the board.
     /// @param speed Speed of the analog output to get a reference to.
     /// @param idx Index of the analog output to get.
-    /// @return A reference to an analog output on the board
+    /// @return A reference to an analog output on the board.
     ///
     virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) const = 0;
 
@@ -130,7 +152,7 @@ public:
     /// Get a reference to an digital input on the board.
     /// @param speed Speed of the digital input to get a reference to.
     /// @param idx Index of the digital input to get.
-    /// @return A reference to an digital input on the board
+    /// @return A reference to an digital input on the board.
     ///
     virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) const = 0;
     
@@ -138,9 +160,16 @@ public:
     /// Get a reference to an digital output on the board.
     /// @param speed Speed of the digital output to get a reference to.
     /// @param idx Index of the digital output to get.
-    /// @return A reference to an digital output on the board
+    /// @return A reference to an digital output on the board.
     ///
     virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) const = 0;
+
+    ///
+    /// Get a timer from the board.
+    /// @param idx Index of the timer to get.
+    /// @return A reference to a timer on the board.
+    ///
+    virtual Timer& GetTimer(size_t idx) const = 0;
 };
 
 } // namespace board
