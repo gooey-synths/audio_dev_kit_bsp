@@ -23,3 +23,4 @@ extern void test_adc_exceptions();
 // SPI tests
 extern void test_spi_hw_transaction();
 extern void test_spi_hw_exceptions();
+extern void test_DAC60508();

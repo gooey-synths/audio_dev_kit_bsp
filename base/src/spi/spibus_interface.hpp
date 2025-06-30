@@ -2,6 +2,7 @@
 #define SPIBUSINTERFACE_HPP
 
 #include <cstdint>
+#include <stddef.h>
 
 namespace spi {
 
@@ -13,6 +14,20 @@ struct SpiBusConfig {
     uint32_t mFreq;    ///< Clock frequency
     uint8_t mWordSize; ///< Data word size in bits
     uint8_t mMidi;     ///< Master inter-data idleness (HW SPI only)
+
+    ///
+    /// Equality operator
+    /// @param rhs Right hand side of expression
+    /// @return True if configurations match.
+    ///
+    bool operator==(const SpiBusConfig& rhs) const {
+      return mPolarity == rhs.mPolarity && \
+      mPhase == rhs.mPhase && \
+      mIoSwap == rhs.mIoSwap && \
+      mFreq == rhs.mFreq && \
+      mWordSize == rhs.mWordSize && \
+      mMidi == rhs.mMidi;
+    }
 };
 
 // SPI bus interface

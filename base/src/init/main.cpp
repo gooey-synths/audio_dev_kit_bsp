@@ -2,8 +2,7 @@
 #include <cstdlib>
 #include <cstdint>
 
-int main(){
-    test_adc_exceptions();
-    test_adc_continuous_conversion();
+int main() {
+    test_DAC60508();
     return 0;
 }

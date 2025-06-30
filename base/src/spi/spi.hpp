@@ -24,7 +24,7 @@ static constexpr const char* const scInvalidInstance = "Invalid SPI instance";
 /// Base class for SPI buses.
 /// @todo CRC?
 ///
-class SpiBusBase : ISpiBus {
+class SpiBusBase : public ISpiBus {
 
   public:
     SpiBusBase(size_t);
@@ -102,6 +102,7 @@ class SpiBusBase : ISpiBus {
     SPI_TypeDef *mSpiHw;                    ///< SPI peripheral pointer.
     SpiBusConfig mConfig;                   ///< SPI bus configuration.
     uint32_t mKerClkFreq;                   ///< Frequency of the SPI_KER_CLK.
+    size_t mNumTransfers;
     dma::DmaController::DmaChannel *mTxDma; ///< TX DMA channel
     dma::DmaController::DmaChannel *mRxDma; ///< RX DMA channel
 
