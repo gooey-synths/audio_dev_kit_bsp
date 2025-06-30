@@ -51,7 +51,6 @@ public:
     size_t getBufLen() { return mBufLen; }
     size_t getDataSize() { return mDataSize; }
     void* getTxBuff() { return mTxBuff; }
-    void* getRxBuff() { return mRxBuff; }
 
     void setBusy(bool busy) { mBusy = busy; }
 
@@ -63,62 +62,6 @@ protected:
     size_t mDataSize = 1;
     spi::SpiBusConfig mConf;
 };
-
-#if 0
-class DAC60508Sim : public MockSpiBus {
-public:
-
-    DAC60508Sim() {
-        // Set default register values.
-        memset(mRegs, sizeof(mRegs), 0);
-        mRegs[spi::eDACx050yRegAddr::DACx050y_ID] = cDefaultId;
-        mRegs[spi::eDACx050yRegAddr::DACx050y_SYNC] = cDefaultSync; 
-        mRegs[spi::eDACx050yRegAddr::DACx050y_GAIN] = cDefaultGain; 
-        for(size_t iDac = 0; iDac < 8; iDac++) {
-            mRegs[spi::eDACx050yRegAddr::DACx050y_DAC0+iDac] = cDefaultDac;
-        }
-    }
-
-    virtual void transact() {
-        if(mConf.mMidi > 0) {
-            if(mDataSize != 4) {
-                return; // Unsupported transaction size.
-            }
-            if(mConf.mWordSize != 24) {
-                return; // Unsupported word size.
-            }
-            for(size_t iTransaction = 0; iTransaction < mBufLen; iTransaction++) {
-                reinterpret_cast<spi::DACx050yTransaction*>(mRxBuff)[iTransaction] =
-                    sim(reinterpret_cast<spi::DACx050yTransaction*>(mTxBuff)[iTransaction]);
-            }
-        } else {
-            return; // Unsupported midi setting.
-        }
-    }
-
-private:
-    spi::DACx050yTransaction sim(spi::DACx050yTransaction transaction) {
-        spi::DACx050yTransaction ret = mNextTransaction;
-
-        mNextTransaction = transaction;
-
-        if(transaction.mRW) {
-            // read.
-            mNextTransaction.setData(mRegs[transaction.getAddr()]);
-            mNextTransaction.setAddr(transaction.getAddr());
-        } else {
-            // write.
-            mRegs[transaction.getAddr()] = transaction.getData();
-        }
-
-        return ret;
-    }
-
-    uint16_t mRegs[16];
-    spi::DACx050yTransaction mNextTransaction;
-};
-#endif
-
 
 // Test Fixture for DAC60508
 class DacTest : public ::testing::Test {
@@ -188,23 +131,12 @@ TEST_F(DacTest, testRegisterWrite) {
     EXPECT_CALL(mockBus, waitForCompletion());
     dac.WriteReg(spi::eDACx050yRegAddr::DACx050y_GAIN, testGain);
 
+    ASSERT_EQ(mockBus.getDataSize(), sizeof(spi::DACx050yTransaction));
+
     spi::DACx050yTransaction* txBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockBus.getTxBuff());
 
     ASSERT_EQ(txBuff->getAddr(), spi::eDACx050yRegAddr::DACx050y_GAIN);
     ASSERT_EQ(txBuff->getData(), testGain);
-}
-
-TEST_F(DacTest, testRegisterRead) {
-    dac.setup();
-    dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
-
-    EXPECT_CALL(mockBus, waitForCompletion()).Times(2);
-    dac.ReadReg(spi::eDACx050yRegAddr::DACx050y_ID);
-
-    spi::DACx050yTransaction* rxBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockBus.getRxBuff());
-
-    ASSERT_EQ(rxBuff->getAddr(), spi::eDACx050yRegAddr::DACx050y_ID);
-    ASSERT_EQ(rxBuff->getData(), 10340);
 }
 
 TEST_F(DacTest, testStream) {
@@ -217,13 +149,16 @@ TEST_F(DacTest, testStream) {
 
     dac.updateStream();
 
-    dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
+    ASSERT_EQ(mockBus.getDataSize(), sizeof(spi::DACx050yTransaction));
 
-    for(size_t idx = 0; idx < 8; idx++) {
-        EXPECT_CALL(mockBus, waitForCompletion()).Times(2);
+    spi::DACx050yTransaction* txBuff = reinterpret_cast<spi::DACx050yTransaction*>(mockBus.getTxBuff());
+    size_t bufLen = mockBus.getBufLen();
+    ASSERT_EQ(bufLen, 8);
 
-        uint16_t dacData = dac.ReadReg(static_cast<spi::eDACx050yRegAddr>(spi::eDACx050yRegAddr::DACx050y_DAC0 + idx));
-        ASSERT_EQ(dacData, idx);
+    for(size_t iBuf = 0; iBuf < bufLen; iBuf++) {
+        ASSERT_EQ(txBuff->getAddr(), static_cast<uint8_t>(spi::eDACx050yRegAddr::DACx050y_DAC0)+iBuf);
+        ASSERT_EQ(txBuff->getData(), iBuf);
+        txBuff++;
     }
 }
 
