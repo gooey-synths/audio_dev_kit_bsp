@@ -18,6 +18,7 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_adc.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/spi/spi.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_spi.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/timer/basic_timer.cpp
 
 )
 
