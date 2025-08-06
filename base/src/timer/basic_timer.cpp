@@ -10,12 +10,13 @@ using namespace timer;
 /// @note Timer is disabled at instantiation.
 ///
 BasicTimer::BasicTimer(uint8_t timerNum, uint32_t freq):
-mTimerNum(timerNum),
-mFreq(freq)
+mIntFunc(NULL)
 {
     switch(timerNum){
         case 6:
             mTimerHw = TIM6;
+            mBTimIrqN = TIM6_DAC_IRQn;
+            set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, basicTimer6Isr);
             RCC->APB1LENR |= RCC_APB1LENR_TIM6EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM6RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM6RST); // Clear reset bit;
@@ -23,6 +24,8 @@ mFreq(freq)
 
         case 7:
             mTimerHw = TIM7;
+            mBTimIrqN = TIM7_IRQn;
+            set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, basicTimer7Isr);
             RCC->APB1LENR |= RCC_APB1LENR_TIM7EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM7RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM7RST); // Clear reset bit;
@@ -33,6 +36,16 @@ mFreq(freq)
     }
 
     stop();
+}
+
+///
+/// Destructor.
+///
+BasicTimer::~BasicTimer() {
+    stop();
+
+    size_t idx = (TIM7 -  mTimerHw)/(TIM7 -  TIM6);
+    sInstances[idx] = NULL;
 }
 
 ///
@@ -90,7 +103,7 @@ uint32_t BasicTimer::getKerFreq() {
 /// @note timer must be stopped before changing the frequency
 ///
 void BasicTimer::setFreq(uint32_t freq) {
-    mTimerHw->PSC = getKerFreq() / mFreq;
+    mTimerHw->PSC = getKerFreq() / freq;
 
     mTimerHw->EGR = TIM_EGR_UG;
 }
@@ -102,3 +115,19 @@ void BasicTimer::setFreq(uint32_t freq) {
 uint32_t BasicTimer::getFreq() {
     return getKerFreq() / mTimerHw->PSC;
 }
+
+///
+/// Set timer interrupt.
+/// @param func Function pointer to interrupt handler, NULL to disable.
+///
+void BasicTimer::SetInterrupt(InterruptFunctionPtr func) {
+    mIntFunc = func;
+
+    if(func) {
+        mTimerHw->DIER |= TIM_DIER_UIE;
+    } else {
+        mTimerHw->DIER &= ~TIM_DIER_UIE;
+    }
+}
+
+BasicTimer* BasicTimer::sInstances[NUM_BASIC_TIMERS] = {NULL, NULL};

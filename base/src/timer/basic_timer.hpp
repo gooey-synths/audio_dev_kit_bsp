@@ -1,11 +1,17 @@
 #include <stdint.h>
 #include "../system/stm32h750xx.h"
+#include "../util/util.h"
 
 namespace timer{
 
 class BasicTimer{
 public:
+
+    static constexpr size_t NUM_BASIC_TIMERS = 2;
+
     BasicTimer(uint8_t timerNum, uint32_t freq);
+
+    virtual ~BasicTimer();
 
     ///
     /// Start the timer.
@@ -39,16 +45,30 @@ public:
 
     uint32_t getFreq();
 
+    void SetInterrupt(InterruptFunctionPtr func);
+
 private:
-
     static uint32_t getKerFreq();
+    
+    static void basicTimer6Isr() {
+        if (sInstances[0] && sInstances[0]->mIntFunc) {
+            sInstances[0]->mIntFunc();
+        }
+    }
 
-    TIM_TypeDef* mTimerHw; // Pointer to timer hw
-    uint8_t mTimerNum;
-    uint32_t mFreq;
+    static void basicTimer7Isr() {
+        if (sInstances[1] && sInstances[1]->mIntFunc) {
+            sInstances[1]->mIntFunc();
+        }
+    }
+
+    static BasicTimer *sInstances[NUM_BASIC_TIMERS]; ///< instances of the basic timers
+
+    TIM_TypeDef* mTimerHw;         ///< Pointer to timer hw
+    InterruptFunctionPtr mIntFunc; ///< Interrupt function.
+    IRQn_Type mBTimIrqN;           ///< Interrupt number for the basic timer.
+
 };
-
-
 
 
 
