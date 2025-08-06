@@ -3,6 +3,6 @@
 #include <cstdint>
 
 int main() {
-    test_DAC60508();
+    test_basic_timer();
     return 0;
 }
