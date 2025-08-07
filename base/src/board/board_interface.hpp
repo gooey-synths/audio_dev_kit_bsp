@@ -89,6 +89,7 @@ class DigitalOutput : public Output<bool> {};
 /// Timer class
 ///
 class Timer {
+public:
     ///
     /// Set the frequency of the timer.
     /// @param frequency Frequency of the timer.
@@ -100,6 +101,16 @@ class Timer {
     /// @param callback Callback function to execute. Null for no callback.
     ///
     virtual void SetCallback(CallbackFunc callback) = 0;
+
+    ///
+    /// Start
+    ///
+    virtual void Start() = 0;
+
+    ///
+    /// Stop
+    ///
+    virtual void Stop() = 0;
 };
 
 ///
