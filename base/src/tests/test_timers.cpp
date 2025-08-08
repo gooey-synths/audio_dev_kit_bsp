@@ -16,22 +16,25 @@ static void setup_pins(){
     gpio_controller->setConfig(&led_pin, &led_pin_conf);
 }
 
-constexpr uint32_t BLINK_TIMER_FREQ = 4800;
 constexpr uint32_t BLINK_FREQ = 2;
 
+///
+/// Timer callback to toggle LED.
+///
 static void blinkIsr() {
-    static bool on_or_off = true;
     static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
 
-    led = on_or_off;
-    on_or_off = !on_or_off;
+    led = !led();
 }
 
 void test_basic_timer_exceptions() {
 
 }
 
-void test_basic_timer() {
+///
+/// Test a basic timer by blinking and LED.
+///
+void test_basic_timer_blinky() {
     setup_pins();
 
     BasicTimer timer6(6);
