@@ -61,15 +61,27 @@ public:
 
 private:
     static uint32_t getKerFreq();
+
+    template<size_t instanceNum>
+    static void timerIsr() {
+        if(sInstances[instanceNum]) {
+            sInstances[instanceNum]->mTimerHw->SR = 0;
+            if(sInstances[instanceNum]->mIntFunc) {
+                sInstances[instanceNum]->mIntFunc();
+            }
+        }
+    }
     
-    static void basicTimer6Isr() {
+    #if 0
+
+    static void basicTimer6Isr() {         
         if (sInstances[0]) {
             sInstances[0]->mTimerHw->SR = 0;
             if(sInstances[0]->mIntFunc) {
                 sInstances[0]->mIntFunc();
             }
         }
-    }
+    };
 
     static void basicTimer7Isr() {
         if (sInstances[1]) {
@@ -78,8 +90,9 @@ private:
                 sInstances[1]->mIntFunc();
             }
         }
-
     }
+
+    #endif
 
     static BasicTimer *sInstances[NUM_BASIC_TIMERS]; ///< Instances of the basic timers
 

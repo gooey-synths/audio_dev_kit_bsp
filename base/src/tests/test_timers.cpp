@@ -24,13 +24,13 @@ static void blinkIsr() {
     static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
     static uint32_t counter = 0;
 
-    if(counter == BLINK_TIMER_FREQ/(BLINK_FREQ*2)) {
+    //if(counter == BLINK_TIMER_FREQ/(BLINK_FREQ*2)) {
         led = on_or_off;
         on_or_off = !on_or_off;
         counter = 0;
-    } else {
+    //} else {
         counter++;
-    }
+    //}
 }
 
 void test_basic_timer_exceptions() {
@@ -42,7 +42,7 @@ void test_basic_timer() {
 
     BasicTimer timer6(6);
 
-    timer6.setFreq(BLINK_TIMER_FREQ);
+    timer6.setFreq(BLINK_FREQ*2);
 
     timer6.SetInterrupt(blinkIsr);
 
