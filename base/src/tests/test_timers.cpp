@@ -38,6 +38,8 @@ void test_basic_timer_exceptions() {
 }
 
 void test_basic_timer() {
+    setup_pins();
+
     BasicTimer timer6(6);
 
     timer6.setFreq(BLINK_TIMER_FREQ);

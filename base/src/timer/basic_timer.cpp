@@ -105,8 +105,17 @@ uint32_t BasicTimer::getKerFreq() {
 /// @note timer must be stopped before changing the frequency
 ///
 void BasicTimer::setFreq(uint32_t freq) {
-    mTimerHw->PSC = getKerFreq() / freq;
 
+    uint32_t counts = getKerFreq() / freq;
+
+    uint16_t psc = 1;
+    while(counts > 0xFFFF) {
+        psc *= 2;
+        counts /= 2;
+    }
+
+    mTimerHw->PSC = psc-1;
+    mTimerHw->ARR = counts;
     mTimerHw->EGR = TIM_EGR_UG;
 }
 
@@ -126,8 +135,10 @@ void BasicTimer::SetInterrupt(InterruptFunctionPtr func) {
     mIntFunc = func;
 
     if(func) {
+        NVIC_EnableIRQ(mBTimIrqN);
         mTimerHw->DIER |= TIM_DIER_UIE;
     } else {
+        NVIC_DisableIRQ(mBTimIrqN);
         mTimerHw->DIER &= ~TIM_DIER_UIE;
     }
 }
