@@ -21,7 +21,7 @@ constexpr uint32_t BLINK_FREQ = 2;
 
 static void blinkIsr() {
     static bool on_or_off = true;
-    static gpio::Pin& led = gpio::GPIOController::getInstance()->getPin(&led_pin);
+    static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
     static uint32_t counter = 0;
 
     if(counter == BLINK_TIMER_FREQ/(BLINK_FREQ*2)) {
@@ -38,7 +38,7 @@ void test_basic_timer_exceptions() {
 }
 
 void test_basic_timer() {
-    BasicTimer timer6(6, 100000);
+    BasicTimer timer6(6);
 
     timer6.setFreq(BLINK_TIMER_FREQ);
 

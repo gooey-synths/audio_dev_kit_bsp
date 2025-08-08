@@ -9,7 +9,7 @@ using namespace timer;
 /// @param freq Target frequency in Hz.
 /// @note Timer is disabled at instantiation.
 ///
-BasicTimer::BasicTimer(uint8_t timerNum, uint32_t freq):
+BasicTimer::BasicTimer(uint8_t timerNum):
 mIntFunc(NULL)
 {
     switch(timerNum){

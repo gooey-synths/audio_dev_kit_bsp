@@ -1,15 +1,25 @@
+#ifndef BASIC_TIMER_HPP
+#define BASIC_TIMER_HPP
+
 #include <stdint.h>
+#include <stdlib.h>
 #include "../system/stm32h750xx.h"
+extern "C" {
 #include "../util/util.h"
+}
 
-namespace timer{
+namespace timer {
 
-class BasicTimer{
+///
+/// Class for operating a basic timer
+///
+class BasicTimer {
 public:
 
+    /// Number of basic timers available.
     static constexpr size_t NUM_BASIC_TIMERS = 2;
 
-    BasicTimer(uint8_t timerNum, uint32_t freq);
+    BasicTimer(uint8_t timerNum);
 
     virtual ~BasicTimer();
 
@@ -70,7 +80,6 @@ private:
 
 };
 
-
-
-
 }// namespace timer
+
+#endif // BASIC_TIMER_HPP
