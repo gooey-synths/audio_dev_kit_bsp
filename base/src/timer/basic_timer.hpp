@@ -1,10 +1,10 @@
 #ifndef BASIC_TIMER_HPP
 #define BASIC_TIMER_HPP
 
+extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 #include "../system/stm32h750xx.h"
-extern "C" {
 #include "../util/util.h"
 }
 
@@ -25,8 +25,9 @@ public:
 
     ///
     /// Start the timer.
+    /// @param oneShot If the timer should only run once
     ///
-    inline void start(){
+    inline void start(bool oneShot){
         mTimerHw->CR1 |= TIM_CR1_CEN; // Enable the timer.
     }
     
@@ -72,7 +73,7 @@ private:
         }
     }
 
-    static BasicTimer *sInstances[NUM_BASIC_TIMERS]; ///< instances of the basic timers
+    static BasicTimer *sInstances[NUM_BASIC_TIMERS]; ///< Instances of the basic timers
 
     TIM_TypeDef* mTimerHw;         ///< Pointer to timer hw
     InterruptFunctionPtr mIntFunc; ///< Interrupt function.

@@ -42,5 +42,9 @@ void test_basic_timer() {
 
     timer6.setFreq(BLINK_TIMER_FREQ);
 
-    timer6.start();
+    timer6.SetInterrupt(blinkIsr);
+
+    timer6.start(false);
+
+    while(1);
 }

@@ -17,6 +17,7 @@ mIntFunc(NULL)
             mTimerHw = TIM6;
             mBTimIrqN = TIM6_DAC_IRQn;
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, basicTimer6Isr);
+            sInstances[0] = this;
             RCC->APB1LENR |= RCC_APB1LENR_TIM6EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM6RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM6RST); // Clear reset bit;
@@ -26,6 +27,7 @@ mIntFunc(NULL)
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, basicTimer7Isr);
+            sInstances[0] = this;
             RCC->APB1LENR |= RCC_APB1LENR_TIM7EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM7RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM7RST); // Clear reset bit;
