@@ -22,15 +22,9 @@ constexpr uint32_t BLINK_FREQ = 2;
 static void blinkIsr() {
     static bool on_or_off = true;
     static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
-    static uint32_t counter = 0;
 
-    //if(counter == BLINK_TIMER_FREQ/(BLINK_FREQ*2)) {
-        led = on_or_off;
-        on_or_off = !on_or_off;
-        counter = 0;
-    //} else {
-        counter++;
-    //}
+    led = on_or_off;
+    on_or_off = !on_or_off;
 }
 
 void test_basic_timer_exceptions() {
