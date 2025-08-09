@@ -25,9 +25,15 @@ public:
 
     ///
     /// Start the timer.
-    /// @param oneShot If the timer should only run once
+    /// @param oneShot If the timer should only run once.
     ///
     inline void start(bool oneShot) {
+        if(oneShot) {
+            mTimerHw->CR1 |= TIM_CR1_OPM;
+        } else {
+            mTimerHw->CR1 &= ~TIM_CR1_OPM;
+        }
+
         mTimerHw->SR = 0;
         mTimerHw->CR1 |= TIM_CR1_CEN; // Enable the timer.
     }
@@ -37,13 +43,6 @@ public:
     ///
     inline void stop(){
         mTimerHw->CR1 &= ~(TIM_CR1_CEN); // Disable the timer.
-    }
-
-    ///
-    /// Set the timer to 0.
-    ///
-    inline void reset(){
-        mTimerHw->CNT = 0;
     }
 
     ///

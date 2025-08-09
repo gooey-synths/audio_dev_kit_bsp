@@ -3,6 +3,6 @@
 #include <cstdint>
 
 int main() {
-    test_basic_timer_blinky();
+    test_basic_timer_oneshot();
     return 0;
 }

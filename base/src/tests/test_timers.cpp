@@ -26,7 +26,7 @@ void test_basic_timer_exceptions() {
 
 
 ///
-/// Test a basic timer by blinking and LED.
+/// Test a basic timer by blinking an LED.
 ///
 void test_basic_timer_blinky() {
     static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
@@ -47,3 +47,28 @@ void test_basic_timer_blinky() {
 
     while(1);
 }
+
+///
+/// Test a basic timer one shot operation by setting the led to on once.
+///
+void test_basic_timer_oneshot() {
+    static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
+
+    led = false;
+
+    InterruptFunctionPtr blinkLambda = [] () {
+        led = !led();
+    };
+
+    setup_pins();
+
+    BasicTimer timer7(7);
+
+    timer7.setFreq(BLINK_FREQ*2);
+
+    timer7.SetInterrupt(blinkLambda);
+
+    timer7.start(true);
+
+    while(1);
+} 
