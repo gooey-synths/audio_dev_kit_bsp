@@ -62,6 +62,10 @@ public:
 private:
     static uint32_t getKerFreq();
 
+    ///
+    /// Timer interrupt service routine
+    /// @tparam instanceNum instacne number 
+    ///
     template<size_t instanceNum>
     static void timerIsr() {
         if(sInstances[instanceNum]) {
@@ -72,28 +76,6 @@ private:
         }
     }
     
-    #if 0
-
-    static void basicTimer6Isr() {         
-        if (sInstances[0]) {
-            sInstances[0]->mTimerHw->SR = 0;
-            if(sInstances[0]->mIntFunc) {
-                sInstances[0]->mIntFunc();
-            }
-        }
-    };
-
-    static void basicTimer7Isr() {
-        if (sInstances[1]) {
-            sInstances[1]->mTimerHw->SR = 0;
-            if(sInstances[1]->mIntFunc) {
-                sInstances[1]->mIntFunc();
-            }
-        }
-    }
-
-    #endif
-
     static BasicTimer *sInstances[NUM_BASIC_TIMERS]; ///< Instances of the basic timers
 
     TIM_TypeDef* mTimerHw;         ///< Pointer to timer hw
