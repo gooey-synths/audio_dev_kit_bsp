@@ -15,6 +15,7 @@ namespace timer {
 ///
 class BasicTimer {
 public:
+    static const char* const scAlreadyClaimedMsg;
 
     /// Number of basic timers available.
     static constexpr size_t NUM_BASIC_TIMERS = 2;
@@ -56,7 +57,7 @@ public:
 
     uint32_t getFreq();
 
-    void SetInterrupt(InterruptFunctionPtr func);
+    void setInterrupt(InterruptFunctionPtr func);
 
 private:
     static uint32_t getKerFreq();
@@ -83,6 +84,6 @@ private:
 
 };
 
-}// namespace timer
+} // namespace timer
 
 #endif // BASIC_TIMER_HPP

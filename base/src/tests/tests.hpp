@@ -29,3 +29,4 @@ extern void test_DAC60508();
 extern void test_basic_timer_exceptions();
 extern void test_basic_timer_blinky();
 extern void test_basic_timer_oneshot();
+extern void test_basic_timer_accuracy();

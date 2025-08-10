@@ -3,6 +3,8 @@
 
 using namespace timer;
 
+const char* const BasicTimer::scAlreadyClaimedMsg = "timer already claimed";
+
 ///
 /// Constructor.
 /// @param timerNum Timer number.
@@ -16,6 +18,9 @@ mIntFunc(NULL)
         case 6:
             mTimerHw = TIM6;
             mBTimIrqN = TIM6_DAC_IRQn;
+            if(sInstances[0]) {
+                scAlreadyClaimedMsg;
+            }
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<0>);
             sInstances[0] = this;
             RCC->APB1LENR |= RCC_APB1LENR_TIM6EN; // Enable clock to hw
@@ -26,6 +31,9 @@ mIntFunc(NULL)
         case 7:
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
+            if(sInstances[1]) {
+                scAlreadyClaimedMsg;
+            }
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<1>);
             sInstances[1] = this;
             RCC->APB1LENR |= RCC_APB1LENR_TIM7EN; // Enable clock to hw
@@ -130,7 +138,7 @@ uint32_t BasicTimer::getFreq() {
 /// Set timer interrupt.
 /// @param func Function pointer to interrupt handler, NULL to disable.
 ///
-void BasicTimer::SetInterrupt(InterruptFunctionPtr func) {
+void BasicTimer::setInterrupt(InterruptFunctionPtr func) {
     mIntFunc = func;
 
     if(func) {

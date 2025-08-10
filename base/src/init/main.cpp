@@ -3,6 +3,7 @@
 #include <cstdint>
 
 int main() {
-    test_basic_timer_oneshot();
+    test_basic_timer_exceptions();
+    test_adc_continuous_conversion();
     return 0;
 }
