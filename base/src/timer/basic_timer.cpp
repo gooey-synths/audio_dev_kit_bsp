@@ -3,7 +3,7 @@
 
 using namespace timer;
 
-const char* const BasicTimer::scAlreadyClaimedMsg = "timer already claimed";
+const char* const BasicTimer::scAlreadyClaimedMsg = "Timer already claimed";
 
 ///
 /// Constructor.
@@ -12,17 +12,24 @@ const char* const BasicTimer::scAlreadyClaimedMsg = "timer already claimed";
 /// @note Timer is disabled at instantiation.
 ///
 BasicTimer::BasicTimer(uint8_t timerNum):
+mInstanceIdx(timerNum - 6),
 mIntFunc(NULL)
 {
+    if (mInstanceIdx >= NUM_BASIC_TIMERS) {
+        throw "Invalid timer number";
+    }
+
+    if(sInstances[mInstanceIdx]) {
+        throw scAlreadyClaimedMsg;
+    }
+
+    sInstances[mInstanceIdx] = this;
+
     switch(timerNum){
         case 6:
             mTimerHw = TIM6;
             mBTimIrqN = TIM6_DAC_IRQn;
-            if(sInstances[0]) {
-                scAlreadyClaimedMsg;
-            }
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<0>);
-            sInstances[0] = this;
             RCC->APB1LENR |= RCC_APB1LENR_TIM6EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM6RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM6RST); // Clear reset bit;
@@ -31,18 +38,11 @@ mIntFunc(NULL)
         case 7:
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
-            if(sInstances[1]) {
-                scAlreadyClaimedMsg;
-            }
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<1>);
-            sInstances[1] = this;
             RCC->APB1LENR |= RCC_APB1LENR_TIM7EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM7RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM7RST); // Clear reset bit;
             break;
-
-        default:
-            throw "Invalid timer number";
     }
 
     stop();
@@ -53,9 +53,7 @@ mIntFunc(NULL)
 ///
 BasicTimer::~BasicTimer() {
     stop();
-
-    size_t idx = (TIM7 -  mTimerHw)/(TIM7 -  TIM6);
-    sInstances[idx] = NULL;
+    sInstances[mInstanceIdx] = NULL;
 }
 
 ///

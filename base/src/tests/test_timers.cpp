@@ -44,19 +44,19 @@ void test_basic_timer_exceptions() {
 }
 
 ///
-/// Test a basic timer by blinking an LED.
+/// Test a basic timer by blinking an LED and printing to UART.
 ///
-void test_basic_timer_blinky() {
+void test_basic_timer_continuous() {
     static gpio::Pin led = gpio::GPIOController::getInstance()->getPin(&led_pin);
     static uart::UartController uart1(1);
-    static const char* msg = "Hello timer!";
+    static const char* msg = "Hello timer!\r\n";
 
     InterruptFunctionPtr blinkLambda = [] () {
         led = !led();
     };
 
     InterruptFunctionPtr printLambda = [] () {
-        uart1.write(const_cast<char*>(msg), sizeof(msg));
+        uart1.write(const_cast<char*>(msg), strlen(msg));
     };
 
     setup_pins();

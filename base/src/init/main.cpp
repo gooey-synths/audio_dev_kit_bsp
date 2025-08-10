@@ -4,6 +4,6 @@
 
 int main() {
     test_basic_timer_exceptions();
-    test_adc_continuous_conversion();
+    test_basic_timer_continuous();
     return 0;
 }

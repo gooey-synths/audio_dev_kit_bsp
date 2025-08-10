@@ -78,7 +78,8 @@ private:
     
     static BasicTimer *sInstances[NUM_BASIC_TIMERS]; ///< Instances of the basic timers
 
-    TIM_TypeDef* mTimerHw;         ///< Pointer to timer hw
+    TIM_TypeDef* mTimerHw;         ///< Pointer to timer hw.
+    size_t mInstanceIdx;           ///< Instance index.
     InterruptFunctionPtr mIntFunc; ///< Interrupt function.
     IRQn_Type mBTimIrqN;           ///< Interrupt number for the basic timer.
 
