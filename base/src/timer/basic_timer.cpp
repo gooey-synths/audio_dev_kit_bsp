@@ -129,7 +129,7 @@ void BasicTimer::setFreq(uint32_t freq) {
 /// @return The current freuency of the timer.
 ///
 uint32_t BasicTimer::getFreq() {
-    return getKerFreq() / mTimerHw->PSC;
+    return getKerFreq() / ((mTimerHw->PSC+1) * mTimerHw->ARR);
 }
 
 ///
