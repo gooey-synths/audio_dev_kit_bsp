@@ -116,7 +116,6 @@ void BasicTimer::setFreq(uint32_t freq) {
 
     mTimerHw->PSC = psc-1;
     mTimerHw->ARR = counts;
-    mTimerHw->EGR = TIM_EGR_UG;
 }
 
 ///
