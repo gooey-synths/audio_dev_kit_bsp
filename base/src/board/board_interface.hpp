@@ -181,6 +181,16 @@ public:
     /// @return A reference to a timer on the board.
     ///
     virtual Timer& GetTimer(size_t idx) const = 0;
+
+    ///
+    /// Update all of the slow IO devices on the board.
+    ///
+    virtual void UpdateSlowIO() = 0;
+
+    ///
+    /// Update all of the fast IO devices on the board
+    ///
+    virtual void UpdateFastIO() = 0;
 };
 
 } // namespace board
