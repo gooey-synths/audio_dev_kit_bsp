@@ -9,8 +9,6 @@ extern int main(); // defined in main.c
 
 #define ISR_NOT_IMPL ((uint32_t*) halt)
 
-int SystemCoreClock = D1_TARGET;
-
  /* These are defined in the linker script */
 extern uint32_t _stext;  //< Start of text section
 extern uint32_t _etext;  //< End of text section
