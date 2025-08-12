@@ -5,9 +5,11 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(TINYUSB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyusb)
 
+FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
+
 # PLace your c and c++ files here
 set(SOURCES
-    ${TINYUSB_PATH}/src/tusb.c
+	${TinyUSBCSources}
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gpio/gpio.cpp
