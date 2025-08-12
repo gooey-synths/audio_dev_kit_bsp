@@ -4,11 +4,13 @@
 #include <string.h>
 #include <ctype.h>
 #include "../gpio/gpio.hpp"
+
+extern "C" {
 #include "../system/board_defs.h"
 #include "../util/util.h"
-
 #include "tusb.h"
 #include "device/usbd.h"
+}
 
 
 void usb_handler(){
