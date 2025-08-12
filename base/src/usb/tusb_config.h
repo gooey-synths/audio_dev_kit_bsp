@@ -26,6 +26,8 @@
 #ifndef _TUSB_CONFIG_H_
 #define _TUSB_CONFIG_H_
 
+#include "../system/board_defs.h"
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -106,6 +108,8 @@
 
 // CDC Endpoint transfer buffer size, more is faster
 #define CFG_TUD_CDC_EP_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
+
+#define SystemCoreClock D1_TARGET
 
 #ifdef __cplusplus
  }

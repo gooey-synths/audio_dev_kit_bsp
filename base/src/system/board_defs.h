@@ -15,8 +15,6 @@
 #define PLL1_DIVP_TARGET (D1_TARGET)     //< Frequency of PLL1 div P
 #define PLL1_DIVQ_TARGET (XTAL_FREQ*10)  //< Frequency of PLL1 div Q
 
-// For TinyUSB
-#define SystemCoreClock D1_TARGET;
 
 /* Pin definitions found in pin_defs.c */
 
