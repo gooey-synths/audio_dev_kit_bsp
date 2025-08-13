@@ -14,6 +14,13 @@ extern void test_uart_hello_world();
 extern void test_uart_echo();
 extern void test_uart_exceptions();
 
+// ADC tests
+extern void test_adc_single_conversion();
+extern void test_adc_continuous_conversion();
+extern void test_adc_stop();
+extern void test_adc_exceptions();
+
 // SPI tests
 extern void test_spi_hw_transaction();
 extern void test_spi_hw_exceptions();
+extern void test_DAC60508();
