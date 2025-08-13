@@ -9,7 +9,7 @@
 static constexpr size_t scTestPrintWidth = 16;
 static constexpr size_t scTestStrLen = 128;
 
-static const char* scExceptionNotThrown = "Exception not thrown!";
+static const char* scExceptionNotThrown = "Exception not thrown!\0";
 
 ///
 /// Print a buffer to a Uart

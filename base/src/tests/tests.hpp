@@ -24,3 +24,9 @@ extern void test_adc_exceptions();
 extern void test_spi_hw_transaction();
 extern void test_spi_hw_exceptions();
 extern void test_DAC60508();
+
+// Timer tests
+extern void test_basic_timer_exceptions();
+extern void test_basic_timer_continuous();
+extern void test_basic_timer_oneshot();
+extern void test_basic_timer_accuracy();
