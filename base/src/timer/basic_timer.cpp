@@ -28,7 +28,7 @@ mIntFunc(NULL)
     sInstances[mInstanceIdx] = this;
 
     switch(timerNum){
-        case 6:
+        case BASIC_TIMER_6:
             mTimerHw = TIM6;
             mBTimIrqN = TIM6_DAC_IRQn;
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<0>);
@@ -37,7 +37,7 @@ mIntFunc(NULL)
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM6RST); // Clear reset bit;
             break;
 
-        case 7:
+        case BASIC_TIMER_7:
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<1>);
