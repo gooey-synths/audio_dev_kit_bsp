@@ -16,6 +16,7 @@ namespace timer {
 class BasicTimer {
 public:
     static const char* const scAlreadyClaimedMsg;
+    static const char* const scInvalidTimerMsg;
 
     /// Number of basic timers available.
     static constexpr size_t NUM_BASIC_TIMERS = 2;

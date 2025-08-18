@@ -3,12 +3,14 @@
 
 using namespace timer;
 
+/// Message when timer has already been claimed.
 const char* const BasicTimer::scAlreadyClaimedMsg = "Timer already claimed";
+/// Message when requested timer is invalid.
+const char* const BasicTimer::scInvalidTimerMsg = "Invalid timer number";
 
 ///
 /// Constructor.
 /// @param timerNum Timer number.
-/// @param freq Target frequency in Hz.
 /// @note Timer is disabled at instantiation.
 ///
 BasicTimer::BasicTimer(uint8_t timerNum):
@@ -16,7 +18,7 @@ mInstanceIdx(timerNum - 6),
 mIntFunc(NULL)
 {
     if (mInstanceIdx >= NUM_BASIC_TIMERS) {
-        throw "Invalid timer number";
+        throw scInvalidTimerMsg;
     }
 
     if(sInstances[mInstanceIdx]) {
