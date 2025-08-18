@@ -13,7 +13,7 @@ const char* const BasicTimer::scInvalidTimerMsg = "Invalid timer number";
 /// @param timerNum Timer number.
 /// @note Timer is disabled at instantiation.
 ///
-BasicTimer::BasicTimer(uint8_t timerNum):
+BasicTimer::BasicTimer(eBasicTimerNumber timerNum):
 mInstanceIdx(timerNum - 6),
 mIntFunc(NULL)
 {

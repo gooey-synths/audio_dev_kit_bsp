@@ -30,10 +30,10 @@ void test_basic_timer_exceptions() {
 
     // Test bad timer index.
     EXPECT_EXCEPTION(
-        BasicTimer badTimerIdx(0xFF);
+        BasicTimer badTimerIdx(static_cast<eBasicTimerNumber>(0xFF));
     );
 
-    constexpr size_t timerIdx = 6;
+    const eBasicTimerNumber timerIdx = BASIC_TIMER_6;
 
     BasicTimer timer6(timerIdx);
 
@@ -61,8 +61,8 @@ void test_basic_timer_continuous() {
 
     setup_pins();
 
-    BasicTimer timer6(6);
-    BasicTimer timer7(7);
+    BasicTimer timer6(BASIC_TIMER_6);
+    BasicTimer timer7(BASIC_TIMER_7);
 
     timer6.setFreq(BLINK_FREQ*2);
     timer7.setFreq(PRINT_FREQ);
@@ -90,7 +90,7 @@ void test_basic_timer_oneshot() {
 
     setup_pins();
 
-    BasicTimer timer7(7);
+    BasicTimer timer7(BASIC_TIMER_7);
 
     timer7.setFreq(BLINK_FREQ*2);
 
@@ -131,7 +131,7 @@ void test_basic_timer_accuracy() {
 
     setup_pins();
 
-    BasicTimer timer7(7);
+    BasicTimer timer7(BASIC_TIMER_7);
 
     timer7.setFreq(TARGET_FREQ*2);
 

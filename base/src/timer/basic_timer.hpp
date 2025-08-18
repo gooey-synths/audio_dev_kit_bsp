@@ -11,6 +11,15 @@ extern "C" {
 namespace timer {
 
 ///
+/// Enumeration of basic timer numbers.
+///
+enum eBasicTimerNumber : uint8_t {
+    BASIC_TIMER_6 = 6,
+    BASIC_TIMER_7 = 7,
+};
+
+
+///
 /// Class for operating a basic timer
 ///
 class BasicTimer {
@@ -21,7 +30,7 @@ public:
     /// Number of basic timers available.
     static constexpr size_t NUM_BASIC_TIMERS = 2;
 
-    BasicTimer(uint8_t timerNum);
+    BasicTimer(eBasicTimerNumber timerNum);
 
     virtual ~BasicTimer();
 
