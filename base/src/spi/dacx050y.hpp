@@ -100,7 +100,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
         .mIoSwap = true,
         .mFreq = 300000000U,
         .mWordSize = 24,
-        .mMidi = 0x7
+        .mMidi = 0x3
     };
 
     static constexpr const char* const scInvalidIdx = "Invalid DAC index";
