@@ -1,4 +1,7 @@
 #include "util.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 ///
 /// Set a handler in the vector table
@@ -11,3 +14,6 @@ void set_vector_table_entry(int index, InterruptFunctionPtr handler){
 	}
 	vector_table_ram[index] = (uint32_t*)handler;
 }
+#ifdef __cplusplus
+}
+#endif

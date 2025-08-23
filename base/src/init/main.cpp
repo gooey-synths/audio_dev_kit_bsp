@@ -3,7 +3,6 @@
 #include <cstdint>
 
 int main() {
-    test_basic_timer_exceptions();
-    test_basic_timer_accuracy();
+    test_dac_board();
     return 0;
 }

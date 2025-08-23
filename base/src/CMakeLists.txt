@@ -21,6 +21,7 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/timer/basic_timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_timers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/util.c
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/dac_test.cpp
 )
 
 # PROJECT_NAME

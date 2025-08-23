@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdint.h>
 #include "../system/stm32h750xx.h"
 
@@ -12,3 +14,6 @@ void set_vector_table_entry(int index, InterruptFunctionPtr handler);
 
 
 #endif // UTIL_H
+#ifdef __cplusplus
+}
+#endif
