@@ -15,6 +15,7 @@
 #define PLL1_DIVP_TARGET (D1_TARGET)     //< Frequency of PLL1 div P
 #define PLL1_DIVQ_TARGET (XTAL_FREQ*10)  //< Frequency of PLL1 div Q
 
+
 /* Pin definitions found in pin_defs.c */
 
 extern GPIOPin  led_pin;
@@ -118,5 +119,17 @@ extern GPIOConf spi3_cs1_conf;
 
 extern GPIOPin spi3_cs2_pin;
 extern GPIOConf spi3_cs2_conf;
+
+extern GPIOPin usb_vbus_id_pin;
+extern GPIOConf usb_vbus_id_conf;
+
+extern GPIOPin usb_d_plus_pin;
+extern GPIOConf usb_d_plus_conf;
+
+extern GPIOPin usb_d_minus_pin;
+extern GPIOConf usb_d_minus_conf;
+
+extern GPIOPin usb_vbus_dect_pin;
+extern GPIOConf usb_vbus_dect_conf;
 
 #endif
