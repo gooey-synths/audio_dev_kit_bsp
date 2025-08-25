@@ -3,20 +3,22 @@
 
 using namespace timer;
 
+/// Message when timer has already been claimed.
 const char* const BasicTimer::scAlreadyClaimedMsg = "Timer already claimed";
+/// Message when requested timer is invalid.
+const char* const BasicTimer::scInvalidTimerMsg = "Invalid timer number";
 
 ///
 /// Constructor.
 /// @param timerNum Timer number.
-/// @param freq Target frequency in Hz.
 /// @note Timer is disabled at instantiation.
 ///
-BasicTimer::BasicTimer(uint8_t timerNum):
+BasicTimer::BasicTimer(eBasicTimerNumber timerNum):
 mInstanceIdx(timerNum - 6),
 mIntFunc(NULL)
 {
     if (mInstanceIdx >= NUM_BASIC_TIMERS) {
-        throw "Invalid timer number";
+        throw scInvalidTimerMsg;
     }
 
     if(sInstances[mInstanceIdx]) {
@@ -26,7 +28,7 @@ mIntFunc(NULL)
     sInstances[mInstanceIdx] = this;
 
     switch(timerNum){
-        case 6:
+        case BASIC_TIMER_6:
             mTimerHw = TIM6;
             mBTimIrqN = TIM6_DAC_IRQn;
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<0>);
@@ -35,7 +37,7 @@ mIntFunc(NULL)
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM6RST); // Clear reset bit;
             break;
 
-        case 7:
+        case BASIC_TIMER_7:
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
             set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<1>);
