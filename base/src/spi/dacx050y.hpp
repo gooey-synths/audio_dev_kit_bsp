@@ -69,10 +69,8 @@ enum eDACx050yMode { DACx050y_REG_MODE = 0, DACx050y_STREAM_MODE };
 
 ///
 /// Interface for DACx050y
-/// @tparam tX first digit in part number, means to resolution / 2
-/// @tparam tY last digit in part, means number of channels
 ///
-template <size_t tX, size_t tY> class IDACx050y {
+template class IDACx050y {
   public:
     virtual void setup() = 0;
 
@@ -91,7 +89,7 @@ template <size_t tX, size_t tY> class IDACx050y {
 /// @tparam tX first digit in part number, means to resolution / 2
 /// @tparam tY last digit in part, means number of channels
 ///
-template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
+template <size_t tX, size_t tY> class DACx050y : public IDACx050y{
   public:
     /// SPI bus configuration for the DACX050Y
     static constexpr SpiBusConfig scSpiConf = {
