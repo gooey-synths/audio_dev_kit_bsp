@@ -21,6 +21,8 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/timer/basic_timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_timers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/util.c
+	${CMAKE_CURRENT_SOURCE_DIR}/board/physical_board.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_board.cpp
 )
 
 # PROJECT_NAME
@@ -37,6 +39,7 @@ if (BUILD_ARM)
 		${CMAKE_CURRENT_SOURCE_DIR}/adc
 		${CMAKE_CURRENT_SOURCE_DIR}/spi
 		${CMAKE_CURRENT_SOURCE_DIR}/timer
+		${CMAKE_CURRENT_SOURCE_DIR}/board
 	)
 
 
