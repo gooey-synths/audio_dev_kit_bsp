@@ -104,6 +104,8 @@ public:
 
     static constexpr uint8_t scProtoBoardV1AdcSeq[] = {10,11,16,14,15,3,8,9};
 
+    static const char* const scInvalidSpeedMsg;
+
     static constexpr BoardConfig scProtoBoardV1Cfg = {
         .slowIO = {
             .numAnalogInputs = 0,
@@ -133,7 +135,18 @@ public:
     /// @return A reference to an analog input on the board.
     ///
     virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) const {
+        switch (speed) {
+        case IOSpeed::SLOW:
+            /* code */
+            break;
         
+        case IOSpeed::FAST:
+            /* code */
+            break;
+        default:
+            throw scInvalidSpeedMsg;
+            break;
+        }
     }
     
     ///
@@ -143,7 +156,18 @@ public:
     /// @return A reference to an analog output on the board.
     ///
     virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) const {
+        switch (speed) {
+        case IOSpeed::SLOW:
+            /* code */
+            break;
         
+        case IOSpeed::FAST:
+            /* code */
+            break;
+        default:
+            throw scInvalidSpeedMsg;
+            break;
+        }
     }
 
     ///
@@ -153,7 +177,18 @@ public:
     /// @return A reference to an digital input on the board.
     ///
     virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) const {
+        switch (speed) {
+        case IOSpeed::SLOW:
+            /* code */
+            break;
         
+        case IOSpeed::FAST:
+            /* code */
+            break;
+        default:
+            throw scInvalidSpeedMsg;
+            break;
+        }
     }
     
     ///
@@ -163,7 +198,18 @@ public:
     /// @return A reference to an digital output on the board.
     ///
     virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) const {
-
+        switch (speed) {
+        case IOSpeed::SLOW:
+            /* code */
+            break;
+        
+        case IOSpeed::FAST:
+            /* code */
+            break;
+        default:
+            throw scInvalidSpeedMsg;
+            break;
+        }
     }
 
     ///
