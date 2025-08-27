@@ -3,6 +3,8 @@
 
 namespace board {
 
+const char* const ProtoBoardV1::scInvalidSpeedMsg = "Invalid IO speed";
+
 ///
 /// Constructor.
 ///
