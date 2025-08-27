@@ -21,16 +21,16 @@ static void setup_pins(){
     gpioController->setConfig(&uart_1_tx_pin, &uart_1_tx_conf);
     gpioController->setConfig(&uart_1_rx_pin, &uart_1_rx_conf);
 
-    gpioController->setConfig(&adc1_3_pin, &adc1_3_conf);
-    gpioController->setConfig(&adc1_8_pin, &adc1_8_conf);
-    gpioController->setConfig(&adc1_9_pin, &adc1_9_conf);
-    gpioController->setConfig(&adc1_10_pin, &adc1_10_conf);
-    gpioController->setConfig(&adc1_11_pin, &adc1_11_conf);
-    gpioController->setConfig(&adc1_14_pin, &adc1_14_conf);
-    gpioController->setConfig(&adc1_15_pin, &adc1_15_conf);
-    gpioController->setConfig(&adc1_16_pin, &adc1_16_conf);
-    gpioController->setConfig(&adc1_18_pin, &adc1_18_conf);
-    gpioController->setConfig(&adc1_19_pin, &adc1_19_conf);
+    gpioController->setConfig(&adc1_3_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_8_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_9_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_10_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_11_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_14_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_15_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_16_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_18_pin, &adc1_conf);
+    gpioController->setConfig(&adc1_19_pin, &adc1_conf);
 }
 
 ///
