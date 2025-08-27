@@ -2,6 +2,6 @@
 #include <cstdlib>
 
 int main() {
-    test_usb_serial_echo();
+    test_board_echo();
     return 0;
 }

@@ -39,7 +39,9 @@ set(ARM_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/usb/usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_arduinojson.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/board/physical_board.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
 )
 
 # TinyUSB stuff
@@ -71,6 +73,7 @@ if (BUILD_ARM)
 		${CMAKE_CURRENT_SOURCE_DIR}/adc
 		${CMAKE_CURRENT_SOURCE_DIR}/spi
 		${CMAKE_CURRENT_SOURCE_DIR}/timer
+		${CMAKE_CURRENT_SOURCE_DIR}/board
 	)
 
 
