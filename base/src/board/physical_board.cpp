@@ -19,17 +19,38 @@ ProtoBoardV1::ProtoBoardV1() :
         timer::BasicTimer(timer::BASIC_TIMER_7)
     },
     mFastDigitalInputs {
-        dio_0_pin,
-        dio_1_pin,
-        dio_2_pin,
-        dio_3_pin,
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_0_pin)),
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_1_pin)),
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_2_pin)),
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_3_pin)),
     },
     mFastDigitalOutputs {
-        dio_4_pin,
-        dio_5_pin,
-        dio_6_pin,
-        dio_7_pin,
-    } {
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_4_pin)),
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_5_pin)),
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_6_pin)),
+        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_7_pin)),
+    },
+    mFastAnalogInputs {
+        PhysicalAnalogInput(mAdc, 0),
+        PhysicalAnalogInput(mAdc, 1),
+        PhysicalAnalogInput(mAdc, 2),
+        PhysicalAnalogInput(mAdc, 3),
+        PhysicalAnalogInput(mAdc, 4),
+        PhysicalAnalogInput(mAdc, 5),
+        PhysicalAnalogInput(mAdc, 6),
+        PhysicalAnalogInput(mAdc, 7),
+    },
+    mFastAnalogOutputs {
+        PhysicalAnalogOutput(mDac, 0),
+        PhysicalAnalogOutput(mDac, 1),
+        PhysicalAnalogOutput(mDac, 2),
+        PhysicalAnalogOutput(mDac, 3),
+        PhysicalAnalogOutput(mDac, 4),
+        PhysicalAnalogOutput(mDac, 5),
+        PhysicalAnalogOutput(mDac, 6),
+        PhysicalAnalogOutput(mDac, 7),
+    }
+    {
         // Setup Digital IOs
         gpio::GPIOController* gpioController = gpio::GPIOController::getInstance();
         for(GPIOPin& pin : mFastDigitalInputs) {
@@ -59,7 +80,7 @@ ProtoBoardV1::ProtoBoardV1() :
         gpioController->setConfig(&adc1_19_pin, &adc1_conf);
     
         uint8_t seq_size = sizeof(scProtoBoardV1AdcSeq)/sizeof(*scProtoBoardV1AdcSeq);
-        mAdc.setSequence(scProtoBoardV1AdcSeq, seq_size);
+        mAdc.setSequence(const_cast<uint8_t*>(scProtoBoardV1AdcSeq), seq_size);
         mAdc.beginConversion(true);
     }
 
