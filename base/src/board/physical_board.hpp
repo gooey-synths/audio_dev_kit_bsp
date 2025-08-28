@@ -74,7 +74,8 @@ private:
 
 class PhysicalTimer : public Timer {
 public:
-    PhysicalTimer(timer::BasicTimer& timer);
+    PhysicalTimer(timer::BasicTimer timer) :
+    mTimer(timer) { ; /* Do nothing */}
 
     ///
     /// Set the frequency of the timer.
@@ -98,7 +99,7 @@ public:
     ///
     virtual void Stop() { mTimer.stop(); }
 private:
-    timer::BasicTimer& mTimer; ///< Reference to basic timer.
+    timer::BasicTimer mTimer; ///< Reference to basic timer.
 };
 
 class ProtoBoardV1 : public BoardInterface {
@@ -255,7 +256,7 @@ private:
     spi::HwCsSpiBus mHwSpiBus; ///< Hw SPI bus
     spi::DAC60508 mDac;        ///< DAC
 
-    timer::BasicTimer mTimers[scProtoBoardV1Cfg.numTimers]; ///< Timers
+    PhysicalTimer mTimers[scProtoBoardV1Cfg.numTimers]; ///< Timers
 
     PhysicalDigitalInput mFastDigitalInputs[scProtoBoardV1Cfg.fastIO.numDigitalInputs];   ///< Fast digitial inputs
     PhysicalDigitalOutput mFastDigitalOutputs[scProtoBoardV1Cfg.fastIO.numDigitalOutputs]; ///< Fast digitial outputs

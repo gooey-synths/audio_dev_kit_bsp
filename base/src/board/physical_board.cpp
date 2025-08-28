@@ -19,16 +19,16 @@ ProtoBoardV1::ProtoBoardV1() :
         timer::BasicTimer(timer::BASIC_TIMER_7)
     },
     mFastDigitalInputs {
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_0_pin)),
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_1_pin)),
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_2_pin)),
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_3_pin)),
+        gpio::GPIOController::getInstance()->getPin(&dio_0_pin),
+        gpio::GPIOController::getInstance()->getPin(&dio_1_pin),
+        gpio::GPIOController::getInstance()->getPin(&dio_2_pin),
+        gpio::GPIOController::getInstance()->getPin(&dio_3_pin),
     },
     mFastDigitalOutputs {
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_4_pin)),
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_5_pin)),
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_6_pin)),
-        PhysicalDigitalInput(gpio::GPIOController::getInstance()->getPin(&dio_7_pin)),
+        gpio::GPIOController::getInstance()->getPin(&dio_4_pin),
+        gpio::GPIOController::getInstance()->getPin(&dio_5_pin),
+        gpio::GPIOController::getInstance()->getPin(&dio_6_pin),
+        gpio::GPIOController::getInstance()->getPin(&dio_7_pin),
     },
     mFastAnalogInputs {
         PhysicalAnalogInput(mAdc, 0),
@@ -53,12 +53,15 @@ ProtoBoardV1::ProtoBoardV1() :
     {
         // Setup Digital IOs
         gpio::GPIOController* gpioController = gpio::GPIOController::getInstance();
-        for(GPIOPin& pin : mFastDigitalInputs) {
-            gpioController->setConfig(&pin, &dio_input_conf);
-        }
-        for(GPIOPin& pin : mFastDigitalOutputs) {
-            gpioController->setConfig(&pin, &dio_output_conf);
-        }
+        gpioController->setConfig(&dio_0_pin, &dio_input_conf);
+        gpioController->setConfig(&dio_1_pin, &dio_input_conf);
+        gpioController->setConfig(&dio_2_pin, &dio_input_conf);
+        gpioController->setConfig(&dio_3_pin, &dio_input_conf);
+        gpioController->setConfig(&dio_4_pin, &dio_output_conf);
+        gpioController->setConfig(&dio_5_pin, &dio_output_conf);
+        gpioController->setConfig(&dio_6_pin, &dio_output_conf);
+        gpioController->setConfig(&dio_7_pin, &dio_output_conf);
+
 
         // Setup DAC
         mDac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);

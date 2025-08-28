@@ -1,3 +1,8 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #ifndef UTIL_H
 #define UTIL_H
 
@@ -12,3 +17,7 @@ void set_vector_table_entry(int index, InterruptFunctionPtr handler);
 
 
 #endif // UTIL_H
+
+#ifdef __cplusplus
+}
+#endif
