@@ -14,7 +14,7 @@ namespace board {
 
 class PhysicalDigitalOutput : public DigitalOutput {
 public:
-    PhysicalDigitalOutput(gpio::Pin& out) :
+    PhysicalDigitalOutput(gpio::Pin out) :
     mOut(out) { ; /* Do nothing */}
     ///
     /// Set the value of the output.
@@ -23,27 +23,27 @@ public:
     virtual void SetValue(bool val) { mOut = val; }
 
 private:
-    gpio::Pin& mOut;  ///< GPIO to use for output.
+    gpio::Pin mOut;  ///< GPIO to use for output.
 };
 
 class PhysicalDigitalInput : public DigitalInput {
 public:
-    PhysicalDigitalInput(gpio::Pin& in) :
+    PhysicalDigitalInput(gpio::Pin in) :
     mIn(in) { ; /* Do nothing */}
 
     ///
     /// Get the value of the input.
     /// @return The value of the input.
     ///
-    virtual bool GetValue() const { return mIn(); }
+    virtual bool GetValue() { return mIn(); }
 
 private:
-    gpio::Pin& mIn;  ///< GPIO to use for input.
+    gpio::Pin mIn;  ///< GPIO to use for input.
 };
 
-class PhysicalAnaloglOutput : public AnalogOutput {
+class PhysicalAnalogOutput : public AnalogOutput {
 public:
-    PhysicalAnaloglOutput(spi::IDACx050y& dac, size_t idx) :
+    PhysicalAnalogOutput(spi::IDACx050y& dac, size_t idx) :
     mDac(dac), mIdx(idx) { ; /* Do nothing */}
     ///
     /// Set the value of the output.
@@ -64,7 +64,7 @@ public:
     /// Get the value of the input.
     /// @return The value of the input.
     ///
-    virtual BoardData GetValue() const { return mAdc.getConversion(mIdx); }
+    virtual BoardData GetValue() { return mAdc.getConversion(mIdx); }
 
 private:
     adc::IOnChipADC& mAdc; ///< Reference to ADC.
@@ -140,7 +140,7 @@ public:
     /// @param idx Index of the analog input to get.
     /// @return A reference to an analog input on the board.
     ///
-    virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) const {
+    virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -150,7 +150,7 @@ public:
             if(idx >= scProtoBoardV1Cfg.fastIO.numAnalogInputs) {
                 throw scInvalidIOMsg;
             }
-            return PhysicalAnalogInput(mAdc, idx);
+            return mFastAnalogInputs[idx];
 
         default:
             throw scInvalidSpeedMsg;
@@ -163,7 +163,7 @@ public:
     /// @param idx Index of the analog output to get.
     /// @return A reference to an analog output on the board.
     ///
-    virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) const {
+    virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -173,7 +173,7 @@ public:
             if(idx >= scProtoBoardV1Cfg.fastIO.numAnalogOutputs) {
                 throw scInvalidIOMsg;
             }
-            return PhysicalAnaloglOutput(mDac, idx);           
+            return mFastAnalogOutputs[idx];
 
         default:
             throw scInvalidSpeedMsg;
@@ -186,7 +186,7 @@ public:
     /// @param idx Index of the digital input to get.
     /// @return A reference to an digital input on the board.
     ///
-    virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) const {
+    virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -196,9 +196,7 @@ public:
             if(idx >= scProtoBoardV1Cfg.fastIO.numDigitalInputs) {
                 throw scInvalidIOMsg;
             }
-            return PhysicalDigitalInput(
-                gpio::GPIOController::getInstance()->getPin(mFastDigitalInputs[idx])
-            );
+            return mFastDigitalInputs[idx];
 
         default:
             throw scInvalidSpeedMsg;
@@ -211,7 +209,7 @@ public:
     /// @param idx Index of the digital output to get.
     /// @return A reference to an digital output on the board.
     ///
-    virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) const {
+    virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -221,9 +219,7 @@ public:
             if(idx >= scProtoBoardV1Cfg.fastIO.numDigitalOutputs) {
                 throw scInvalidIOMsg;
             }
-            return PhysicalDigitalOutput(
-                gpio::GPIOController::getInstance()->getPin(mFastDigitalOutputs[idx])
-            );
+            return mFastDigitalOutputs[idx];
 
         default:
             throw scInvalidSpeedMsg;
@@ -235,7 +231,7 @@ public:
     /// @param idx Index of the timer to get.
     /// @return A reference to a timer on the board.
     ///
-    virtual Timer& GetTimer(size_t idx) const {
+    virtual Timer& GetTimer(size_t idx) {
         if(idx >= scProtoBoardV1Cfg.numTimers) {
             throw scInvalidTimerMsg;
         }
@@ -261,8 +257,11 @@ private:
 
     timer::BasicTimer mTimers[scProtoBoardV1Cfg.numTimers]; ///< Timers
 
-    GPIOPin& mFastDigitalInputs[scProtoBoardV1Cfg.fastIO.numDigitalInputs];   ///< Fast digitial inputs
-    GPIOPin& mFastDigitalOutputs[scProtoBoardV1Cfg.fastIO.numDigitalOutputs]; ///< Fast digitial outputs
+    PhysicalDigitalInput mFastDigitalInputs[scProtoBoardV1Cfg.fastIO.numDigitalInputs];   ///< Fast digitial inputs
+    PhysicalDigitalOutput mFastDigitalOutputs[scProtoBoardV1Cfg.fastIO.numDigitalOutputs]; ///< Fast digitial outputs
+
+    PhysicalAnalogInput mFastAnalogInputs[scProtoBoardV1Cfg.fastIO.numAnalogInputs]; ///< Fast analog inputs
+    PhysicalAnalogOutput mFastAnalogOutputs[scProtoBoardV1Cfg.fastIO.numAnalogOutputs]; ///< Fast analog outputs
 };
 
 }
