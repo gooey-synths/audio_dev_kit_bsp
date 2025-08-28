@@ -152,6 +152,5 @@ private:
 	DmaChannel mChannels[DMA1_NUM_CHANNELS]; ///< DMA channels
 };
 
-
+} // namespace dma
 #endif
-}// namespace dma

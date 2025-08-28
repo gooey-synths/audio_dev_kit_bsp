@@ -35,11 +35,7 @@ if (BUILD_ARM)
 
 	# Place directories to include here
 	include_directories(
-		${CMAKE_CURRENT_SOURCE_DIR}/gpio
-		${CMAKE_CURRENT_SOURCE_DIR}/adc
-		${CMAKE_CURRENT_SOURCE_DIR}/spi
-		${CMAKE_CURRENT_SOURCE_DIR}/timer
-		${CMAKE_CURRENT_SOURCE_DIR}/board
+		${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
 
