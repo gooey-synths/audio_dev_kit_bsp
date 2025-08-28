@@ -4,6 +4,8 @@
 namespace board {
 
 const char* const ProtoBoardV1::scInvalidSpeedMsg = "Invalid IO speed";
+const char* const ProtoBoardV1::scInvalidIOMsg = "Invalid IO index";
+const char* const ProtoBoardV1::scInvalidTimerMsg = "Invalid Timer index";
 
 ///
 /// Constructor.
