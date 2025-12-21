@@ -62,8 +62,14 @@ ProtoBoardV1::ProtoBoardV1() :
         gpioController->setConfig(&dio_6_pin, &dio_output_conf);
         gpioController->setConfig(&dio_7_pin, &dio_output_conf);
 
+        // Setup SPI pins
+        gpioController->setConfig(&spi2_clk_pin,  &spi2_clk_conf);
+        gpioController->setConfig(&spi2_cipo_pin, &spi2_cipo_conf);
+        gpioController->setConfig(&spi2_copi_pin, &spi2_copi_conf);
+        gpioController->setConfig(&spi2_cs0_pin,  &spi2_cs0_conf);
 
         // Setup DAC
+        mDac.setup();
         mDac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
         // Set gain to 2 and divide ref by 2
         mDac.WriteReg(spi::eDACx050yRegAddr::DACx050y_GAIN, 0x1FF);

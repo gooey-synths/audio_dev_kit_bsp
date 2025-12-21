@@ -25,4 +25,6 @@ void test_board_echo(){
     fastTimer.SetCallback(fastCallback);
 
     fastTimer.Start();
+
+    while(1);
 }
