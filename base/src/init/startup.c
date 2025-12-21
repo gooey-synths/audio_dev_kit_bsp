@@ -432,3 +432,7 @@ __attribute__ ((noreturn)) void reset_handler(){
 __attribute__ ((noreturn)) void halt(){
     while(1){;}
 }
+
+void _fini(void) {
+    // Empty stub to satisfy the linker
+}
