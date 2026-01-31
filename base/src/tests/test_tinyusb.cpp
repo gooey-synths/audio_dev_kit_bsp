@@ -11,11 +11,16 @@ extern "C" {
 #include "device/usbd.h"
 }
 
-
+///
+/// USB interrupt handler.
+///
 void usb_handler(){
     tud_int_handler(BOARD_TUD_RHPORT);
 }
 
+///
+/// Setup USB pins.
+///
 void setupPins() {
     gpio::GPIOController* gpio_controller = gpio::GPIOController::getInstance();
 
@@ -25,9 +30,13 @@ void setupPins() {
     gpio_controller->setConfig(&usb_vbus_id_pin, &usb_vbus_id_conf);
 }
 
-
-// echo to either Serial0 or Serial1
-// with Serial0 as all lower case, Serial1 as all upper case
+///
+/// echo to either Serial0 or Serial1
+/// with Serial0 as all lower case, Serial1 as all upper case
+/// @param itf Interface number to echo to.
+/// @param buf Characters to echo back.
+/// @param count Number of characters in the buffer.
+///
 static void echo_serial_port(uint8_t itf, uint8_t buf[], uint32_t count)
 {
   uint8_t const case_diff = 'a' - 'A';
@@ -77,21 +86,25 @@ static void cdc_task(void)
   }
 }
 
-
+///
+/// Test tiny USB serial connection.
+/// @note To check for success observe 2 new USB COM ports on the system.
+/// The first port will echo back typed characters in lower case.
+/// The second port will echo back typed characters in upper case
+///
 void test_tinyusb_serial() {
     setupPins();
 
-    set_vector_table_entry(117, usb_handler);
+    set_vector_table_entry(static_cast<int>(OTG_FS_IRQn+16), usb_handler);
     // init device stack on configured roothub port
     volatile bool debug = CFG_TUSB_MCU;
     tud_init(BOARD_TUD_RHPORT);
 
 
-    while (1)
-    {
-        tud_task(); // tinyusb device task
-        //volatile uint32_t debug_int = (USB_OTG_FS->GAHBCFG);
-        cdc_task();
+    while (1) {
+      tud_task(); // tinyusb device task
+
+      cdc_task(); // Handling of USB CDC data.
     }
 
 }

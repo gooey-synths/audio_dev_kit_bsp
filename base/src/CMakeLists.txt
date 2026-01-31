@@ -40,9 +40,6 @@ include_directories(
 	${TINYUSB_PATH}/src	
 )
 
-#tinyusb_target_add()
-
-
 # PROJECT_NAME
 project(audio_dev_kit_bsp)
 
