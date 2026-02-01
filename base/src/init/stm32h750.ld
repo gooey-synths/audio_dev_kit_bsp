@@ -70,7 +70,7 @@ MEMORY
 SECTIONS
 {
   /* The startup code into "ROM" Rom type memory */
-  .isr_vector :
+  .isr_vector (READONLY) :
   {
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
@@ -78,7 +78,7 @@ SECTIONS
   } >ROM
 
   /* The program code and other data into "ROM" Rom type memory */
-  .text :
+  .text (READONLY) :
   {
     . = ALIGN(4);
     *(.text)           /* .text sections (code) */
@@ -95,7 +95,7 @@ SECTIONS
   } >ROM
 
   /* Constant data into "ROM" Rom type memory */
-  .rodata :
+  .rodata (READONLY) :
   {
     . = ALIGN(4);
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
