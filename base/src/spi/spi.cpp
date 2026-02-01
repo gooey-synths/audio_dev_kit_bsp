@@ -96,7 +96,7 @@ SpiBusBase::SpiBusBase(size_t instance_num)
     sInstances[mSpiNum - 1] = this;
 
     mSpiHw->CR1 &= ~SPI_CR1_SPE;                     // disable SPI
-    mSpiHw->IER = (SPI_IER_TXPIE | SPI_IER_RXPIE);  // Enable tx and rx interrupt.
+    mSpiHw->IER |= (SPI_IER_TXPIE | SPI_IER_RXPIE);  // Enable tx and rx interrupt.
     mSpiHw->CR1 |= SPI_CR1_SSI;                      // Set CS pin high
     mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos;      // Clear all interrupts
     mSpiHw->CFG2 |= SPI_CFG2_MASTER | SPI_CFG2_SSOE; // SPI master, SS output enable
