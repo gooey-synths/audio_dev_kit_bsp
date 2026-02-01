@@ -10,15 +10,15 @@ extern int main(); // defined in main.c
 #define ISR_NOT_IMPL ((uint32_t*) halt)
 
  /* These are defined in the linker script */
-extern uint32_t _stext;  //< Start of text section
-extern uint32_t _etext;  //< End of text section
-extern uint32_t _sbss;   //< Start of BSS section
-extern uint32_t _ebss;   //< End of BSS section
-extern uint32_t _sdata;  //< Start of data section
-extern uint32_t _edata;  //< End of data section
-extern uint32_t _sstack; //< Start of stack section
-extern uint32_t _estack; //< End of stack section
-extern uint32_t _sidata; //< Startup initialization data
+extern const uint32_t _stext;  //< Start of text section
+extern const uint32_t _etext;  //< End of text section
+extern const uint32_t _sbss;   //< Start of BSS section
+extern const uint32_t _ebss;   //< End of BSS section
+extern const uint32_t _sdata;  //< Start of data section
+extern const uint32_t _edata;  //< End of data section
+extern const uint32_t _sstack; //< Start of stack section
+extern const uint32_t _estack; //< End of stack section
+extern const uint32_t _sidata; //< Startup initialization data
 
 __attribute__ ((section(".isr_vector")))
 uint32_t* vector_table[] = {
@@ -395,8 +395,8 @@ void start_clocks(){
 __attribute__ ((noreturn)) void reset_handler(){
 
     /* Copy init values from text to data */
-    uint32_t *init_values_ptr = &_sidata;
-    uint32_t *data_ptr = &_sdata;
+    uint32_t *init_values_ptr = (uint32_t*)&_sidata;
+    uint32_t *data_ptr = (uint32_t*)&_sdata;
 
     if (init_values_ptr != data_ptr) {
         for (; data_ptr < &_edata;) {
@@ -405,7 +405,7 @@ __attribute__ ((noreturn)) void reset_handler(){
     }
 
     /* Clear the zero segment */
-    for (uint32_t *bss_ptr = &_sbss; bss_ptr < &_ebss;) {
+    for (uint32_t *bss_ptr = (uint32_t*)&_sbss; bss_ptr < &_ebss;) {
         *bss_ptr++ = 0;
     }
 
@@ -415,7 +415,7 @@ __attribute__ ((noreturn)) void reset_handler(){
     }
 
     // Remap vector table to RAM location
-    SCB->VTOR = (uint32_t)vector_table_ram; // NOLINT
+    SCB->VTOR = (uintptr_t)vector_table_ram; // NOLINT
 
     enable_fpu();
 

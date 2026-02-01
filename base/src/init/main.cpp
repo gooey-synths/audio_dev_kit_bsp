@@ -4,6 +4,6 @@
 
 int main() {
     test_basic_timer_exceptions();
-    test_basic_timer_accuracy();
+    test_basic_timer_continuous();
     return 0;
 }
