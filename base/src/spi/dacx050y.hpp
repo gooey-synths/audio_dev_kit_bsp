@@ -181,9 +181,9 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     /// @param val Value to set the DAC to.
     ///
     virtual void setStreamVal(uint8_t dacIdx, uint16_t val) {
-        if (dacIdx > tY) {
-            throw scInvalidIdx;
-        }
+        //if (dacIdx > tY) {
+        //    throw scInvalidIdx;
+        //}
         mTxBuf[dacIdx].setData(val);
     }
 
