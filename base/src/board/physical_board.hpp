@@ -74,7 +74,7 @@ private:
 
 class PhysicalTimer : public Timer {
 public:
-    PhysicalTimer(timer::BasicTimer timer) :
+    PhysicalTimer(timer::BasicTimer& timer) :
     mTimer(timer) { ; /* Do nothing */}
 
     ///
@@ -99,7 +99,7 @@ public:
     ///
     virtual void Stop() { mTimer.stop(); }
 private:
-    timer::BasicTimer mTimer; ///< Reference to basic timer.
+    timer::BasicTimer& mTimer; ///< Reference to basic timer.
 };
 
 class ProtoBoardV1 : public BoardInterface {
@@ -255,6 +255,7 @@ private:
     adc::OnChipADC mAdc;       ///< ADC
     spi::HwCsSpiBus mHwSpiBus; ///< Hw SPI bus
     spi::DAC60508 mDac;        ///< DAC
+    timer::BasicTimer mTimerHw[scProtoBoardV1Cfg.numTimers]; /// Timer HW
 
     PhysicalTimer mTimers[scProtoBoardV1Cfg.numTimers]; ///< Timers
 

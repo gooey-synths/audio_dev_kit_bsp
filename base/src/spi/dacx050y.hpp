@@ -96,7 +96,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
         .mPolarity = true,
         .mPhase = false,
         .mIoSwap = true,
-        .mFreq = 300000000U,
+        .mFreq = 400000000U,
         .mWordSize = 24,
         .mMidi = 0x7
     };
