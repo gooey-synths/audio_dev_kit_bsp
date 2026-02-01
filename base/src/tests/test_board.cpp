@@ -22,7 +22,7 @@ void test_board_echo(){
         board.UpdateFastIO();
     };
 
-    fastTimer.SetFrequency(33000);
+    fastTimer.SetFrequency(44100);
 
     fastTimer.SetCallback(fastCallback);
 
