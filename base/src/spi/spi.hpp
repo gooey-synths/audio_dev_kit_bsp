@@ -52,8 +52,6 @@ class SpiBusBase : public ISpiBus {
     /// SPI interrupt.
     ///
     void interrupt() {
-
-        // transfer complete flag
         if (mSpiHw->SR & SPI_SR_EOT) {
             cleanup();
 
