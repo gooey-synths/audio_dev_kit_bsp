@@ -11,6 +11,7 @@ FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 set(SOURCES
 	${TinyUSBCSources}
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
+	${CMAKE_CURRENT_SOURCE_DIR}/system/syscalls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gpio/gpio.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/system/pin_defs.c
