@@ -25,6 +25,9 @@ extern void test_spi_hw_transaction();
 extern void test_spi_hw_exceptions();
 extern void test_DAC60508();
 
+// tiny USB tests
+extern void test_tinyusb_serial();
+
 // Timer tests
 extern void test_basic_timer_exceptions();
 extern void test_basic_timer_continuous();

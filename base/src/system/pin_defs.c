@@ -310,3 +310,57 @@ const GPIOConf adc1_19_conf = {
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
+
+// USB pins
+
+GPIOPin usb_vbus_id_pin = {
+    .port = 0,
+    .pin = 10
+};
+
+GPIOConf usb_vbus_id_conf = {
+    .type = OPEN_DRAIN_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = PULL_UP,
+    .alternate_function = 10
+};
+
+GPIOPin usb_vbus_dect_pin = {
+    .port = 0,
+    .pin = 9
+};
+
+GPIOConf usb_vbus_dect_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 0
+};
+
+GPIOPin usb_d_plus_pin = {
+    .port = 0,
+    .pin = 12
+};
+
+GPIOConf usb_d_plus_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 10
+};
+
+GPIOPin usb_d_minus_pin = {
+    .port = 0,
+    .pin = 11
+};
+
+GPIOConf usb_d_minus_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 10
+};

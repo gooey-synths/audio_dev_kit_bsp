@@ -389,8 +389,25 @@ void start_clocks(){
 }
 
 ///
+/// Enable USB OTG 2
+///
+void enable_otg_2(){
+    RCC->CR |= RCC_CR_HSI48ON; // Enable HSI48
+    while (!(RCC->CR & RCC_CR_HSI48RDY))
+    {
+        // Wait for HSI48 clock to be stable
+    }
+    RCC->D2CCIP2R &= ~(RCC_D2CCIP2R_USBSEL_Msk); // Clear USB clock select pins
+    RCC->D2CCIP2R |= 3 << RCC_D2CCIP2R_USBSEL_Pos; // Select HSI_48 for USB clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_USB2OTGFSEN; // Enable USB OTG 2
+
+    // enable VBUS detect
+    USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_VBDEN;
+    PWR->CR3 |= PWR_CR3_USB33DEN;
+}
+
+///
 /// Reset handler and initial entry point. 
-/// @todo Remap vector table for dynamic interrupts
 ///
 __attribute__ ((noreturn)) void reset_handler(){
 
@@ -420,6 +437,8 @@ __attribute__ ((noreturn)) void reset_handler(){
     enable_fpu();
 
     start_clocks();
+
+    enable_otg_2();
 
     main();
 

@@ -3,8 +3,13 @@ cmake_minimum_required(VERSION 3.21.4)
 # Leave as debug for now
 set(CMAKE_BUILD_TYPE Debug)
 
+set(TINYUSB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyusb)
+
+FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
+
 # PLace your c and c++ files here
 set(SOURCES
+	${TinyUSBCSources}
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/system/syscalls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
@@ -19,9 +24,21 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_adc.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/spi/spi.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_spi.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/usb/usb_descriptors.c
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_tinyusb.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/timer/basic_timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_timers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/util.c
+)
+
+# TinyUSB stuff
+
+include(${TINYUSB_PATH}/src/CMakeLists.txt)
+
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}/usb
+	${CMAKE_CURRENT_SOURCE_DIR}/system
+	${TINYUSB_PATH}/src	
 )
 
 # PROJECT_NAME
