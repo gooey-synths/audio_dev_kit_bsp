@@ -2,6 +2,7 @@
 #define USB_SERIAL_HPP
 
 #include <streambuf>
+#include <iostream>
 #include "../timer/basic_timer.hpp"
 extern "C" {
 #include "tusb.h"
@@ -11,7 +12,7 @@ extern "C" {
 namespace usb {
 
 ///
-/// Class for interfacing with a serial port over USB.
+/// Class for managing USB serial connections.
 ///
 class USBSerial {
 public:
@@ -26,7 +27,7 @@ public:
 
     static const size_t scNumInterfaces = CFG_TUD_CDC; ///< Number of interfaces to manage.
     static const uint32_t scTusbFreq = 10; ///< Rate to call TinyUSB device task.
-    static const timer::eBasicTimerNumber scTimerNum = ::timer::eBasicTimerNumber::BASIC_TIMER_6 ///< Timer for calling TinyUSB device task.
+    static const timer::eBasicTimerNumber scTimerNum = ::timer::eBasicTimerNumber::BASIC_TIMER_6; ///< Timer for calling TinyUSB device task.
 
     ///
     /// @brief Get an instance of the USB Serial.
@@ -61,6 +62,11 @@ private:
     class USBStreamBuf: public std::streambuf {
     public:
         USBStreamBuf(size_t itfIdx);
+    
+    protected:
+        virtual int_type overflow(int_type c) override;
+        virtual int_type __CLR_OR_THIS_CALL underflow() override;
+        virtual int sync() override;
 
     private:
         size_t mItfIdx; ///< USB interface index.
