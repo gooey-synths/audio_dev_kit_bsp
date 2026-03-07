@@ -3,6 +3,6 @@
 #include <cstdint>
 
 int main() {
-    test_tinyusb_serial();
+    test_usb_serial_echo();
     return 0;
 }

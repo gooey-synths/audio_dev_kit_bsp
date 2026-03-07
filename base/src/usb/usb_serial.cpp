@@ -5,7 +5,7 @@ namespace usb {
 ///
 /// Constructor.
 ///
-USBSerial::USBSerial(): 
+USBSerial::USBSerial() : 
     mStreamBufs{USBSerial::Interface::CENTRAL, USBSerial::Interface::EXTRA},
     mUsbStreams{std::iostream(&mStreamBufs[0]), std::iostream(&mStreamBufs[1])},
     mTimer(USBSerial::scTimerNum)
@@ -22,7 +22,7 @@ USBSerial::USBSerial():
 /// Constructor.
 /// @param itfIdx Index of USB interface.
 ///
-USBSerial::USBStreamBuf::USBStreamBuf(size_t itfIdx):
+USBSerial::USBStreamBuf::USBStreamBuf(size_t itfIdx) :
     mItfIdx(itfIdx)
 {
     memset(mRxBuf, 0, sizeof mRxBuf);
@@ -33,8 +33,8 @@ USBSerial::USBStreamBuf::USBStreamBuf(size_t itfIdx):
 }
 
 ///
-///
-/// @return 
+/// Underflow.
+/// @return EOF or new character from the buffer.
 ///
 int USBSerial::USBStreamBuf::underflow() {
         // Read in new buffer and size

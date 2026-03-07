@@ -3,7 +3,7 @@
 
 #include <streambuf>
 #include <iostream>
-#include "../timer/basic_timer.hpp"
+#include <timer/basic_timer.hpp>
 extern "C" {
 #include "tusb.h"
 #include "device/usbd.h"
