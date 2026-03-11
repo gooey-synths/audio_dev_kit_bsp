@@ -14,8 +14,8 @@ void test_board_echo(){
     CallbackFunc fastCallback = [] () {
         gpio::GPIOController::getInstance()->getPin(&led_pin) = true;
         for(size_t i=0; i< board.GetBoardConfig().fastIO.numAnalogInputs; i++) {
-            AnalogOutput& a_out = board.GetAnalogOutput(IOSpeed::FAST, 0);
-            AnalogInput& a_in = board.GetAnalogInput(IOSpeed::FAST, 0);
+            AnalogOutput& a_out = board.GetAnalogOutput(IOSpeed::FAST, i);
+            AnalogInput& a_in = board.GetAnalogInput(IOSpeed::FAST, i);
             a_out.SetValue(a_in.GetValue());
         }
         d_out.SetValue(d_in.GetValue());
