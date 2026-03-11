@@ -1,12 +1,12 @@
-#include <usb/usb_serial.hpp>
-#include <gpio/gpio.hpp>
+#include <usb_serial.hpp>
+#include <gpio.hpp>
 
 using namespace usb;
 
 ///
 /// Setup USB pins.
 ///
-void setupPins() {
+static void setupPins() {
     gpio::GPIOController* gpio_controller = gpio::GPIOController::getInstance();
 
     gpio_controller->setConfig(&usb_d_minus_pin, &usb_d_minus_conf);

@@ -5,9 +5,8 @@ namespace usb {
 ///
 /// Constructor.
 ///
-USBSerial::USBSerial() : 
-    mStreamBufs{USBSerial::Interface::CENTRAL, USBSerial::Interface::EXTRA},
-    mUsbStreams{std::iostream(&mStreamBufs[0]), std::iostream(&mStreamBufs[1])},
+USBSerial::USBSerial() :
+    mStreamBufs{USBStreamBuf(Interface::CENTRAL), USBStreamBuf(Interface::EXTRA)},
     mTimer(USBSerial::scTimerNum)
 {
     set_vector_table_entry(static_cast<int>(OTG_FS_IRQn+16), USBSerial::usbHandler);

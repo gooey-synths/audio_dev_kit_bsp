@@ -3,7 +3,7 @@
 
 #include <streambuf>
 #include <iostream>
-#include <timer/basic_timer.hpp>
+#include <basic_timer.hpp>
 extern "C" {
 #include "tusb.h"
 #include "device/usbd.h"
@@ -44,10 +44,22 @@ public:
     /// @return Referance to stream of requested interface.
     ///
     std::iostream& getStream(Interface itf) {
-        if(itf >= scNumInterfaces) {
+        static std::iostream stream0(&mStreamBufs[Interface::CENTRAL]);
+        static std::iostream stream1(&mStreamBufs[Interface::EXTRA]);
+
+        switch (itf) {
+        case Interface::CENTRAL:
+            return stream0;
+            break;
+
+        case Interface::EXTRA:
+            return stream1;
+            break;
+
+        default:
             throw "Invalid USB interface";
+            break;
         }
-        return mUsbStreams[itf];
     }
 
     // Delete copy and assignment to preserve singleton pattern.
@@ -65,7 +77,7 @@ private:
     
     protected:
         virtual int_type overflow(int_type c) override;
-        virtual int_type __CLR_OR_THIS_CALL underflow() override;
+        virtual int_type underflow() override;
         virtual int sync() override;
 
     private:
@@ -91,7 +103,6 @@ private:
     }
 
     USBStreamBuf mStreamBufs[scNumInterfaces];  ///< USB buffers.
-    std::iostream mUsbStreams[scNumInterfaces]; ///< IO streams.
     timer::BasicTimer mTimer; ///< Timer for calling tinyUSB device task.
 };
 
