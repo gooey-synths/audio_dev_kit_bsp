@@ -1,9 +1,8 @@
 #ifndef USB_SERIAL_HPP
 #define USB_SERIAL_HPP
 
-#include <streambuf>
-#include <iostream>
-#include <basic_timer.hpp>
+#include <timer/basic_timer.hpp>
+#include <board/board_interface.hpp>
 extern "C" {
 #include "tusb.h"
 #include "device/usbd.h"
@@ -16,15 +15,6 @@ namespace usb {
 ///
 class USBSerial {
 public:
-
-    ///
-    /// Enumeration for different USB interfaces.
-    ///
-    enum Interface {
-        CENTRAL = 0,
-        EXTRA = 1,
-    };
-
     static const size_t scNumInterfaces = CFG_TUD_CDC; ///< Number of interfaces to manage.
     static const uint32_t scTusbFreq = 10; ///< Rate to call TinyUSB device task.
     static const timer::eBasicTimerNumber scTimerNum = ::timer::eBasicTimerNumber::BASIC_TIMER_6; ///< Timer for calling TinyUSB device task.
@@ -33,33 +23,21 @@ public:
     /// @brief Get an instance of the USB Serial.
     /// @return An instance of the USB serial.
     ///
-    static USBSerial& GetInstance() {
+    static USBSerial& getInstance() {
         static USBSerial sInstance;
         return sInstance;
     }
 
     ///
-    /// Get an IO stream.
-    /// @param itf Interface to get stream of.
-    /// @return Referance to stream of requested interface.
+    /// Get a USB interface.
+    /// @param idx Index of USB interface to get.
+    /// @return A reference to a USB interface.
     ///
-    std::iostream& getStream(Interface itf) {
-        static std::iostream stream0(&mStreamBufs[Interface::CENTRAL]);
-        static std::iostream stream1(&mStreamBufs[Interface::EXTRA]);
-
-        switch (itf) {
-        case Interface::CENTRAL:
-            return stream0;
-            break;
-
-        case Interface::EXTRA:
-            return stream1;
-            break;
-
-        default:
+    board::CommunicationInterface& getInterface(size_t idx) {
+        if(idx >= scNumInterfaces) {
             throw "Invalid USB interface";
-            break;
         }
+        return mUsbInterfaces[idx];
     }
 
     // Delete copy and assignment to preserve singleton pattern.
@@ -71,19 +49,16 @@ private:
     ///
     /// Stream buffer for sending and receiving text over USB.
     ///
-    class USBStreamBuf: public std::streambuf {
+    class USBCommunication: public board::CommunicationInterface {
     public:
-        USBStreamBuf(size_t itfIdx);
-    
-    protected:
-        virtual int_type overflow(int_type c) override;
-        virtual int_type underflow() override;
-        virtual int sync() override;
+        USBCommunication(size_t itfIdx);
+
+    virtual size_t ReadN(char* buf, size_t n) override;
+
+    virtual size_t WriteN(char* buf, size_t n) override;
 
     private:
         size_t mItfIdx; ///< USB interface index.
-        char mRxBuf[CFG_TUD_CDC_RX_BUFSIZE]; ///< Receive buffer.
-        char mTxBuf[CFG_TUD_CDC_TX_BUFSIZE]; ///< Transmit buffer.
     };
 
     USBSerial();
@@ -102,7 +77,7 @@ private:
         tud_task_ext(0, true);
     }
 
-    USBStreamBuf mStreamBufs[scNumInterfaces];  ///< USB buffers.
+    USBCommunication mUsbInterfaces[scNumInterfaces];  ///< USB buffers.
     timer::BasicTimer mTimer; ///< Timer for calling tinyUSB device task.
 };
 

@@ -1,5 +1,9 @@
-#include <usb_serial.hpp>
-#include <gpio.hpp>
+#include <usb/usb_serial.hpp>
+#include <gpio/gpio.hpp>
+
+extern "C" {
+#include <ctype.h>
+}
 
 using namespace usb;
 
@@ -23,20 +27,26 @@ static void setupPins() {
 ///
 void test_usb_serial_echo() {
     setupPins();
-    USBSerial& usbSerial = USBSerial::GetInstance();
+    USBSerial& usbSerial = USBSerial::getInstance();
 
-    std::iostream& usbStream0 = usbSerial.getStream(USBSerial::Interface::CENTRAL);
-    std::iostream& usbStream1 = usbSerial.getStream(USBSerial::Interface::EXTRA);
+    board::CommunicationInterface& usbItf0 = usbSerial.getInterface(0);
+    board::CommunicationInterface& usbItf1 = usbSerial.getInterface(1);
 
-    uint8_t const case_diff = 'a' - 'A';
+    uint8_t const caseDiff = 'a' - 'A';
 
     while(1) {
         char c;
-        if(usbStream0 >> c) {
-            usbStream0 << c-case_diff;
+        if(usbItf0.ReadN(&c, 1)) {
+            if(isupper(c)) {
+                c -= caseDiff;
+            }
+            usbItf0.WriteN(&c, 1);
         }
-        if(usbStream1 >> c) {
-            usbStream1 << c+case_diff;
+        if(usbItf1.ReadN(&c, 1)) {
+            if(islower(c)) {
+                c += caseDiff;
+            }
+            usbItf1.WriteN(&c, 1);
         }
     }
 }

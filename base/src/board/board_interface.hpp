@@ -114,6 +114,27 @@ public:
 };
 
 ///
+/// Class for communicating strings.
+///
+class CommunicationInterface {
+public:
+    ///
+    /// Read N characters into a buffer.
+    /// @param buf Buffer to read characters into.
+    /// @param n Maximum characters to read in.
+    /// @return Number of characters read.
+    ///
+    virtual size_t ReadN(char* buf, size_t n) = 0;
+    ///
+    /// Write N characters from a buffer.
+    /// @param buf Buffer of characters to write.
+    /// @param n Maximum characters to write.
+    /// @return Number of characters written.
+    ///
+    virtual size_t WriteN(char* buf, size_t n) = 0;
+};
+
+///
 /// Structure defining the IO configuration.
 ///
 struct IOConfig {
@@ -130,6 +151,7 @@ struct BoardConfig {
     IOConfig slowIO;  ///< Slow IO configuration.
     IOConfig fastIO;  ///< Fast IO configuration.
     size_t numTimers; ///< Number of timers the board provides.
+    size_t numComms;  ///< Number of communication interfaces the board provides.
 };
 
 ///
@@ -176,11 +198,18 @@ public:
     virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) const = 0;
 
     ///
-    /// Get a timer from the board.
+    /// Get a timer on the board.
     /// @param idx Index of the timer to get.
     /// @return A reference to a timer on the board.
     ///
     virtual Timer& GetTimer(size_t idx) const = 0;
+
+    ///
+    /// Get a communication interface on the board.
+    /// @param idx Index of the communication interface to get.
+    /// @return A reference to the communication interface to get.
+    ///
+    virtual CommunicationInterface* GetComm(size_t idx) const = 0;
 
     ///
     /// Update all of the slow IO devices on the board.
