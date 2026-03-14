@@ -114,7 +114,7 @@ public:
 };
 
 ///
-/// Class for communicating strings.
+/// Class for communicating characters.
 ///
 class CommunicationInterface {
 public:
