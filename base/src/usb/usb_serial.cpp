@@ -14,7 +14,7 @@ USBSerial::USBSerial() :
 
     mTimer.setFreq(USBSerial::scTusbFreq);
     mTimer.setInterrupt(USBSerial::timerHandler);
-    mTimer.start(scTusbFreq);
+    mTimer.start(false);
 }
 
 ///
@@ -44,7 +44,9 @@ size_t USBSerial::USBCommunication::ReadN(char* buf, size_t n) {
 /// @return Number of characters written.
 ///
 size_t USBSerial::USBCommunication::WriteN(char* buf, size_t n) {
-    return tud_cdc_n_write(mItfIdx, buf, n);
+    uint32_t ret = tud_cdc_n_write(mItfIdx, buf, n);
+    tud_cdc_n_write_flush(mItfIdx);
+    return ret;
 }
 
 

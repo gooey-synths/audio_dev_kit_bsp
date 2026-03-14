@@ -1,9 +1,7 @@
 #include <usb/usb_serial.hpp>
 #include <gpio/gpio.hpp>
-
-extern "C" {
-#include <ctype.h>
-}
+#include <cstddef>
+#include <cctype>
 
 using namespace usb;
 
@@ -22,8 +20,8 @@ static void setupPins() {
 ///
 /// Test USB serial connection.
 /// @note To check for success observe 2 new USB COM ports on the system.
-/// The first port will echo back typed characters in lower case.
-/// The second port will echo back typed characters in upper case
+/// The first port will echo back typed characters in inverted case.
+/// The second port will echo back typed characters without inverting the case.
 ///
 void test_usb_serial_echo() {
     setupPins();
@@ -34,19 +32,25 @@ void test_usb_serial_echo() {
 
     uint8_t const caseDiff = 'a' - 'A';
 
+    char buf[128];
+    size_t numRead = 0;
+
     while(1) {
-        char c;
-        if(usbItf0.ReadN(&c, 1)) {
-            if(isupper(c)) {
-                c -= caseDiff;
+        for(size_t itf = 0; itf < 2; itf++) {
+            numRead = usbSerial.getInterface(itf).ReadN(buf, sizeof buf / sizeof *buf);
+            if(numRead) {
+                // Only invert case on interface 0
+                if(itf == 0) {
+                    for(char& c : buf) {
+                        if(islower(c)) {
+                            c -= caseDiff;
+                        } else if(isupper(c)) {
+                            c += caseDiff;
+                        }
+                    }
+                }
+                usbSerial.getInterface(itf).WriteN(buf, numRead);
             }
-            usbItf0.WriteN(&c, 1);
-        }
-        if(usbItf1.ReadN(&c, 1)) {
-            if(islower(c)) {
-                c += caseDiff;
-            }
-            usbItf1.WriteN(&c, 1);
         }
     }
 }
