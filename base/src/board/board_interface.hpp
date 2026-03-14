@@ -126,7 +126,7 @@ public:
     ///
     virtual size_t ReadN(char* buf, size_t n) = 0;
     ///
-    /// Write N characters from a buffer.
+    /// Write N characters to a buffer.
     /// @param buf Buffer of characters to write.
     /// @param n Maximum characters to write.
     /// @return Number of characters written.

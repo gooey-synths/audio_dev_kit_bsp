@@ -27,8 +27,8 @@ void test_usb_serial_echo() {
     setupPins();
     USBSerial& usbSerial = USBSerial::getInstance();
 
-    board::CommunicationInterface& usbItf0 = usbSerial.getInterface(0);
-    board::CommunicationInterface& usbItf1 = usbSerial.getInterface(1);
+    USBSerial::USBCommunication& usbItf0 = usbSerial.getInterface(0);
+    USBSerial::USBCommunication& usbItf1 = usbSerial.getInterface(1);
 
     uint8_t const caseDiff = 'a' - 'A';
 

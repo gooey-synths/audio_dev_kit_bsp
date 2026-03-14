@@ -15,6 +15,26 @@ namespace usb {
 ///
 class USBSerial {
 public:
+    ///
+    /// Stream buffer for sending and receiving text over USB.
+    ///
+    class USBCommunication: public board::CommunicationInterface {
+    public:
+        virtual size_t ReadN(char* buf, size_t n) override;
+
+        virtual size_t WriteN(char* buf, size_t n) override;
+
+        // Delete copy and assignment.
+        USBCommunication(USBCommunication const&) = delete;
+        void operator=(USBCommunication const&)  = delete;
+
+    private:
+        friend class USBSerial; // Only allow USB Serial class to construct interfaces.
+        USBCommunication(size_t itfIdx);
+        size_t mItfIdx; ///< USB interface index.
+    };
+
+
     static const size_t scNumInterfaces = CFG_TUD_CDC; ///< Number of interfaces to manage.
     static const uint32_t scTusbFreq = 100; ///< Rate to call TinyUSB device task.
     static const timer::eBasicTimerNumber scTimerNum = ::timer::eBasicTimerNumber::BASIC_TIMER_6; ///< Timer for calling TinyUSB device task.
@@ -33,7 +53,7 @@ public:
     /// @param idx Index of USB interface to get.
     /// @return A reference to a USB interface.
     ///
-    board::CommunicationInterface& getInterface(size_t idx) {
+    USBCommunication& getInterface(size_t idx) {
         if(idx >= scNumInterfaces) {
             throw "Invalid USB interface";
         }
@@ -45,22 +65,6 @@ public:
     void operator=(USBSerial const&)  = delete;
 
 private:
-
-    ///
-    /// Stream buffer for sending and receiving text over USB.
-    ///
-    class USBCommunication: public board::CommunicationInterface {
-    public:
-        USBCommunication(size_t itfIdx);
-
-    virtual size_t ReadN(char* buf, size_t n) override;
-
-    virtual size_t WriteN(char* buf, size_t n) override;
-
-    private:
-        size_t mItfIdx; ///< USB interface index.
-    };
-
     USBSerial();
 
     ///
