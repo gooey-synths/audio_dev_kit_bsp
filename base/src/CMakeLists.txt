@@ -29,6 +29,8 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/timer/basic_timer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_timers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/util.c
+	${CMAKE_CURRENT_SOURCE_DIR}/usb/usb_serial.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_usb_serial.cpp
 )
 
 # TinyUSB stuff
@@ -36,6 +38,7 @@ set(SOURCES
 include(${TINYUSB_PATH}/src/CMakeLists.txt)
 
 include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/usb
 	${CMAKE_CURRENT_SOURCE_DIR}/system
 	${TINYUSB_PATH}/src	
