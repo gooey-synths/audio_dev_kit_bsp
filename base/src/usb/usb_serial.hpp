@@ -24,6 +24,10 @@ public:
 
         virtual size_t WriteN(char* buf, size_t n) override;
 
+        virtual size_t Available() override;
+
+        virtual void Flush() override;
+
         // Delete copy and assignment.
         USBCommunication(USBCommunication const&) = delete;
         void operator=(USBCommunication const&)  = delete;
@@ -39,6 +43,7 @@ public:
     static const uint32_t scTusbFreq = 100; ///< Rate to call TinyUSB device task.
     static const timer::eBasicTimerNumber scTimerNum = ::timer::eBasicTimerNumber::BASIC_TIMER_6; ///< Timer for calling TinyUSB device task.
 
+
     ///
     /// @brief Get an instance of the USB Serial.
     /// @return An instance of the USB serial.
@@ -46,6 +51,14 @@ public:
     static USBSerial& getInstance() {
         static USBSerial sInstance;
         return sInstance;
+    }
+
+    ///
+    /// Get the number of USB Serial interfaces.
+    /// @return Number of USB Serial interfaces.
+    ///
+    size_t numInterfaces() const {
+        return scNumInterfaces;
     }
 
     ///

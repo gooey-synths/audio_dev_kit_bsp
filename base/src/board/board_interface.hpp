@@ -125,6 +125,7 @@ public:
     /// @return Number of characters read.
     ///
     virtual size_t ReadN(char* buf, size_t n) = 0;
+
     ///
     /// Write N characters to a buffer.
     /// @param buf Buffer of characters to write.
@@ -132,6 +133,17 @@ public:
     /// @return Number of characters written.
     ///
     virtual size_t WriteN(char* buf, size_t n) = 0;
+
+    ///
+    /// Return the number of characters available to read.
+    /// @return Number of bytes available to read.
+    ///
+    virtual size_t Available() = 0;
+
+    ///
+    /// Flush any characters in the communication buffer.
+    ///
+    virtual void Flush() = 0;
 };
 
 ///

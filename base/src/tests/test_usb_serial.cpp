@@ -33,7 +33,7 @@ void test_usb_serial_echo() {
     size_t numRead = 0;
 
     while(1) {
-        for(size_t itf = 0; itf < 2; itf++) {
+        for(size_t itf = 0; itf < usbSerial.numInterfaces(); itf++) {
             numRead = usbSerial.getInterface(itf).ReadN(buf, sizeof buf / sizeof *buf);
             if(numRead) {
                 // Only invert case on interface 0
@@ -47,6 +47,7 @@ void test_usb_serial_echo() {
                     }
                 }
                 usbSerial.getInterface(itf).WriteN(buf, numRead);
+                usbSerial.getInterface(itf).Flush();
             }
         }
     }
