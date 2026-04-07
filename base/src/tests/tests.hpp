@@ -28,6 +28,9 @@ extern void test_DAC60508();
 // tiny USB tests
 extern void test_tinyusb_serial();
 
+// USB serial tests
+extern void test_usb_serial_echo();
+
 // Timer tests
 extern void test_basic_timer_exceptions();
 extern void test_basic_timer_continuous();

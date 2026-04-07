@@ -152,3 +152,11 @@ int _execve(char *name, char **argv, char **env)
 	errno = ENOMEM;
 	return -1;
 }
+
+__attribute__((used)) void _fini(void) { }
+
+void *__dso_handle() {
+	while(1) {
+		;
+	}
+}
