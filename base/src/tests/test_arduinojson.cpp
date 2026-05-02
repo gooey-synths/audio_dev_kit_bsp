@@ -53,6 +53,11 @@ static bool readUntilEOF(char* buf, size_t bufLen, usb::USBSerial::USBCommunicat
     }
 }
 
+///
+/// Print statistics about a JSON document
+/// @param in_doc JSON document to print statistics of 
+/// @param itf USB interface to print statistics to
+///
 static void printStats(ArduinoJson::JsonDocument& in_doc, usb::USBSerial::USBCommunication& itf) {
     ArduinoJson::JsonDocument stats_doc;
 
@@ -68,7 +73,11 @@ static void printStats(ArduinoJson::JsonDocument& in_doc, usb::USBSerial::USBCom
     itf.Flush();
 }
 
-
+///
+/// Test reading and writing JSON using ArduinoJSON
+/// @note To check for success enter JSON into one USB COM port on the system
+/// statistics about the entered JSON or parsing error messages will appear on the other USB COM port
+///
 void test_ArduinoJSON() {
     setupPins();
     usb::USBSerial& usbSerial = usb::USBSerial::getInstance();
