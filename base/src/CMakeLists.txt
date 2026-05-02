@@ -74,6 +74,7 @@ else()
 
 	target_link_libraries(my_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(dac_tests PRIVATE gtest_main gmock_main gtest)
+	target_link_libraries(module_infrastructure_tests PRIVATE gtest_main gmock_main gtest)
 
 	include(GoogleTest)
 	gtest_discover_tests(dac_tests)

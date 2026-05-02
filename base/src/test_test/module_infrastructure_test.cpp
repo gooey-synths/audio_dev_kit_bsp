@@ -1,6 +1,7 @@
-#include <modules/module_basics.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+#include <modules/module_basics.hpp>
 
 constexpr size_t numDummyInputs = 6;
 constexpr size_t numDummyOutputs = 7;
@@ -41,7 +42,7 @@ TEST(ModuleBaseTests, BasicAssertions) {
     // Set all of the outputs of the module and make sure they exist
     for(size_t iOutput = 0; iOutput < numDummyOutputs; iOutput++) {
           ASSERT_EQ(dm.outputExists(iOutput), true);
-          dm.setInput(iOutput, iOutput);
+          dm.setOutputVal(iOutput, iOutput);
     }
 
     // Make sure that the outputs we expect is set to the value we expect
