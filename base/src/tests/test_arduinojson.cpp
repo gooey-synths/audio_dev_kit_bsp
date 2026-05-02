@@ -19,6 +19,13 @@ static void setupPins() {
 // This is a bit janky
 const char newline[] = "\r\n";
 
+///
+/// Read input of a USB interface until and EOF character is found
+/// @param buf Buffer to place received characters into
+/// @param bufLen Length of the buffer
+/// @param itf Interface to read from
+/// @return True if EOF character was found befor buffer overflow
+///
 static bool readUntilEOF(char* buf, size_t bufLen, usb::USBSerial::USBCommunication& itf) {
 
     size_t bufIdx = 0;
@@ -28,7 +35,8 @@ static bool readUntilEOF(char* buf, size_t bufLen, usb::USBSerial::USBCommunicat
         size_t numRead = itf.ReadN(&c, 1);
 
         if(numRead) {
-            if(c == 0x1A) {
+            // Check for windows or linux EOF character.
+            if(c == 0x1A || c == 0x04) {
                 itf.WriteN((char*)&newline, sizeof(newline));
                 itf.Flush();
                 return true;
@@ -84,5 +92,4 @@ void test_ArduinoJSON() {
             }
         }
     }
-
 }
