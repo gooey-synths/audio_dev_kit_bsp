@@ -16,20 +16,27 @@ static void setupPins() {
     gpio_controller->setConfig(&usb_vbus_id_pin, &usb_vbus_id_conf);
 }
 
+// This is a bit janky
+const char newline[] = "\r\n";
+
 static bool readUntilEOF(char* buf, size_t bufLen, usb::USBSerial::USBCommunication& itf) {
 
-    size_t bufIdx;
+    size_t bufIdx = 0;
     char c;
 
     while(1) {
         size_t numRead = itf.ReadN(&c, 1);
 
         if(numRead) {
-            if(c == EOF) {
+            if(c == 0x1A) {
+                itf.WriteN((char*)&newline, sizeof(newline));
+                itf.Flush();
                 return true;
             } else if(bufIdx >= bufLen) {
                 return false;
             } else {
+                itf.WriteN(&c, 1);
+                itf.Flush();
                 buf[bufIdx] = c;
                 bufIdx++;
             }
@@ -49,7 +56,7 @@ static void printStats(ArduinoJson::JsonDocument& in_doc, usb::USBSerial::USBCom
     ArduinoJson::serializeJson(stats_doc, buf);
 
     itf.WriteN(buf, sizeof(buf));
-
+    itf.WriteN((char*)&newline, sizeof(newline));
     itf.Flush();
 }
 
@@ -67,9 +74,14 @@ void test_ArduinoJSON() {
     while(1) {
         memset(buf, 0, sizeof(buf));
         if(readUntilEOF(buf, sizeof(buf), jsonInput)) {
-            ArduinoJson::deserializeJson(doc, buf);
-
-            printStats(doc, statsOutput);
+            ArduinoJson::DeserializationError err = ArduinoJson::deserializeJson(doc, buf);
+            if(err) {
+                statsOutput.WriteN((char*)err.c_str(), strlen(err.c_str()));
+                statsOutput.WriteN((char*)&newline, sizeof(newline));
+                statsOutput.Flush();
+            } else {
+                printStats(doc, statsOutput);
+            }
         }
     }
 
