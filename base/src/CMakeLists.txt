@@ -51,7 +51,7 @@ include_directories(
 project(audio_dev_kit_bsp)
 
 # ArduinoJSON stuff
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
+add_subdirectory(${ARDUINOJSON_PATH})
 
 # Option to choose target (default: native)
 option(BUILD_ARM "Build for ARM Cortex-M" OFF)
