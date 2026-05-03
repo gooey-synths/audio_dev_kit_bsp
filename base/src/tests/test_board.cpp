@@ -5,6 +5,10 @@ using namespace board;
 void test_board_echo(){
     static ProtoBoardV1 board;
 
+    char str[] = "Testing ProtoBoard V1\r\n";
+    board.GetComm(0)->WriteN(str, sizeof(str));
+    board.GetComm(0)->Flush();
+
     Timer& fastTimer = board.GetTimer(0);
     
     static DigitalOutput& d_out = board.GetDigitalOutput(IOSpeed::FAST, 0);
@@ -22,7 +26,6 @@ void test_board_echo(){
 
         board.UpdateFastIO();
         gpio::GPIOController::getInstance()->getPin(&led_pin) = false;
-
     };
 
     fastTimer.SetFrequency(40000);

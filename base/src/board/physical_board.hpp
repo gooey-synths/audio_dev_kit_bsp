@@ -9,46 +9,60 @@
 #include "adc/adc_interface.hpp"
 #include "timer/basic_timer.hpp"
 #include "adc/adc.hpp"
+#include "usb/usb_serial.hpp"
 
 namespace board {
 
+///
+/// Class for physical digital output
+///
 class PhysicalDigitalOutput : public DigitalOutput {
 public:
+    ///
+    /// Constructor
+    /// @param out Pin to use for digital output
+    ///
     PhysicalDigitalOutput(gpio::Pin out) :
     mOut(out) { ; /* Do nothing */}
-    ///
-    /// Set the value of the output.
-    /// @param val The desired value of the output.
-    ///
+
     virtual void SetValue(bool val) { mOut = val; }
 
 private:
     gpio::Pin mOut;  ///< GPIO to use for output.
 };
 
+///
+/// Class for physical digital input
+///
 class PhysicalDigitalInput : public DigitalInput {
 public:
+    ///
+    /// Constructor
+    /// @param out Pin to use for digital input
+    ///
     PhysicalDigitalInput(gpio::Pin in) :
     mIn(in) { ; /* Do nothing */}
 
-    ///
-    /// Get the value of the input.
-    /// @return The value of the input.
-    ///
     virtual bool GetValue() { return mIn(); }
 
 private:
     gpio::Pin mIn;  ///< GPIO to use for input.
 };
 
+///
+/// Class for physical analog output
+///
 class PhysicalAnalogOutput : public AnalogOutput {
 public:
+
+    ///
+    /// Constructor.
+    /// @param dac DAC to use for analog output
+    /// @param idx Index of the DAC channel to use
+    ///
     PhysicalAnalogOutput(spi::IDACx050y& dac, size_t idx) :
     mDac(dac), mIdx(idx) { ; /* Do nothing */}
-    ///
-    /// Set the value of the output.
-    /// @param val The desired value of the output.
-    ///
+
     virtual void SetValue(BoardData val) { mDac.setStreamVal(mIdx, val); }
 
 private:
@@ -56,14 +70,19 @@ private:
     size_t mIdx; ///< DAC index.
 };
 
+///
+/// Class for physical analog input
+///
 class PhysicalAnalogInput : public AnalogInput {
 public:
+    ///
+    /// Constructor.
+    /// @param dac ADC to use for analog input
+    /// @param idx Index of the ADC channel to use
+    ///
     PhysicalAnalogInput(adc::IOnChipADC& adc, size_t idx) :
     mAdc(adc), mIdx(idx) { ; /* Do nothing */}
-    ///
-    /// Get the value of the input.
-    /// @return The value of the input.
-    ///
+
     virtual BoardData GetValue() { return mAdc.getConversion(mIdx); }
 
 private:
@@ -71,48 +90,45 @@ private:
     size_t mIdx; ///< ADC index.
 };
 
-
+///
+/// Class for physical timer
+///
 class PhysicalTimer : public Timer {
 public:
+    ///
+    /// Constructor
+    /// @param timer Timer instance to use.
+    /// 
     PhysicalTimer(timer::BasicTimer& timer) :
     mTimer(timer) { ; /* Do nothing */}
 
-    ///
-    /// Set the frequency of the timer.
-    /// @param frequency Frequency of the timer.
-    ///
     virtual void SetFrequency(float frequency) { mTimer.setFreq(static_cast<uint32_t>(frequency)); }
 
-    ///
-    /// Set the callback function to execute.
-    /// @param callback Callback function to execute. Null for no callback.
-    ///
     virtual void SetCallback(CallbackFunc callback) { mTimer.setInterrupt(callback); }
 
-    ///
-    /// Start
-    ///
     virtual void Start() { mTimer.start(false); }
 
-    ///
-    /// Stop
-    ///
     virtual void Stop() { mTimer.stop(); }
 private:
     timer::BasicTimer& mTimer; ///< Reference to basic timer.
 };
 
+///
+/// Class for defining a board for the initial prototype board
+///
 class ProtoBoardV1 : public BoardInterface {
 public:
 
     ProtoBoardV1();
 
+    /// Sequence of ADC channels that maps to physical layout.
     static constexpr uint8_t scProtoBoardV1AdcSeq[] = {10,11,16,14,15,3,8,9};
 
-    static const char* const scInvalidSpeedMsg;
-    static const char* const scInvalidIOMsg;
-    static const char* const scInvalidTimerMsg;
+    static const char* const scInvalidSpeedMsg; ///< Invalid IO speed error message
+    static const char* const scInvalidIOMsg; ///< Invalid IO index error message
+    static const char* const scInvalidTimerMsg; ///< Invalid timer index error message
 
+    /// Board configuration of initial prototype board
     static constexpr BoardConfig scProtoBoardV1Cfg = {
         .slowIO = {
             .numAnalogInputs = 0,
@@ -126,7 +142,7 @@ public:
             .numDigitalInputs = 4,
             .numDigitalOutputs = 4,
         },
-        .numTimers = 2,
+        .numTimers = 1,
     };
 
     ///
@@ -135,12 +151,6 @@ public:
     ///
     virtual BoardConfig GetBoardConfig() { return scProtoBoardV1Cfg; }
 
-    ///
-    /// Get a reference to an analog input on the board.
-    /// @param speed Speed of the analog input to get a reference to.
-    /// @param idx Index of the analog input to get.
-    /// @return A reference to an analog input on the board.
-    ///
     virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
@@ -157,13 +167,7 @@ public:
             throw scInvalidSpeedMsg;
         }
     }
-    
-    ///
-    /// Get a reference to an analog output on the board.
-    /// @param speed Speed of the analog output to get a reference to.
-    /// @param idx Index of the analog output to get.
-    /// @return A reference to an analog output on the board.
-    ///
+
     virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
@@ -181,12 +185,6 @@ public:
         }
     }
 
-    ///
-    /// Get a reference to an digital input on the board.
-    /// @param speed Speed of the digital input to get a reference to.
-    /// @param idx Index of the digital input to get.
-    /// @return A reference to an digital input on the board.
-    ///
     virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
@@ -203,13 +201,7 @@ public:
             throw scInvalidSpeedMsg;
         }
     }
-    
-    ///
-    /// Get a reference to an digital output on the board.
-    /// @param speed Speed of the digital output to get a reference to.
-    /// @param idx Index of the digital output to get.
-    /// @return A reference to an digital output on the board.
-    ///
+
     virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
@@ -227,11 +219,6 @@ public:
         }
     }
 
-    ///
-    /// Get a timer from the board.
-    /// @param idx Index of the timer to get.
-    /// @return A reference to a timer on the board.
-    ///
     virtual Timer& GetTimer(size_t idx) {
         if(idx >= scProtoBoardV1Cfg.numTimers) {
             throw scInvalidTimerMsg;
@@ -239,14 +226,12 @@ public:
         return mTimers[idx];
     }
 
-    ///
-    /// Update all of the slow IO devices on the board.
-    ///
+    virtual CommunicationInterface* GetComm(size_t idx) const {
+        return &usb::USBSerial::getInstance().getInterface(idx);
+    }
+
     virtual void UpdateSlowIO() { ; /* Do nothing for now */ }
 
-    ///
-    /// Update all of the fast IO devices on the board
-    ///
     virtual void UpdateFastIO() {
         mDac.updateStream();
     }

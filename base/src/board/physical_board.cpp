@@ -15,12 +15,10 @@ ProtoBoardV1::ProtoBoardV1() :
     mHwSpiBus(2),
     mDac(mHwSpiBus, 0),
     mTimerHw {
-        timer::BASIC_TIMER_6,
         timer::BASIC_TIMER_7
     },
     mTimers {
         mTimerHw[0],
-        mTimerHw[1]
     },
     mFastDigitalInputs {
         gpio::GPIOController::getInstance()->getPin(&dio_0_pin),
