@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.21.4)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(TINYUSB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyusb)
-set(ARDUINOJSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJSON)
+set(ARDUINOJSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
 
 FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 
@@ -47,11 +47,11 @@ include_directories(
 	${ARDUINOJSON_PATH}/src
 )
 
-# ArduinoJSON stuff
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
-
 # PROJECT_NAME
 project(audio_dev_kit_bsp)
+
+# ArduinoJSON stuff
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
 
 # Option to choose target (default: native)
 option(BUILD_ARM "Build for ARM Cortex-M" OFF)
