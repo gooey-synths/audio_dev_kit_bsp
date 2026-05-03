@@ -78,7 +78,7 @@ else()
 
 	include(GoogleTest)
 	gtest_discover_tests(dac_tests)
-	gtest_discover_tests(dac_tests)
+	gtest_discover_tests(module_infrastructure_tests)
 endif()
 
 
