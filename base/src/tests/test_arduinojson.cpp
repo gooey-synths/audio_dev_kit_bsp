@@ -2,8 +2,10 @@
 #include <gpio/gpio.hpp>
 #include <cstddef>
 #include <cctype>
-#include <ArduinoJson.h>
+#include <ArduinoJson.hpp>
+#include <vector>
 
+using namespace ArduinoJson;
 ///
 /// Setup USB pins.
 ///
@@ -58,15 +60,60 @@ static bool readUntilEOF(char* buf, size_t bufLen, usb::USBSerial::USBCommunicat
 /// @param in_doc JSON document to print statistics of 
 /// @param itf USB interface to print statistics to
 ///
-static void printStats(ArduinoJson::JsonDocument& in_doc, usb::USBSerial::USBCommunication& itf) {
-    ArduinoJson::JsonDocument stats_doc;
+static void printStats(JsonDocument& in_doc, usb::USBSerial::USBCommunication& itf) {
+    JsonDocument stats_doc;
 
     char buf[256];
     memset(buf, 0, sizeof(buf));
 
-    stats_doc["depth"] = in_doc.nesting();
+    // Traverse JSON tree
+    size_t numNodes = 1;
+    size_t numLeaves = 0;
+    std::vector<JsonObject> stack;
 
-    ArduinoJson::serializeJson(stats_doc, buf);
+    // Initial check for root object vs root array
+    if(in_doc.is<JsonObject>()) {
+        stack.push_back(in_doc.as<JsonObject>());
+    } else if(in_doc.is<JsonArray>()) {
+        for(JsonVariant elem : in_doc.as<JsonArray>()) {
+            numNodes++;
+            if(elem.is<JsonObject>()) {
+                stack.push_back(elem.as<JsonObject>());
+            } else {
+                numLeaves++;
+            }
+        }
+    }
+
+    while(stack.size()) {
+        JsonObject currObj = stack.back();
+        stack.pop_back();
+
+        for(JsonPair kv : currObj) {
+            numNodes++;
+            if(kv.value().is<JsonObject>()) {
+                stack.push_back(kv.value().as<JsonObject>());
+            } else if(kv.value().is<JsonArray>()) {
+                for(JsonVariant elem : kv.value().as<JsonArray>()) {
+                    numNodes++;
+                    if(elem.is<JsonObject>()) {
+                        stack.push_back(elem.as<JsonObject>());
+                    } else {
+                        numLeaves++;
+                    }
+                }
+            }
+            else {
+                numLeaves++;
+            }
+        }
+    }
+
+    stats_doc["depth"] = in_doc.nesting();
+    stats_doc["numNodes"] = numNodes;
+    stats_doc["numLeaves"] = numLeaves;
+
+    serializeJson(stats_doc, buf);
 
     itf.WriteN(buf, sizeof(buf));
     itf.WriteN((char*)&newline, sizeof(newline));
@@ -86,12 +133,12 @@ void test_ArduinoJSON() {
     
     char buf[1024];
 
-    ArduinoJson::JsonDocument doc;
+    JsonDocument doc;
     
     while(1) {
         memset(buf, 0, sizeof(buf));
         if(readUntilEOF(buf, sizeof(buf), jsonInput)) {
-            ArduinoJson::DeserializationError err = ArduinoJson::deserializeJson(doc, buf);
+            DeserializationError err = deserializeJson(doc, buf);
             if(err) {
                 statsOutput.WriteN((char*)err.c_str(), strlen(err.c_str()));
                 statsOutput.WriteN((char*)&newline, sizeof(newline));
