@@ -2,6 +2,12 @@
 
 using namespace board;
 
+///
+/// Echo test for board
+/// @note To check for success feed an analog signal into one of the analog inputs
+/// and see it echoed back on the corresponding analog output.
+/// Both USB serial instances should also be echoing.
+///
 void test_board_echo(){
     static ProtoBoardV1 board;
 
@@ -28,11 +34,22 @@ void test_board_echo(){
         gpio::GPIOController::getInstance()->getPin(&led_pin) = false;
     };
 
-    fastTimer.SetFrequency(40000);
+    fastTimer.SetFrequency(44100);
 
     fastTimer.SetCallback(fastCallback);
 
     fastTimer.Start();
 
-    while(1);
+    char buf [256];
+
+    // Echo USB serial communication as well.
+    while(1) {
+        for(size_t iComm = 0; iComm < usb::USBSerial::getInstance().numInterfaces(); iComm++) {
+            if(board.GetComm(iComm)->Available()) {
+                size_t nRead = board.GetComm(iComm)->ReadN(buf, sizeof(buf));
+                board.GetComm(iComm)->WriteN(buf, nRead);
+                board.GetComm(iComm)->Flush();
+            }
+        }
+    }
 }

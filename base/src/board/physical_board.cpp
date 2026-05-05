@@ -53,6 +53,9 @@ ProtoBoardV1::ProtoBoardV1() :
         PhysicalAnalogOutput(mDac, 7),
     }
     {
+
+        NVIC_SetPriority(TIM7_IRQn, 4);
+
         // Setup Digital IOs
         gpio::GPIOController* gpioController = gpio::GPIOController::getInstance();
         gpioController->setConfig(&dio_0_pin, &dio_input_conf);
