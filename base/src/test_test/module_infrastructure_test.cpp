@@ -6,10 +6,30 @@
 constexpr size_t numDummyInputs = 6;
 constexpr size_t numDummyOutputs = 7;
 
-class DummyModule: public module_basics::ModuleBase<numDummyInputs, numDummyOutputs> {
+class DummyModule: public module_basics::ModuleInterface {
 public:
-    uint16_t getInputVal(size_t idx) { return mInputs[idx]; }
-    void setOutputVal(size_t idx, uint16_t val) { mOutputs[idx] = val; }
+    uint16_t getInputVal(size_t idx) {
+        return mInputs[idx]; 
+    }
+    void setOutputVal(size_t idx, uint16_t val) { 
+        mOutputs[idx] = val; 
+    }
+
+    virtual void setInput(size_t idx, uint16_t val) noexcept override {
+        mInputs[idx] = val;
+    }
+
+    virtual uint16_t getOutput(size_t idx) noexcept override {
+        return mOutputs[idx];
+    }
+
+    virtual bool outputExists(size_t idx) {
+        return idx < numDummyOutputs;
+    }
+
+    virtual bool inputExists(size_t idx) {
+        return idx < numDummyInputs;
+    }
 
     MOCK_METHOD(size_t, getInputIdx, (std::string name), (override));
 
@@ -18,6 +38,10 @@ public:
     MOCK_METHOD(void, run, (), (noexcept, override));
 
     MOCK_METHOD(void, configure, ((std::unordered_map<std::string, std::string>)), (override));
+
+protected:
+    uint16_t mInputs[numDummyInputs];
+    uint16_t mOutputs[numDummyOutputs];
 
 };
 

@@ -14,6 +14,11 @@ class ModuleInterface {
 public:
 
     ///
+    /// Destructor.
+    ///
+    virtual ~ModuleInterface() = 0;
+
+    ///
     /// Check if an input index exists in a module.
     /// @param idx Index of the input to check.
     /// @return True if the input exists on the module.
