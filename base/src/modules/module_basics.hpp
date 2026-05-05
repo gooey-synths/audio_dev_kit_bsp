@@ -37,6 +37,7 @@ public:
     /// @param idx Index of the input to set the value of.
     /// @param val Value to set the input to.
     /// @note For speed, bounds checking may not be applied.
+    /// @note See @ref inputExists for bounds checking.
     ///
     virtual void setInput(size_t idx, uint16_t val) noexcept = 0;
 
@@ -45,6 +46,7 @@ public:
     /// @param idx Index of output to get the value of.
     /// @return The current value of the output of a module.
     /// @note For speed, bounds checking may not be applied.
+    /// @note See @ref outputExists for bounds checking.
     ///
     virtual uint16_t getOutput(size_t idx) noexcept = 0;
 
