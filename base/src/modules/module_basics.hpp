@@ -16,7 +16,7 @@ public:
     ///
     /// Destructor.
     ///
-    virtual ~ModuleInterface() = 0;
+    virtual ~ModuleInterface() = default;
 
     ///
     /// Check if an input index exists in a module.
