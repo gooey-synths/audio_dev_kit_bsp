@@ -23,11 +23,11 @@ public:
         return mOutputs[idx];
     }
 
-    virtual bool outputExists(size_t idx) {
+    virtual bool outputExists(size_t idx) override {
         return idx < numDummyOutputs;
     }
 
-    virtual bool inputExists(size_t idx) {
+    virtual bool inputExists(size_t idx) override {
         return idx < numDummyInputs;
     }
 
