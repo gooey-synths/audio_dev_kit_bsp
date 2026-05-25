@@ -36,3 +36,6 @@ extern void test_basic_timer_exceptions();
 extern void test_basic_timer_continuous();
 extern void test_basic_timer_oneshot();
 extern void test_basic_timer_accuracy();
+
+// ArduinoJSON tests
+extern void test_ArduinoJSON();
