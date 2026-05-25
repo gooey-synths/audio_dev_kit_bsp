@@ -4,3 +4,6 @@
 [submodule "base/src/third_party/tinyusb"]
 	path = base/src/third_party/tinyusb
 	url = https://github.com/hathach/tinyusb.git
+[submodule "base/src/third_party/ArduinoJson"]
+	path = base/src/third_party/ArduinoJson
+	url = https://github.com/bblanchon/ArduinoJson.git
