@@ -2,7 +2,8 @@
 
 #include <unordered_map>
 #include <string>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace module_basics {
 
@@ -80,15 +81,15 @@ public:
 
 ///
 /// Module base class.
-/// @tparam tNumInupts Number of inputs the module has.
+/// @tparam tNumInputs Number of inputs the module has.
 /// @tparam tNumOutputs Number of outputs the module has.
 /// @note All modules should inherit from this class.
 ///
-template<size_t tNumInupts, size_t tNumOutputs>
+template<size_t tNumInputs, size_t tNumOutputs>
 class ModuleBase : public ModuleInterface {
 public:
     virtual bool inputExists(size_t idx) {
-        return idx < tNumInupts;
+        return idx < tNumInputs;
     }
 
     virtual bool outputExists(size_t idx) {
@@ -101,10 +102,10 @@ public:
 
     virtual void setInput(size_t idx, uint16_t val) noexcept {
         mInputs[idx] = val;
-    } 
+    }
 
 protected:
-    uint16_t mInputs[tNumInupts]; ///< Inputs of the module.
+    uint16_t mInputs[tNumInputs]; ///< Inputs of the module.
     uint16_t mOutputs[tNumOutputs]; ///< Outputs of the module.
 };
 
