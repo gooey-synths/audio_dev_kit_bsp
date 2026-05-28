@@ -76,13 +76,15 @@ else()
 	# Unit test target (Runs on PC)
 	add_executable(my_tests test_test/hello_test.cpp)
 	add_executable(dac_tests test_test/dac_test.cpp)
+	add_executable(module_infrastructure_tests test_test/module_infrastructure_test.cpp)
 
 	target_link_libraries(my_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(dac_tests PRIVATE gtest_main gmock_main gtest)
+	target_link_libraries(module_infrastructure_tests PRIVATE gtest_main gmock_main gtest)
 
 	include(GoogleTest)
 	gtest_discover_tests(dac_tests)
-	gtest_discover_tests(dac_tests)
+	gtest_discover_tests(module_infrastructure_tests)
 endif()
 
 
