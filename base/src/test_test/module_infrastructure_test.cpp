@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "modules/module_basics.hpp"
+#include "modules/graph_runner.hpp"
 
 // Test double deriving from the actual base class template
 template<size_t I, size_t O>
@@ -14,6 +15,39 @@ public:
     // Expose protected fields from ModuleBase for verification
     uint16_t inspectInputArray(size_t idx) const { return this->mInputs[idx]; }
     void forceOutputArray(size_t idx, uint16_t val) { this->mOutputs[idx] = val; }
+};
+
+class MockTimer : public board::Timer {
+public:
+
+    MOCK_METHOD(void, SetFrequency, (float), (override));
+    MOCK_METHOD(void, Start, (), (override));
+    MOCK_METHOD(void, Stop, (), (override));
+    MOCK_METHOD(void, SetCallback, (board::CallbackFunc), (override));
+};
+
+template <size_t numTimers>
+class MockBoard : public board::BoardInterface {
+public:
+    board::BoardConfig GetBoardConfig() override {
+        return board::BoardConfig {
+            .numTimers = numTimers
+        };
+    }
+
+    MOCK_METHOD(board::AnalogInput&, GetAnalogInput, (board::IOSpeed, size_t), (override));
+    MOCK_METHOD(board::AnalogOutput&, GetAnalogOutput, (board::IOSpeed, size_t), (override));
+    MOCK_METHOD(board::DigitalInput&, GetDigitalInput, (board::IOSpeed, size_t), (override));
+    MOCK_METHOD(board::DigitalOutput&, GetDigitalOutput, (board::IOSpeed, size_t), (override));
+    MOCK_METHOD(board::CommunicationInterface*, GetComm, (size_t), (override));
+    MOCK_METHOD((void), UpdateSlowIO, (), (override));
+    MOCK_METHOD((void), UpdateFastIO, (), (override));
+
+    board::Timer& GetTimer(size_t idx) override {
+        return mTimer;
+    }
+
+    MockTimer mTimer;
 };
 
 // Test suite configured specifically for 6 inputs and 7 outputs
@@ -43,4 +77,29 @@ TEST(ModuleBaseCoreTests, VerifiesActualBaseClassWithSixInputsAndSevenOutputs) {
     module.forceOutputArray(6, 700); // Forcing the last valid slot
     EXPECT_EQ(module.getOutput(0), 100);
     EXPECT_EQ(module.getOutput(6), 700);
+}
+
+TEST(GraphRunnerCoreTests, VerifiesGraphRunnerErrorConditions) {
+
+    // --- Test 1: Verify invalid board error ---
+    MockBoard<0> invalidBoard;
+    EXPECT_THROW(graph_infrastructure::GraphRunner invalidRunner(invalidBoard), const char*);
+
+    // --- Test 2: Verify multiple instances error ---
+    MockBoard<1> board;
+    graph_infrastructure::GraphRunner runner(board);
+    EXPECT_THROW(graph_infrastructure::GraphRunner invalidRunner(board), const char*);
+
+    // --- Test 3: Verify invalid graph error ---
+    runner.setGraph(NULL);
+    EXPECT_THROW(runner.start(), const char*);
+
+    // --- Test 4: Verify graph already running error ---
+    graph_infrastructure::Graph g;
+    runner.setGraph(&g);
+    runner.start();
+    EXPECT_THROW(runner.setGraph(&g), const char*);
+
+    // --- Test 5: Verify graph double start error ---
+    EXPECT_THROW(runner.start(), const char*);
 }

@@ -175,7 +175,7 @@ public:
     /// Get the board configuration.
     /// @return The board configuration.
     ///
-    virtual BoardConfig GetBoardConfig() const = 0;
+    virtual BoardConfig GetBoardConfig() = 0;
 
     ///
     /// Get a reference to an analog input on the board.
@@ -183,15 +183,15 @@ public:
     /// @param idx Index of the analog input to get.
     /// @return A reference to an analog input on the board.
     ///
-    virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) const = 0;
-    
+    virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) = 0;
+ 
     ///
     /// Get a reference to an analog output on the board.
     /// @param speed Speed of the analog output to get a reference to.
     /// @param idx Index of the analog output to get.
     /// @return A reference to an analog output on the board.
     ///
-    virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) const = 0;
+    virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) = 0;
 
     ///
     /// Get a reference to an digital input on the board.
@@ -199,29 +199,29 @@ public:
     /// @param idx Index of the digital input to get.
     /// @return A reference to an digital input on the board.
     ///
-    virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) const = 0;
-    
+    virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) = 0;
+ 
     ///
     /// Get a reference to an digital output on the board.
     /// @param speed Speed of the digital output to get a reference to.
     /// @param idx Index of the digital output to get.
     /// @return A reference to an digital output on the board.
     ///
-    virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) const = 0;
+    virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) = 0;
 
     ///
     /// Get a timer on the board.
     /// @param idx Index of the timer to get.
     /// @return A reference to a timer on the board.
     ///
-    virtual Timer& GetTimer(size_t idx) const = 0;
+    virtual Timer& GetTimer(size_t idx) = 0;
 
     ///
     /// Get a communication interface on the board.
     /// @param idx Index of the communication interface to get.
     /// @return A reference to the communication interface to get.
     ///
-    virtual CommunicationInterface* GetComm(size_t idx) const = 0;
+    virtual CommunicationInterface* GetComm(size_t idx) = 0;
 
     ///
     /// Update all of the slow IO devices on the board.

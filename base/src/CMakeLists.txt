@@ -8,8 +8,14 @@ set(ARDUINOJSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
 
 FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 
-# PLace your c and c++ files here
-set(SOURCES
+# c and c++ files for both host and ARM build
+set(CROSS_PLATFORM_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_runner.cpp
+)
+
+# SOURCES for ARM build only
+set(ARM_SOURCES
+    ${CROSS_PLATFORM_SOURCES}
 	${TinyUSBCSources}
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/system/syscalls.c
@@ -63,7 +69,7 @@ if (BUILD_ARM)
 
 
 	# Create elf file and link it
-	add_executable(${PROJECT_NAME}.elf ${SOURCES})
+    add_executable(${PROJECT_NAME}.elf ${ARM_SOURCES})
 	target_link_libraries(${PROJECT_NAME}.elf)
 
 	# Create binary file
@@ -74,9 +80,9 @@ else()
 	add_subdirectory(third_party/googletest)
 
 	# Unit test target (Runs on PC)
-	add_executable(my_tests test_test/hello_test.cpp)
+    add_executable(my_tests test_test/hello_test.cpp)
 	add_executable(dac_tests test_test/dac_test.cpp)
-	add_executable(module_infrastructure_tests test_test/module_infrastructure_test.cpp)
+    add_executable(module_infrastructure_tests test_test/module_infrastructure_test.cpp ${CROSS_PLATFORM_SOURCES})
 
 	target_link_libraries(my_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(dac_tests PRIVATE gtest_main gmock_main gtest)
