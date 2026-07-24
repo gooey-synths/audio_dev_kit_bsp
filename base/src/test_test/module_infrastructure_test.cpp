@@ -9,21 +9,43 @@ class MockModule : public module_basics::ModuleBase<I, O> {
 public:
     MOCK_METHOD(size_t, getInputIdx, (std::string name), (override));
     MOCK_METHOD(size_t, getOutputIdx, (std::string name), (override));
-    MOCK_METHOD(void, run, (), (noexcept, override));
+
+    void run() noexcept override {
+        mNumRuns++;
+    }
+
     MOCK_METHOD(void, configure, ((std::unordered_map<std::string, std::string>)), (override));
 
     // Expose protected fields from ModuleBase for verification
     uint16_t inspectInputArray(size_t idx) const { return this->mInputs[idx]; }
     void forceOutputArray(size_t idx, uint16_t val) { this->mOutputs[idx] = val; }
+
+    // Expose number of times run() has been called
+    size_t numRuns() {return mNumRuns; }
+
+protected:
+    size_t mNumRuns = 0;
+
 };
 
 class MockTimer : public board::Timer {
 public:
-
     MOCK_METHOD(void, SetFrequency, (float), (override));
     MOCK_METHOD(void, Start, (), (override));
     MOCK_METHOD(void, Stop, (), (override));
-    MOCK_METHOD(void, SetCallback, (board::CallbackFunc), (override));
+
+    void SetCallback(board::CallbackFunc callback) override {
+        mCallback = callback;
+    }
+
+    void tick() {
+        if(mCallback) {
+            mCallback();
+        }
+    }
+
+protected:
+    board::CallbackFunc mCallback = NULL;
 };
 
 template <size_t numTimers>
@@ -102,4 +124,46 @@ TEST(GraphRunnerCoreTests, VerifiesGraphRunnerErrorConditions) {
 
     // --- Test 5: Verify graph double start error ---
     EXPECT_THROW(runner.start(), const char*);
+}
+
+// Test fixture for GraphRunner functionality
+class GraphRunnerFunctionalityTestFixture : public ::testing::Test {
+protected:
+    static constexpr size_t numModules = 10;
+    static constexpr size_t numInputs = 6;
+    static constexpr size_t numOutputs = 7;
+
+    MockBoard<1> board;
+    graph_infrastructure::Graph graph;
+
+    void SetUp() override {
+        for(size_t i = 0; i < numModules; i++) {
+            graph.mods.push_back(new MockModule<numInputs, numOutputs>);
+        }
+    }
+
+    void TearDown() override {
+        for(module_basics::ModuleInterface*& m : graph.mods) {
+            delete m;
+        }
+    }
+};
+
+
+// Test suite to check that GraphRunner calls run() on modules
+TEST_F(GraphRunnerFunctionalityTestFixture, VerifiesGraphRunnerCallsModuleRun) {
+    graph_infrastructure::GraphRunner runner(board);
+
+    runner.setGraph(&graph);
+
+    runner.start();
+
+
+    // --- Test 1: Verify run is called on all modules in the graph after ticking the timer ---
+    board.mTimer.tick();
+
+    for(module_basics::ModuleInterface* mod : graph.mods) {
+        size_t n = dynamic_cast<MockModule<numInputs, numOutputs>*>(mod)->numRuns();
+        EXPECT_GE(n, 1);
+    }
 }

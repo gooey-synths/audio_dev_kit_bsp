@@ -28,6 +28,7 @@ public:
     // Delete copy and assignment.
     GraphRunner(GraphRunner const&) = delete;
     void operator=(GraphRunner const&)  = delete;
+
 private:
     void fastCallBack() noexcept;
 
