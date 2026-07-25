@@ -1,8 +1,7 @@
 #include "../tests/tests.hpp"
 #include <cstdlib>
-#include <cstdint>
 
 int main() {
-    test_ArduinoJSON();
+    test_mdma_single_buffer();
     return 0;
 }

@@ -39,3 +39,6 @@ extern void test_basic_timer_accuracy();
 
 // ArduinoJSON tests
 extern void test_ArduinoJSON();
+
+// MDMA tests
+extern void test_mdma_single_buffer();

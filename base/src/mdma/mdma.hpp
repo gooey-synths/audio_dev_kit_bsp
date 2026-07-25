@@ -3,21 +3,25 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../system/stm32h750xx.h"
-#include "string.h"
+#include <system/stm32h750xx.h>
 
-namespace mdma{
+namespace mdma {
 
 #define NUM_MDMA_CHANNELS 16
-
-enum eTriggerMode{
+///
+/// Enumerations for the trigger modes of the MDMA
+///
+enum eTriggerMode {
     BUF_TRANS = 0, ///< Buffer transfer
     BLK_TRANS, ///< Block transfer
     RPT_BLK_TRANS, ///< Repeated block transfer
     WHOLE  ///< Transfer whole data
 };
 
-struct ListNode{
+///
+/// Structure for defining a single node of a list transfer
+///
+struct ListNode {
     uint32_t TCR; ///< Transmission control
     uint32_t BNDTR; ///< Number of data
     uint32_t SAR; ///< Source address
@@ -50,28 +54,27 @@ struct ListNode{
     /// @param inc Source increment in number of byte
     /// @param ahb True if source is connected to the AHB bus, false if AXI
     ///
-    inline void setSource(void* src, uint8_t size, uint8_t inc, bool ahb){
+    inline void setSource(void* src, uint8_t size, uint8_t inc, bool ahb) {
         SAR = (uint32_t) src;
 
-        TCR &= ~(3 << 4); // clear SSIZE bits
+        TCR &= ~(MDMA_CTCR_SSIZE_Msk); // clear SSIZE bits
 
-        TCR |= (3 & (__builtin_ctz(size))) << 4; // set data SSIZE bits
+        TCR |= (3 & (__builtin_ctz(size))) << MDMA_CTCR_SSIZE_Pos; // set data SSIZE bits
+
+        TCR &= ~(MDMA_CTCR_SINCOS_Msk); // clear SINCOS bits
+        TCR &= ~(MDMA_CTCR_SINC_Msk); // clear SINC bits
 
 
-        TCR &= ~(3 << 8); // clear SINCOS bits
-        TCR &= ~(3 << 0); // clear SINC bits
-
-
-        if(inc){
-            TCR |= (3 & (__builtin_ctz(inc))) << 8; // set data SINCOS bits
-            TCR |= 2 << 0; // set SINC bits
+        if(inc) {
+            TCR |= (3 & (__builtin_ctz(inc))) << MDMA_CTCR_SINCOS_Pos; // set data SINCOS bits
+            TCR |= MDMA_CTCR_SINC_1; // set SINC bits
         }
 
-        if(ahb){
-            TBR |= 1<<16; // set AHB bit
+        if(ahb) {
+            TBR |= MDMA_CTBR_SBUS_Msk; // set AHB bit
         }
-        else{
-            TBR &= ~(1<<16); // clear AHB bit
+        else {
+            TBR &= ~(MDMA_CTBR_SBUS_Msk); // clear AHB bit
         }
     }
 
@@ -82,26 +85,26 @@ struct ListNode{
     /// @param inc Destination increment in number of byte
     /// @param ahb True if destination is connected to the AHB bus, false if AXI
     ///
-    inline void setDestination(void* dst, uint8_t size, uint8_t inc, bool ahb){
+    inline void setDestination(void* dst, uint8_t size, uint8_t inc, bool ahb) {
         DAR = (uint32_t) dst;
 
-        TCR &= ~(3 << 6); // clear DSIZE bits
+        TCR &= ~(MDMA_CTCR_DSIZE_Msk); // clear DSIZE bits
 
-        TCR |= (3 & (__builtin_ctz(size))) << 6; // set data DSIZE bits
+        TCR |= (3 & (__builtin_ctz(size))) << MDMA_CTCR_DSIZE_Pos; // set data DSIZE bits
 
-        TCR &= ~(3 << 10); // clear DINCOS bits
-        TCR &= ~(3 << 2); // clear DINC bits
+        TCR &= ~(MDMA_CTCR_DINCOS_Msk); // clear DINCOS bits
+        TCR &= ~(MDMA_CTCR_DINC_Msk); // clear DINC bits
 
-        if(inc){
-            TCR |= (3 & (__builtin_ctz(inc))) << 10; // set data DINCOS bits
-            TCR |= 2 << 2; // set DINC bits
+        if(inc) {
+            TCR |= (3 & (__builtin_ctz(inc))) << MDMA_CTCR_DINCOS_Pos; // set data DINCOS bits
+            TCR |= MDMA_CTCR_DINC_1; // set DINC bits
         }
 
-        if(ahb){
-            TBR |= 1<<17;
+        if(ahb) {
+            TBR |= MDMA_CTBR_DBUS_Msk; // set AHB bit
         }
-        else{
-            TBR &= ~(1<<17);
+        else {
+            TBR &= ~(MDMA_CTBR_DBUS_Msk); // clear AHB bit
         }
     }
 
@@ -109,20 +112,19 @@ struct ListNode{
     /// Link up to another list node
     /// @param node ListNode to link to next, null if finished
     ///
-    inline void linkTo(ListNode* node){
+    inline void linkTo(ListNode* node) {
         LAR = (uint32_t) node;
     }
 
     ///
     /// Set the number of data to transfer
     /// @param num Number of data to transfer in this node
-    /// @param bytes_per_transfer Number of bytes per transfer
+    /// @param bytesPerTransfer Number of bytes per transfer
     ///
-    inline void setNumberData(uint16_t num, uint8_t bytes_per_tansfer){
+    inline void setNumberData(uint16_t num, uint8_t bytesPerTransfer) {
         BNDTR = num;
-        TCR &= ~(0x7F << 18);
-        TCR |= (0x7F & (bytes_per_tansfer -1)) << 18;
-        TCR |= 3 << 18;
+        TCR &= ~(MDMA_CTCR_TLEN_Msk);
+        TCR |= (0x7F & (bytesPerTransfer - 1)) << MDMA_CTCR_TLEN_Pos;
     }
 
     ///
@@ -131,18 +133,20 @@ struct ListNode{
     /// @param softReq True if software request only
     /// @param mode Trigger mode
     ///
-    inline void setTrigger(uint8_t reqNum, bool softReq, eTriggerMode mode){
-        TCR &= ~(7 << 28); // clear software request and mode bits
-        TCR |= (((uint8_t) softReq << 2) | (uint8_t)mode) << 28; // set software request and mode bits
+    inline void setTrigger(uint8_t reqNum, bool softReq, eTriggerMode mode) {
+        TCR &= ~(MDMA_CTCR_TRGM_Msk | MDMA_CTCR_SWRM_Msk); // clear software request and mode bits
+        TCR |= (((uint8_t) softReq << 2) | (uint8_t)mode) << MDMA_CTCR_TRGM_Pos; // set software request and mode bits
 
-        TBR &= ~(0x3F << 0); // clear trigger number bits
-        TBR |= ((0x3F & reqNum) << 0); // set trigger number bits
+        TBR &= ~(MDMA_CTBR_TSEL_Msk); // clear trigger number bits
+        TBR |= ((0x3F & reqNum) << MDMA_CTBR_TSEL_Pos); // set trigger number bits
 
     }
 };
 
-class MDMAChannel{
-
+///
+/// Single channel of the MDMA controller
+///
+class MDMAChannel {
 public:
     ///
     /// Constructor
@@ -155,36 +159,36 @@ public:
     ///
     /// Enable the channel
     ///
-    inline void enable(){
-        mChannelHw->CCR |=1;
+    inline void enable() {
+        mChannelHw->CCR |= MDMA_CCR_EN;
     }
 
     ///
     /// Disable the channel
     ///
-    inline void disable(){
-        mChannelHw->CCR &= ~1;
+    inline void disable() {
+        mChannelHw->CCR &= ~MDMA_CCR_EN;
     }
 
     ///
     /// Trigger the channel
     ///
-    inline void trigger(){
-        mChannelHw->CCR |= (0xFFFF << 16);
+    inline void trigger() {
+        mChannelHw->CCR |= MDMA_CCR_SWRQ;
     }
 
     ///
     /// Check for error.
     /// @return Erro bits from channel
     ///
-    inline uint32_t getError(){
+    inline uint32_t getError() {
         return (uint32_t) mChannelHw->CESR;
     }
 
     ///
     /// Cofigure the transfer with a configured list node.
     ///
-    inline void configureTransfer(ListNode* node){
+    inline void configureTransfer(ListNode* node) {
         mChannelHw->CTCR = node->TCR;
         mChannelHw->CBNDTR = node->BNDTR;
         mChannelHw->CSAR = node->SAR;
@@ -198,63 +202,60 @@ public:
 
 private:
     friend class MDMAController;
-    MDMA_Channel_TypeDef* mChannelHw;
+    MDMA_Channel_TypeDef* mChannelHw; ///< Pointer to HW registers of the MDMA channel
 };
 
-class MDMAController{
-
+///
+/// Class for defining an MDMA controller.
+///
+class MDMAController {
 public:
-
     ///
     /// Get a pointer to the MDMAController instance.
     /// @return Pointer to the MDMAController instance
     ///
-    static MDMAController* getInstance(){
-        static int a = 0;
-        static MDMAController instance;        
+    static MDMAController* getInstance() {
+        static MDMAController instance;
         return &instance;
     }
-
 
     ///
     /// Get a pointer to a channel
     /// @param channel Channel to get (0-15)
     /// @return Pointer to a MDMA channel
     ///
-    MDMAChannel* getChannel(uint8_t channel){
+    MDMAChannel* getChannel(uint8_t channel) {
         return &mChannels[(0xF & channel)];
     }
-
 
 private:
     ///
     /// Constructor
     ///
     MDMAController():
-        mChannels{
-           MDMAChannel(MDMA_Channel0), 
-           MDMAChannel(MDMA_Channel1), 
-           MDMAChannel(MDMA_Channel2), 
-           MDMAChannel(MDMA_Channel3), 
-           MDMAChannel(MDMA_Channel4), 
-           MDMAChannel(MDMA_Channel5), 
-           MDMAChannel(MDMA_Channel6), 
-           MDMAChannel(MDMA_Channel7), 
-           MDMAChannel(MDMA_Channel8), 
-           MDMAChannel(MDMA_Channel9), 
-           MDMAChannel(MDMA_Channel10), 
-           MDMAChannel(MDMA_Channel11), 
-           MDMAChannel(MDMA_Channel12), 
-           MDMAChannel(MDMA_Channel13), 
-           MDMAChannel(MDMA_Channel14), 
-           MDMAChannel(MDMA_Channel15), 
+        mChannels {
+           MDMAChannel(MDMA_Channel0),
+           MDMAChannel(MDMA_Channel1),
+           MDMAChannel(MDMA_Channel2),
+           MDMAChannel(MDMA_Channel3),
+           MDMAChannel(MDMA_Channel4),
+           MDMAChannel(MDMA_Channel5),
+           MDMAChannel(MDMA_Channel6),
+           MDMAChannel(MDMA_Channel7),
+           MDMAChannel(MDMA_Channel8),
+           MDMAChannel(MDMA_Channel9),
+           MDMAChannel(MDMA_Channel10),
+           MDMAChannel(MDMA_Channel11),
+           MDMAChannel(MDMA_Channel12),
+           MDMAChannel(MDMA_Channel13),
+           MDMAChannel(MDMA_Channel14),
+           MDMAChannel(MDMA_Channel15),
         }
     {
-        RCC->AHB3ENR |= 1; // Enable peripheral clock to MDMA.
+        RCC->AHB3ENR |= RCC_AHB3ENR_MDMAEN; // Enable peripheral clock to MDMA.
     }
 
-
-    MDMAChannel mChannels[NUM_MDMA_CHANNELS];
+    MDMAChannel mChannels[NUM_MDMA_CHANNELS]; ///< MDMA channels of the controller.
 };
 
 

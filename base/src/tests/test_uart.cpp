@@ -20,7 +20,7 @@ const UartFrameConfig TEST_FRAME = {
 ///
 static void setup_pins(){
     gpio::GPIOController* gpio_controller = gpio::GPIOController::getInstance();
-    
+
     gpio_controller->setConfig(&uart_1_tx_pin, &uart_1_tx_conf);
     gpio_controller->setConfig(&uart_1_rx_pin, &uart_1_rx_conf);
 }
