@@ -46,7 +46,6 @@ class SpiBusBase : public ISpiBus {
     /// Wait for the SPI bus to complete.
     ///
     void waitForCompletion() override {
-        volatile auto d = RCC;
         while (mIsActive) {
             ; // Do nothing
         }
@@ -173,7 +172,7 @@ public:
 /// @param numPins Number of pins in the array.
 ///
 SwCsSpiBus(size_t instance_num, gpio::Pin* pins, size_t numPins) :
-    SpiBusBase(instance_num), mCsPins(pins), mNumCsPins(numPins) { SwCsSpiBusInit(); }
+    SpiBusBase(instance_num), mCsPins(pins), mNumCsPins(numPins) { ; /* Do nothing */ }
 
 // Inherit documentation.
 void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize = sizeof(uint8_t)) override;
@@ -190,8 +189,6 @@ virtual void cleanup() override {
 }
 
 private:
-    void SwCsSpiBusInit();
-
     size_t mCurrentCsPin {NO_CS_SELECTED}; ///< Currently selected chip select pin.
     size_t mNumCsPins;   ///< Total number of chip select pins available.
     gpio::Pin* mCsPins;  ///< Available chip select pins.

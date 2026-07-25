@@ -241,15 +241,6 @@ void HwCsSpiBus::transact() {
 }
 
 ///
-/// Initialize HW control of the CS pin.
-///
-void SwCsSpiBus::SwCsSpiBusInit() {
-    mSpiHw->CFG2 |= (SPI_CFG2_SSOM); //  Set SSOM, allows for inter-data idleness
-    //mSpiHw->CFG2 |= SPI_CFG2_IOSWP;  //  Swap CIPO and COPI
-    mSpiHw->CFG2 &= ~(SPI_CFG2_SSM);   // Set software management of CS pin.
-}
-
-///
 /// Inherit documentation.
 /// @note Configured word size must round up to dataSize e.g. 24bits->4bytes, 8bits->1byte, not 8bit->4byte.
 /// @todo add ability to only receive or transmit.
