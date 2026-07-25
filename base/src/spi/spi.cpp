@@ -1,11 +1,12 @@
 #include "spi.hpp"
 
-#include "../util/util.h"
+#include <util/util.h>
 
 namespace spi {
 
 SpiBusBase *sInstances[NUM_SPI_CONTROLLERS];
 static constexpr const char* scIsActive = "SPI controller is active";
+static constexpr const char* scInvalidCs = "Invalid chip select";
 
 ///
 /// Constructor.
@@ -223,6 +224,79 @@ void HwCsSpiBus::transact() {
     mSpiHw->CFG1 &= ~(SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN); // Disable RX and TX DMA requests
 
     mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear interrupt flags
+
+    mTxDma->begin();
+    mRxDma->begin();
+
+    mSpiHw->CFG1 |= SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN; // Enable RX and TX DMA requests
+
+    mSpiHw->CR1 |= SPI_CR1_SPE; // enable SPI
+
+    mSpiHw->CR1 &= ~(SPI_CR1_SSI_Msk); // bring the CS pin low.
+
+    mSpiHw->CR1 |= SPI_CR1_CSTART; // START
+
+    mIsActive = true;
+    NVIC_EnableIRQ(mSpiIrqN);
+}
+
+///
+/// Initialize HW control of the CS pin.
+///
+void SwCsSpiBus::SwCsSpiBusInit() {
+    mSpiHw->CFG2 |= (SPI_CFG2_SSOM); //  Set SSOM, allows for inter-data idleness
+    //mSpiHw->CFG2 |= SPI_CFG2_IOSWP;  //  Swap CIPO and COPI
+    mSpiHw->CFG2 &= ~(SPI_CFG2_SSM);   // Set software management of CS pin.
+}
+
+///
+/// Inherit documentation.
+/// @note Configured word size must round up to dataSize e.g. 24bits->4bytes, 8bits->1byte, not 8bit->4byte.
+/// @todo add ability to only receive or transmit.
+///
+void SwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
+    if(mIsActive) {
+        throw scIsActive;
+    }
+
+    if(cs != NO_CS_SELECTED && cs >= mNumCsPins) {
+        throw scInvalidCs;
+    }
+
+    mRxDma->disable();
+    mTxDma->disable();
+
+    // Tx and Rx
+    mTxDma->setSource(txBuff, dataSize, 1);
+    mTxDma->setDest((void *)&mSpiHw->TXDR, dataSize, 0);
+    mTxDma->setNumTransfers(bufLen, 0);
+
+    mRxDma->setSource((void *)&mSpiHw->RXDR, dataSize, 0);
+    mRxDma->setDest(rxBuff, dataSize, 1);
+    mRxDma->setNumTransfers(bufLen, 0);
+
+    mSpiHw->CR2 = bufLen;
+
+    mCurrentCsPin = cs;
+}
+
+///
+/// Inherit documentation.
+///
+void SwCsSpiBus::transact() {
+    if(mIsActive) {
+        throw scIsActive;
+    }
+
+    mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
+
+    mSpiHw->IER |= SPI_IER_TXPIE | SPI_IER_RXPIE; // TX and RX interrupt
+
+    mSpiHw->CFG1 &= ~(SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN); // Disable RX and TX DMA requests
+
+    mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear interrupt flags
+
+    mCsPins[mCurrentCsPin] = false;
 
     mTxDma->begin();
     mRxDma->begin();

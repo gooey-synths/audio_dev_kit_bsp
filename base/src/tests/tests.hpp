@@ -24,6 +24,7 @@ extern void test_adc_exceptions();
 extern void test_spi_hw_transaction();
 extern void test_spi_hw_exceptions();
 extern void test_DAC60508();
+extern void test_spi_sw_transaction();
 
 // tiny USB tests
 extern void test_tinyusb_serial();

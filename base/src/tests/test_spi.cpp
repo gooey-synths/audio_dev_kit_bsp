@@ -78,7 +78,7 @@ void test_spi_hw_transaction(){
 
 
         spiBus.transact();
-        
+ 
         spiBus.waitForCompletion();
 
         uint16_t devId = (uint16_t)rxBuff[1] << 8 | rxBuff[2];
@@ -146,7 +146,7 @@ void test_spi_hw_exceptions()
 
     // Test getting an invalid controller
     EXPECT_EXCEPTION(HwCsSpiBus badSpiBus(0));
-    
+ 
     HwCsSpiBus spiBus(2);
 
     SpiBusConfig conf;
@@ -180,4 +180,56 @@ void test_spi_hw_exceptions()
     // Test preparing while active
     EXPECT_EXCEPTION(spiBus.prepare(txBuff, rxBuff, BUFFER_SIZE, 0, sizeof(*txBuff)));
     spiBus.waitForCompletion();
+}
+
+///
+/// Test a transaction on the hardware spi bus
+///
+void test_spi_sw_transaction() {
+    setup_pins();
+
+    uart::UartController uart1(1);
+
+    gpio::Pin cs_pins[] = {
+        gpio::GPIOController::getInstance()->getPin(&spi3_cs0_pin),
+        gpio::GPIOController::getInstance()->getPin(&spi3_cs1_pin),
+        gpio::GPIOController::getInstance()->getPin(&spi3_cs2_pin),
+    };
+
+    uint8_t txBuff[] = {
+        0xD,
+        0xE,
+        0xA,
+        0xD,
+        0xB,
+        0xE,
+        0xE,
+        0xF,
+    };
+    size_t buffSize = sizeof(txBuff) / sizeof(*txBuff);
+    uint8_t rxBuff[buffSize];
+
+
+    size_t numCsPins = sizeof(cs_pins) / sizeof(*cs_pins);
+
+    SwCsSpiBus spiBus(3, cs_pins, numCsPins);
+
+    SpiBusConfig conf;
+    conf.mFreq = 30000U;
+    conf.mPhase = 0;
+    conf.mPolarity = 1;
+    conf.mWordSize = 8;
+    conf.mIoSwap = true;
+    conf.mMidi = 0;
+ 
+    while(1) {
+        for(size_t iCs = 0; iCs < numCsPins; iCs++) {
+            spiBus.configure(conf);
+            spiBus.prepare((void*)txBuff, (void*)rxBuff, buffSize, iCs);
+            spiBus.transact();
+            spiBus.waitForCompletion();
+            print_buffer(&uart1, rxBuff, sizeof(*txBuff), buffSize);
+        }
+    }
+
 }

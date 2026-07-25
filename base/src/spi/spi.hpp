@@ -1,11 +1,12 @@
 #ifndef SPI_HPP
 #define SPI_HPP
 
-#include "../dma/dma.hpp"
-#include "../gpio/gpio.hpp"
-#include "../system/board_defs.h"
-#include "../system/stm32h750xx.h"
+#include <dma/dma.hpp>
+#include <gpio/gpio.hpp>
+#include <system/board_defs.h>
+#include <system/stm32h750xx.h>
 #include "spibus_interface.hpp"
+#include <gpio/gpio.hpp>
 
 #include <cassert>
 #include <stdint.h>
@@ -27,6 +28,9 @@ static constexpr const char* const scInvalidInstance = "Invalid SPI instance";
 class SpiBusBase : public ISpiBus {
 
   public:
+    /// CS selection for when no CS pin should be used.
+    static constexpr size_t NO_CS_SELECTED = static_cast<size_t>(-1);
+
     SpiBusBase(size_t);
 
     ///
@@ -42,6 +46,7 @@ class SpiBusBase : public ISpiBus {
     /// Wait for the SPI bus to complete.
     ///
     void waitForCompletion() override {
+        volatile auto d = RCC;
         while (mIsActive) {
             ; // Do nothing
         }
@@ -51,7 +56,7 @@ class SpiBusBase : public ISpiBus {
     ///
     /// SPI interrupt.
     ///
-    void interrupt() {
+    void interrupt() override {
 
         // transfer complete flag
         if (mSpiHw->SR & SPI_SR_EOT) {
@@ -158,9 +163,39 @@ class HwCsSpiBus : public SpiBusBase {
 
 ///
 /// Sw controlled chip select spi bus
-/// @todo fill this in.
 ///
-class SwCsSpiBus : SpiBusBase {};
+class SwCsSpiBus : public SpiBusBase {
+public:
+///
+/// Constructor.
+/// @param instance_num SPI bus number.
+/// @param pins Array of pins for chip selects.
+/// @param numPins Number of pins in the array.
+///
+SwCsSpiBus(size_t instance_num, gpio::Pin* pins, size_t numPins) :
+    SpiBusBase(instance_num), mCsPins(pins), mNumCsPins(numPins) { SwCsSpiBusInit(); }
+
+// Inherit documentation.
+void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize = sizeof(uint8_t)) override;
+
+// Inherit documentation.
+void transact() override;
+
+protected:
+// Inherit documentation.
+virtual void cleanup() override {
+    if(mCurrentCsPin != NO_CS_SELECTED) {
+        mCsPins[mCurrentCsPin] = true;
+    }
+}
+
+private:
+    void SwCsSpiBusInit();
+
+    size_t mCurrentCsPin {NO_CS_SELECTED}; ///< Currently selected chip select pin.
+    size_t mNumCsPins;   ///< Total number of chip select pins available.
+    gpio::Pin* mCsPins;  ///< Available chip select pins.
+};
 
 } // namespace spi
 

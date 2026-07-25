@@ -119,7 +119,7 @@ const GPIOPin spi3_clk_pin = {
 
 const GPIOConf spi3_clk_conf = {
     .type = PUSH_PULL_TYPE,
-    .mode = INPUT_MODE,
+    .mode = ALTERNATE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
     .alternate_function = 6
@@ -131,8 +131,8 @@ const GPIOPin spi3_cipo_pin = {
 };
 
 const GPIOConf spi3_cipo_conf = {
-    .type = OPEN_DRAIN_TYPE,
-    .mode = INPUT_MODE,
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
     .alternate_function = 6
@@ -144,8 +144,8 @@ const GPIOPin spi3_copi_pin = {
 };
 
 const GPIOConf spi3_copi_conf = {
-    .type = OPEN_DRAIN_TYPE,
-    .mode = INPUT_MODE,
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
     .alternate_function = 6
@@ -157,12 +157,11 @@ const GPIOPin spi3_cs0_pin = {
 };
 
 const GPIOConf spi3_cs0_conf = {
-    .type = OPEN_DRAIN_TYPE,
-    .mode = INPUT_MODE,
+    .type = PUSH_PULL_TYPE,
+    .mode = OUTPUT_MODE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
-
 
 const GPIOPin spi3_cs1_pin = {
     .port = 2,
@@ -170,8 +169,8 @@ const GPIOPin spi3_cs1_pin = {
 };
 
 const GPIOConf spi3_cs1_conf = {
-    .type = OPEN_DRAIN_TYPE,
-    .mode = INPUT_MODE,
+    .type = PUSH_PULL_TYPE,
+    .mode = OUTPUT_MODE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
@@ -182,8 +181,8 @@ const GPIOPin spi3_cs2_pin = {
 };
 
 const GPIOConf spi3_cs2_conf = {
-    .type = OPEN_DRAIN_TYPE,
-    .mode = INPUT_MODE,
+    .type = PUSH_PULL_TYPE,
+    .mode = OUTPUT_MODE,
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
