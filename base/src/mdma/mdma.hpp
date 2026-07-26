@@ -82,7 +82,7 @@ struct ListNode {
     /// Set destination address
     /// @param dst Destination address
     /// @param size Destination data element size in number of bytes
-    /// @param inc Destination increment in number of byte
+    /// @param inc Destination increment in number of bytes
     /// @param ahb True if destination is connected to the AHB bus, false if AXI
     ///
     inline void setDestination(void* dst, uint8_t size, uint8_t inc, bool ahb) {
@@ -150,7 +150,7 @@ class MDMAChannel {
 public:
     ///
     /// Constructor
-    /// @param hw POinter to MDM
+    /// @param hw Pointer to MDMA
     ///
     MDMAChannel(MDMA_Channel_TypeDef* hw):
     mChannelHw(hw)
@@ -179,7 +179,7 @@ public:
 
     ///
     /// Check for error.
-    /// @return Erro bits from channel
+    /// @return Error bits from channel
     ///
     inline uint32_t getError() {
         return (uint32_t) mChannelHw->CESR;
