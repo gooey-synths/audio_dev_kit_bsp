@@ -2,6 +2,6 @@
 #include <cstdlib>
 
 int main() {
-    test_mdma_single_buffer();
+    test_mdma_list_buffer();
     return 0;
 }

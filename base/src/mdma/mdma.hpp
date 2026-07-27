@@ -13,9 +13,9 @@ namespace mdma {
 ///
 enum eTriggerMode {
     BUF_TRANS = 0, ///< Buffer transfer
-    BLK_TRANS, ///< Block transfer
-    RPT_BLK_TRANS, ///< Repeated block transfer
-    WHOLE  ///< Transfer whole data
+    BLK_TRANS = 1, ///< Block transfer
+    RPT_BLK_TRANS = 2, ///< Repeated block transfer
+    WHOLE = 3///< Transfer whole data
 };
 
 ///
@@ -29,6 +29,7 @@ struct ListNode {
     uint32_t BRUR; ///< Block repeat update
     uint32_t LAR; ///< Link address
     uint32_t TBR; ///< Trigger and bus selection
+    uint32_t RESERVED; /// Reserved
     uint32_t MAR; ///< Mask address register
     uint32_t MDR; ///< Mask data register
 
