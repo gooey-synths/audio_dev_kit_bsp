@@ -215,11 +215,11 @@ void test_spi_sw_transaction() {
     SwCsSpiBus spiBus(3, cs_pins, numCsPins);
 
     SpiBusConfig conf;
-    conf.mFreq = 30000U;
+    conf.mFreq = 5e6;
     conf.mPhase = 0;
     conf.mPolarity = 1;
     conf.mWordSize = 8;
-    conf.mIoSwap = true;
+    conf.mIoSwap = false;
     conf.mMidi = 0;
  
     while(1) {

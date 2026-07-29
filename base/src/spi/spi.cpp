@@ -49,7 +49,7 @@ SpiBusBase::SpiBusBase(size_t instance_num)
     case 3:
         mSpiHw = SPI3;
         RCC->APB1LENR |= RCC_APB1LENR_SPI3EN;
-        mKerClkFreq = PLL1_DIVQ_TARGET; // todo: Update if needed.
+        mKerClkFreq = PLL1_DIVQ_TARGET;
         mSpiIrqN = SPI3_IRQn;
         RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI3RST;
         RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI3RST);
@@ -120,7 +120,7 @@ void SpiBusBase::configure(SpiBusConfig conf) {
     for (uint8_t iDiv = 0; iDiv <= 7; iDiv++) {
         mSpiHw->CFG1 &= ~(SPI_CFG1_MBR_Msk);      // Clear baud rate bits
         mSpiHw->CFG1 |= iDiv << SPI_CFG1_MBR_Pos; // Set baud rate bits
-        if (mKerClkFreq / (1 << iDiv) <= conf.mFreq / 4) {
+        if (mKerClkFreq / (1 << (iDiv+1)) <= conf.mFreq) {
             break;
         }
     }
@@ -179,7 +179,6 @@ SpiBusConfig SpiBusBase::getConfiguration() {
 void HwCsSpiBus::HwCsSpiBusInit() {
     mSpiHw->CFG2 &= ~(SPI_CFG2_SSM); // Clear software management of CS pin.
     mSpiHw->CFG2 |= (SPI_CFG2_SSOM); //  Set SSOM, allows for inter-data idleness
-    mSpiHw->CFG2 |= SPI_CFG2_IOSWP;  //  Swap CIPO and COPI
 }
 
 ///
