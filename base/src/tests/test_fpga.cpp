@@ -7,7 +7,7 @@
 static constexpr size_t scFpgaProgUsbItf = 1;
 static constexpr size_t scFpgaCsPin = 1;
 
-static const uint8_t HEADER[3] = {0x15,0x15,0x15};
+const uint8_t HEADER[3] = {0x15,0x15,0x15};
 
 static constexpr size_t scSpiBuffSize = 512;
 static char txBuff[scSpiBuffSize];
@@ -79,13 +79,15 @@ void test_fpga_prog() {
     spi::SwCsSpiBus spiBus(3, cs_pins, sizeof cs_pins / sizeof *cs_pins);
 
     spi::SpiBusConfig conf;
-    conf.mFreq = 30000U;
+    conf.mFreq = 25000000;
     conf.mPhase = 0;
     conf.mPolarity = 1;
     conf.mWordSize = 8;
-    conf.mIoSwap = true;
+    conf.mIoSwap = false;
     conf.mMidi = 0;
     spiBus.configure(conf);
+
+    fpgaHardReset = false;
 
     // Wait for header
     wait_for_header(fpgaProgItf);
@@ -112,9 +114,11 @@ void test_fpga_prog() {
 
         size_t n = fpgaProgItf.ReadN(txBuff, scSpiBuffSize);
 
-        spiBus.prepare(txBuff, rxBuff, scSpiBuffSize, spi::SpiBusBase::NO_CS_SELECTED);
-        spiBus.transact();
-        spiBus.waitForCompletion();
+        if(n) {
+            spiBus.prepare(txBuff, rxBuff, n, spi::SpiBusBase::NO_CS_SELECTED);
+            spiBus.transact();
+            spiBus.waitForCompletion();
+        }
     }
 }
 

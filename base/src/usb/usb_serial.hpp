@@ -40,7 +40,7 @@ public:
 
 
     static const size_t scNumInterfaces = CFG_TUD_CDC; ///< Number of interfaces to manage.
-    static const uint32_t scTusbFreq = 100; ///< Rate to call TinyUSB device task.
+    static const uint32_t scTusbFreq = 10000; ///< Rate to call TinyUSB device task.
     static const timer::eBasicTimerNumber scTimerNum = ::timer::eBasicTimerNumber::BASIC_TIMER_6; ///< Timer for calling TinyUSB device task.
 
 
