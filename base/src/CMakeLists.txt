@@ -7,7 +7,6 @@ set(TINYUSB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyusb)
 set(ARDUINOJSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
 set(FREERTOS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/FreeRTOS-Kernel)
 
-
 FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 
 # PLace your c and c++ files here
@@ -53,7 +52,7 @@ include_directories(
 set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "FreeRTOS Port")
 
 add_library(freertos_config INTERFACE)
-target_include_directories(freertos_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/system/FreeRTOSConfig.h)
+target_include_directories(freertos_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/system/)
 
 enable_language(C)
 add_subdirectory(${FREERTOS_PATH})
@@ -74,7 +73,7 @@ if (BUILD_ARM)
 
 	# Create elf file and link it
 	add_executable(${PROJECT_NAME}.elf ${SOURCES})
-    target_link_libraries(${PROJECT_NAME}.elf PRIVATE freertos_kernel)
+    target_link_libraries(${PROJECT_NAME}.elf freertos_kernel)
 
 	# Create binary file
 	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
