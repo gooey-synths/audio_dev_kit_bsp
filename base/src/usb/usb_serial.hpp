@@ -85,13 +85,13 @@ private:
     ///
     static void usbHandler() {
         tud_int_handler(BOARD_TUD_RHPORT);
+        tud_task_ext(0, true);
     }
 
     ///
     /// Handler for timer.
     ///
     static void timerHandler() {
-        tud_task_ext(0, true);
     }
 
     USBCommunication mUsbInterfaces[scNumInterfaces];  ///< USB buffers.

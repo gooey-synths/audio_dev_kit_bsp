@@ -10,11 +10,12 @@ USBSerial::USBSerial() :
     mTimer(USBSerial::scTimerNum)
 {
     set_vector_table_entry(static_cast<int>(OTG_FS_IRQn+16), USBSerial::usbHandler);
+    NVIC_SetPriority(OTG_FS_IRQn, 6);
     tud_init(BOARD_TUD_RHPORT);
 
     mTimer.setFreq(USBSerial::scTusbFreq);
     mTimer.setInterrupt(USBSerial::timerHandler);
-    mTimer.start(false);
+    //mTimer.start(false);
 }
 
 ///
