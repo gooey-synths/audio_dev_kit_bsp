@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.21.4)
 
+# PROJECT_NAME
+project(audio_dev_kit_bsp C CXX)
+
 # Leave as debug for now
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -54,11 +57,10 @@ set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "FreeRTOS Port")
 add_library(freertos_config INTERFACE)
 target_include_directories(freertos_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/system/)
 
-enable_language(C)
+#enable_language(C)
 add_subdirectory(${FREERTOS_PATH})
 
-# PROJECT_NAME
-project(audio_dev_kit_bsp)
+
 
 # ArduinoJSON stuff
 add_subdirectory(${ARDUINOJSON_PATH})
@@ -73,7 +75,7 @@ if (BUILD_ARM)
 
 	# Create elf file and link it
 	add_executable(${PROJECT_NAME}.elf ${SOURCES})
-    target_link_libraries(${PROJECT_NAME}.elf freertos_kernel)
+    target_link_libraries(${PROJECT_NAME}.elf PRIVATE freertos_kernel)
 
 	# Create binary file
 	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
