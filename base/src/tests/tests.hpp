@@ -40,3 +40,6 @@ extern void test_basic_timer_accuracy();
 
 // ArduinoJSON tests
 extern void test_ArduinoJSON();
+
+// FPGA tests
+extern void test_fpga_prog();

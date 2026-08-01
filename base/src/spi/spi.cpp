@@ -286,7 +286,9 @@ void SwCsSpiBus::transact() {
 
     mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear interrupt flags
 
-    mCsPins[mCurrentCsPin] = false;
+    if(mCurrentCsPin != NO_CS_SELECTED) {
+        mCsPins[mCurrentCsPin] = false;
+    }
 
     mTxDma->begin();
     mRxDma->begin();

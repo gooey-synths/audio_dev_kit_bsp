@@ -132,4 +132,9 @@ extern GPIOConf usb_d_minus_conf;
 extern GPIOPin usb_vbus_dect_pin;
 extern GPIOConf usb_vbus_dect_conf;
 
+extern GPIOPin fpga_hard_reset_pin;
+extern GPIOConf fpga_hard_reset_conf;
+
+extern GPIOPin fpga_cdone_pin;
+extern GPIOConf fpga_cdone_conf;
 #endif

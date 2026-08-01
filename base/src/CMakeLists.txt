@@ -33,6 +33,7 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/usb/usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_arduinojson.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fpga.cpp
 )
 
 # TinyUSB stuff
