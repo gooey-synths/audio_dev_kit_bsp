@@ -40,7 +40,9 @@ private:
     /// Static method for member method to function pointer binding.
     ///
     static void fastCallBackCallBack() {
-        sInstance->fastCallBack();
+        if(sInstance) {
+            sInstance->fastCallBack();
+        }
     }
 
     static GraphRunner* sInstance; ///< Pointer to GraphRunner instance

@@ -32,6 +32,7 @@ GraphRunner::GraphRunner(board::BoardInterface& board) :
 GraphRunner::~GraphRunner() {
     stop();
     sInstance = NULL;
+    mBoard.GetTimer(scFastTimerIdx).SetCallback(NULL);
 }
 
 ///

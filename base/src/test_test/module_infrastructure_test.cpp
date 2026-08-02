@@ -10,11 +10,8 @@ public:
     MOCK_METHOD(size_t, getInputIdx, (std::string name), (override));
     MOCK_METHOD(size_t, getOutputIdx, (std::string name), (override));
 
-    void run() noexcept override {
-        mNumRuns++;
-    }
-MOCK_METHOD(uint16_t, getOutput, (size_t portIdx), (override));
-MOCK_METHOD(void, setInput, (size_t portIdx, uint16_t val), (override));
+    MOCK_METHOD(void, run, (), (noexcept, override));
+
     MOCK_METHOD(void, configure, ((std::unordered_map<std::string, std::string>)), (override));
 
     // Expose protected fields from ModuleBase for verification
@@ -22,7 +19,7 @@ MOCK_METHOD(void, setInput, (size_t portIdx, uint16_t val), (override));
     void forceOutputArray(size_t idx, uint16_t val) { this->mOutputs[idx] = val; }
 
     // Expose number of times run() has been called
-    size_t numRuns() {return mNumRuns; }
+    size_t numRuns() { return mNumRuns; }
 
 protected:
     size_t mNumRuns = 0;
@@ -52,6 +49,9 @@ protected:
 template <size_t numTimers>
 class MockBoard : public board::BoardInterface {
 public:
+
+    MockBoard() { ; /* Do nothing */ }
+
     board::BoardConfig GetBoardConfig() override {
         return board::BoardConfig {
             .numTimers = numTimers
@@ -151,15 +151,17 @@ protected:
 };
 TEST(GraphRunnerCoreTests, SurvivesTimerFiringWhenInstanceIsDestroyed) {
     MockBoard<1> board;
-    
+ 
     // Create an artificial scope so the GraphRunner is created and then destroyed
     {
         graph_infrastructure::GraphRunner runner(board);
-        
+        graph_infrastructure::Graph g;
+        runner.setGraph(&g);
+
         // The timer now holds a pointer to GraphRunner::fastCallBackCallBack.
         // We can tick it here while it's stopped to ensure it safely ignores the tick.
-        EXPECT_NO_THROW(board.mTimer.tick()); 
-    } 
+        EXPECT_NO_THROW(board.mTimer.tick());
+    }
     // runner goes out of scope here. The destructor is called.
     // sInstance is now nullptr (or NULL in your original code).
 
@@ -178,11 +180,11 @@ TEST_F(GraphRunnerFunctionalityTestFixture, VerifiesGraphRunnerCallsModuleRun) {
     // 1. Set up our expectations: We expect every module's run() to be called exactly once.
     for(module_basics::ModuleInterface* mod : graph.mods) {
         auto* mockMod = dynamic_cast<MockModule<numInputs, numOutputs>*>(mod);
-        EXPECT_CALL(*mockMod, run()).Times(1); 
+        EXPECT_CALL(*mockMod, run()).Times(1);
     }
 
     // 2. Trigger the action
     board.mTimer.tick();
-    
+ 
     // 3. gmock will automatically fail the test here if run() wasn't called exactly once!
 }
