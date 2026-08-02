@@ -37,6 +37,7 @@ set(SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/usb/usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_arduinojson.cpp
+    ${FREERTOS_PATH}/portable/MemMang/heap_4.c
 )
 
 # TinyUSB stuff

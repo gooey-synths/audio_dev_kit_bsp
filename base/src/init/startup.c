@@ -1,5 +1,9 @@
 #include "../system/stm32h750xx.h"
 #include "../system/board_defs.h"
+#include <third_party/FreeRTOS-Kernel/include/FreeRTOS.h>
+#include <third_party/FreeRTOS-Kernel/include/task.h>
+#include <system/tasks.h>
+#include <system/FreeRTOSConfig.h>
 #include <stdint.h>
 
 // prototypes
@@ -406,6 +410,53 @@ void enable_otg_2(){
     PWR->CR3 |= PWR_CR3_USB33DEN;
 }
 
+void _main(void * pvParameters) {
+    (void) pvParameters;
+
+    main();
+}
+
+extern void vPortSVCHandler();
+extern void xPortPendSVHandler();
+extern void xPortSysTickHandler();
+
+void start_freertos() {
+
+    // Map required handlers
+    __NVIC_SetVector(SVCall_IRQn, (int)vPortSVCHandler);
+    __NVIC_SetVector(PendSV_IRQn, (int)xPortPendSVHandler);
+    __NVIC_SetVector(SysTick_IRQn, (int)xPortSysTickHandler);
+
+    // Crate main task
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+
+    /* Create the task, storing the handle. */
+    xReturned = xTaskCreate(
+                    _main,       /* Function that implements the task. */
+                    "main",          /* Text name for the task. */
+                    MAIN_TASK_STACK,      /* Stack size in words, not bytes. */
+                    ( void * ) 1,    /* Parameter passed into the task. */
+                    MAIN_TASK_PRIO,/* Priority at which the task is created. */
+                    &xHandle );      /* Used to pass out the created task's handle. */
+
+    if( xReturned == pdPASS )
+    {
+        /* The task was created. Use the task's handle to delete the task. */
+        vTaskDelete( xHandle );
+    }
+
+    vTaskStartScheduler();
+}
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+    (void) xTask;
+    (void) pcTaskName;
+
+    halt();
+}
+
 ///
 /// Reset handler and initial entry point. 
 ///
@@ -440,7 +491,8 @@ __attribute__ ((noreturn)) void reset_handler(){
 
     enable_otg_2();
 
-    main();
+    //main();
+    start_freertos();
 
     halt(); // Should never get here! 
 }
