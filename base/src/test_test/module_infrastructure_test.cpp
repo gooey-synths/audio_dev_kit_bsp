@@ -13,7 +13,8 @@ public:
     void run() noexcept override {
         mNumRuns++;
     }
-
+MOCK_METHOD(uint16_t, getOutput, (size_t portIdx), (override));
+MOCK_METHOD(void, setInput, (size_t portIdx, uint16_t val), (override));
     MOCK_METHOD(void, configure, ((std::unordered_map<std::string, std::string>)), (override));
 
     // Expose protected fields from ModuleBase for verification
