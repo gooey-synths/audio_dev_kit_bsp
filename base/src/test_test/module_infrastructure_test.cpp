@@ -153,17 +153,17 @@ protected:
 // Test suite to check that GraphRunner calls run() on modules
 TEST_F(GraphRunnerFunctionalityTestFixture, VerifiesGraphRunnerCallsModuleRun) {
     graph_infrastructure::GraphRunner runner(board);
-
     runner.setGraph(&graph);
-
     runner.start();
 
-
-    // --- Test 1: Verify run is called on all modules in the graph after ticking the timer ---
-    board.mTimer.tick();
-
+    // 1. Set up our expectations: We expect every module's run() to be called exactly once.
     for(module_basics::ModuleInterface* mod : graph.mods) {
-        size_t n = dynamic_cast<MockModule<numInputs, numOutputs>*>(mod)->numRuns();
-        EXPECT_GE(n, 1);
+        auto* mockMod = dynamic_cast<MockModule<numInputs, numOutputs>*>(mod);
+        EXPECT_CALL(*mockMod, run()).Times(1); 
     }
+
+    // 2. Trigger the action
+    board.mTimer.tick();
+    
+    // 3. gmock will automatically fail the test here if run() wasn't called exactly once!
 }
