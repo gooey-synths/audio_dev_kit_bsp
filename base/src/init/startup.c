@@ -436,16 +436,16 @@ void start_freertos() {
                     _main,       /* Function that implements the task. */
                     "main",          /* Text name for the task. */
                     MAIN_TASK_STACK,      /* Stack size in words, not bytes. */
-                    ( void * ) 1,    /* Parameter passed into the task. */
+                    NULL,    /* Parameter passed into the task. */
                     MAIN_TASK_PRIO,/* Priority at which the task is created. */
                     &xHandle );      /* Used to pass out the created task's handle. */
 
-    if( xReturned == pdPASS )
+    if( xReturned != pdPASS )
     {
-        /* The task was created. Use the task's handle to delete the task. */
-        vTaskDelete( xHandle );
+        halt();
     }
 
+    // Start scheduler
     vTaskStartScheduler();
 }
 
@@ -456,6 +456,12 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 
     halt();
 }
+
+void vApplicationIdleHook( void )
+{
+    volatile int a = 0;
+}
+
 
 ///
 /// Reset handler and initial entry point. 
