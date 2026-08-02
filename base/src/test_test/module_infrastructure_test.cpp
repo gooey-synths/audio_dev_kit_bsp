@@ -148,7 +148,25 @@ protected:
         }
     }
 };
+TEST(GraphRunnerCoreTests, SurvivesTimerFiringWhenInstanceIsDestroyed) {
+    MockBoard<1> board;
+    
+    // Create an artificial scope so the GraphRunner is created and then destroyed
+    {
+        graph_infrastructure::GraphRunner runner(board);
+        
+        // The timer now holds a pointer to GraphRunner::fastCallBackCallBack.
+        // We can tick it here while it's stopped to ensure it safely ignores the tick.
+        EXPECT_NO_THROW(board.mTimer.tick()); 
+    } 
+    // runner goes out of scope here. The destructor is called.
+    // sInstance is now nullptr (or NULL in your original code).
 
+    // The hardware timer doesn't know the runner was destroyed, so it fires anyway!
+    // If your static wrapper function is written correctly, this will safely do nothing.
+    // If it's missing the null check, this will result in a segmentation fault.
+    EXPECT_NO_THROW(board.mTimer.tick());
+}
 
 // Test suite to check that GraphRunner calls run() on modules
 TEST_F(GraphRunnerFunctionalityTestFixture, VerifiesGraphRunnerCallsModuleRun) {
