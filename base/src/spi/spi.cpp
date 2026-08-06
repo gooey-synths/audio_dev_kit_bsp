@@ -1,11 +1,12 @@
 #include "spi.hpp"
 
-#include "../util/util.h"
+#include <util/util.h>
 
 namespace spi {
 
 SpiBusBase *sInstances[NUM_SPI_CONTROLLERS];
 static constexpr const char* scIsActive = "SPI controller is active";
+static constexpr const char* scInvalidCs = "Invalid chip select";
 
 ///
 /// Constructor.
@@ -48,7 +49,7 @@ SpiBusBase::SpiBusBase(size_t instance_num)
     case 3:
         mSpiHw = SPI3;
         RCC->APB1LENR |= RCC_APB1LENR_SPI3EN;
-        mKerClkFreq = PLL1_DIVQ_TARGET; // todo: Update if needed.
+        mKerClkFreq = PLL1_DIVQ_TARGET;
         mSpiIrqN = SPI3_IRQn;
         RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI3RST;
         RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI3RST);
@@ -119,7 +120,7 @@ void SpiBusBase::configure(SpiBusConfig conf) {
     for (uint8_t iDiv = 0; iDiv <= 7; iDiv++) {
         mSpiHw->CFG1 &= ~(SPI_CFG1_MBR_Msk);      // Clear baud rate bits
         mSpiHw->CFG1 |= iDiv << SPI_CFG1_MBR_Pos; // Set baud rate bits
-        if (mKerClkFreq / (1 << iDiv) <= conf.mFreq / 4) {
+        if (mKerClkFreq / (1 << (iDiv+1)) <= conf.mFreq) {
             break;
         }
     }
@@ -178,7 +179,6 @@ SpiBusConfig SpiBusBase::getConfiguration() {
 void HwCsSpiBus::HwCsSpiBusInit() {
     mSpiHw->CFG2 &= ~(SPI_CFG2_SSM); // Clear software management of CS pin.
     mSpiHw->CFG2 |= (SPI_CFG2_SSOM); //  Set SSOM, allows for inter-data idleness
-    mSpiHw->CFG2 |= SPI_CFG2_IOSWP;  //  Swap CIPO and COPI
 }
 
 ///
@@ -223,6 +223,72 @@ void HwCsSpiBus::transact() {
     mSpiHw->CFG1 &= ~(SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN); // Disable RX and TX DMA requests
 
     mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear interrupt flags
+
+    mTxDma->begin();
+    mRxDma->begin();
+
+    mSpiHw->CFG1 |= SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN; // Enable RX and TX DMA requests
+
+    mSpiHw->CR1 |= SPI_CR1_SPE; // enable SPI
+
+    mSpiHw->CR1 &= ~(SPI_CR1_SSI_Msk); // bring the CS pin low.
+
+    mSpiHw->CR1 |= SPI_CR1_CSTART; // START
+
+    mIsActive = true;
+    NVIC_EnableIRQ(mSpiIrqN);
+}
+
+///
+/// Inherit documentation.
+/// @note Configured word size must round up to dataSize e.g. 24bits->4bytes, 8bits->1byte, not 8bit->4byte.
+/// @todo add ability to only receive or transmit.
+///
+void SwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
+    if(mIsActive) {
+        throw scIsActive;
+    }
+
+    if(cs != NO_CS_SELECTED && cs >= mNumCsPins) {
+        throw scInvalidCs;
+    }
+
+    mRxDma->disable();
+    mTxDma->disable();
+
+    // Tx and Rx
+    mTxDma->setSource(txBuff, dataSize, 1);
+    mTxDma->setDest((void *)&mSpiHw->TXDR, dataSize, 0);
+    mTxDma->setNumTransfers(bufLen, 0);
+
+    mRxDma->setSource((void *)&mSpiHw->RXDR, dataSize, 0);
+    mRxDma->setDest(rxBuff, dataSize, 1);
+    mRxDma->setNumTransfers(bufLen, 0);
+
+    mSpiHw->CR2 = bufLen;
+
+    mCurrentCsPin = cs;
+}
+
+///
+/// Inherit documentation.
+///
+void SwCsSpiBus::transact() {
+    if(mIsActive) {
+        throw scIsActive;
+    }
+
+    mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
+
+    mSpiHw->IER |= SPI_IER_TXPIE | SPI_IER_RXPIE; // TX and RX interrupt
+
+    mSpiHw->CFG1 &= ~(SPI_CFG1_TXDMAEN | SPI_CFG1_RXDMAEN); // Disable RX and TX DMA requests
+
+    mSpiHw->IFCR |= 0x1FF << SPI_IFCR_EOTC_Pos; // Clear interrupt flags
+
+    if(mCurrentCsPin != NO_CS_SELECTED) {
+        mCsPins[mCurrentCsPin] = false;
+    }
 
     mTxDma->begin();
     mRxDma->begin();
