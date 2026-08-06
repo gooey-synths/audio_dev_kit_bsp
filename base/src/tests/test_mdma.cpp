@@ -42,6 +42,7 @@ void test_mdma_single_buffer() {
     node.setDestination((void*) &dstBuffer, sizeof(dstBuffer[0]), sizeof(dstBuffer[0]), false);
     node.setNumberData(sizeof(srcBuffer), sizeof(srcBuffer[0]));
     node.setTrigger(0, true, mdma::BUF_TRANS);
+    node.linkTo(NULL);
 
     while(1) {
         // Reset channel.
@@ -94,8 +95,8 @@ void test_mdma_list_buffer() {
     // Define a new node for each element in the buffer
     mdma::ListNode nodes[TEST_BUFFER_SIZE];
     for(int iNode = 0; iNode < TEST_BUFFER_SIZE; iNode++) {
-        nodes[iNode].setDestination((void*) &dstBuffer[iNode], sizeof(dstBuffer[iNode]), false, false);
-        nodes[iNode].setSource((void*) &srcBuffer[iNode], sizeof(srcBuffer[iNode]), false, false);
+        nodes[iNode].setDestination((void*) &dstBuffer[iNode], sizeof(dstBuffer[iNode]), 0, false);
+        nodes[iNode].setSource((void*) &srcBuffer[iNode], sizeof(srcBuffer[iNode]), 0, false);
         nodes[iNode].setNumberData(sizeof(srcBuffer[0]), sizeof(srcBuffer[0]));
         nodes[iNode].setTrigger(0, true, mdma::BLK_TRANS);
         if(iNode < TEST_BUFFER_SIZE-1) {

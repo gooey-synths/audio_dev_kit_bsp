@@ -119,7 +119,7 @@ struct ListNode {
 
     ///
     /// Set the number of data to transfer
-    /// @param num Number of data to transfer in this node
+    /// @param num Total number of bytes to transfer in this node
     /// @param bytesPerTransfer Number of bytes per transfer
     ///
     inline void setNumberData(uint16_t num, uint8_t bytesPerTransfer) {
