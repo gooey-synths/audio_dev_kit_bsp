@@ -39,6 +39,11 @@ GraphRunner::~GraphRunner() {
 /// Set the graph to run.
 /// @param graph Graph to run.
 /// @note graph should be validated before calling this function.
+/// @note Graph validation includes:\n
+/// - All module pointers can be dereferenced.\n
+/// - All connections have valid module indices.\n
+/// - All connections have valid input and output indices.\n
+/// - The inputs of every module is pointed to by 0 or 1 connection.\n
 ///
 void GraphRunner::setGraph(Graph* graph) {
     if(mIsRunning) {
