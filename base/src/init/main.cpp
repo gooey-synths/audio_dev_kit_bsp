@@ -2,6 +2,6 @@
 #include <cstdlib>
 
 int main() {
-    test_spi_sw_transaction();
+    test_mdma_list_buffer();
     return 0;
 }
