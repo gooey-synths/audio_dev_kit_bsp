@@ -2,6 +2,6 @@
 #include <cstdlib>
 
 int main() {
-    test_mdma_list_buffer();
+    test_usb_serial_echo();
     return 0;
 }

@@ -1,5 +1,6 @@
 #include "basic_timer.hpp"
-#include "../system/board_defs.h"
+#include <system/board_defs.h>
+#include <system/interrupts.h>
 
 using namespace timer;
 
@@ -31,7 +32,8 @@ mIntFunc(NULL)
         case BASIC_TIMER_6:
             mTimerHw = TIM6;
             mBTimIrqN = TIM6_DAC_IRQn;
-            set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<0>);
+            NVIC_SetVector(mBTimIrqN, reinterpret_cast<uintptr_t>(timerIsr<0>));
+            NVIC_SetPriority(mBTimIrqN, TIM6_INT_PRIO);
             RCC->APB1LENR |= RCC_APB1LENR_TIM6EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM6RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM6RST); // Clear reset bit;
@@ -40,7 +42,8 @@ mIntFunc(NULL)
         case BASIC_TIMER_7:
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
-            set_vector_table_entry(static_cast<int>(mBTimIrqN)+16, timerIsr<1>);
+            NVIC_SetVector(mBTimIrqN, reinterpret_cast<uintptr_t>(timerIsr<0>));
+            NVIC_SetPriority(mBTimIrqN, TIM7_INT_PRIO);
             RCC->APB1LENR |= RCC_APB1LENR_TIM7EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM7RST; // Set reset bit;
             RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_TIM7RST); // Clear reset bit;

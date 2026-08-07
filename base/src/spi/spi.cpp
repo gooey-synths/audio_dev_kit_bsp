@@ -1,6 +1,7 @@
 #include "spi.hpp"
 
 #include <util/util.h>
+#include <system/interrupts.h>
 
 namespace spi {
 
@@ -31,7 +32,8 @@ SpiBusBase::SpiBusBase(size_t instance_num)
         mSpiIrqN = SPI1_IRQn;
         RCC->APB2RSTR |= RCC_APB2RSTR_SPI1RST;
         RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI1RST);
-        set_vector_table_entry(static_cast<int>(mSpiIrqN) + 16, spi1Isr);
+        NVIC_SetVector(mSpiIrqN, reinterpret_cast<uintptr_t>(spi1Isr));
+        NVIC_SetPriority(mSpiIrqN, SPI1_INT_PRIO);
         mTxDma->setRequest(dma::SPI1_TX_REQ);
         mRxDma->setRequest(dma::SPI1_RX_REQ);
         break;
@@ -42,7 +44,8 @@ SpiBusBase::SpiBusBase(size_t instance_num)
         mSpiIrqN = SPI2_IRQn;
         RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI2RST;
         RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI2RST);
-        set_vector_table_entry(static_cast<int>(mSpiIrqN) + 16, spi2Isr);
+        NVIC_SetVector(mSpiIrqN, reinterpret_cast<uintptr_t>(spi2Isr));
+        NVIC_SetPriority(mSpiIrqN, SPI2_INT_PRIO);
         mTxDma->setRequest(dma::SPI2_TX_REQ);
         mRxDma->setRequest(dma::SPI2_RX_REQ);
         break;
@@ -53,7 +56,8 @@ SpiBusBase::SpiBusBase(size_t instance_num)
         mSpiIrqN = SPI3_IRQn;
         RCC->APB1LRSTR |= RCC_APB1LRSTR_SPI3RST;
         RCC->APB1LRSTR &= ~(RCC_APB1LRSTR_SPI3RST);
-        set_vector_table_entry(static_cast<int>(mSpiIrqN) + 16, spi3Isr);
+        NVIC_SetVector(mSpiIrqN, reinterpret_cast<uintptr_t>(spi3Isr));
+        NVIC_SetPriority(mSpiIrqN, SPI3_INT_PRIO);
         mTxDma->setRequest(dma::SPI3_TX_REQ);
         mRxDma->setRequest(dma::SPI3_RX_REQ);
         break;
@@ -64,7 +68,8 @@ SpiBusBase::SpiBusBase(size_t instance_num)
         mSpiIrqN = SPI4_IRQn;
         RCC->APB2RSTR |= RCC_APB2RSTR_SPI4RST;
         RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI4RST);
-        set_vector_table_entry(static_cast<int>(mSpiIrqN) + 16, spi4Isr);
+        NVIC_SetVector(mSpiIrqN, reinterpret_cast<uintptr_t>(spi4Isr));
+        NVIC_SetPriority(mSpiIrqN, SPI4_INT_PRIO);
         mTxDma->setRequest(dma::SPI4_TX_REQ);
         mRxDma->setRequest(dma::SPI4_RX_REQ);
         break;
@@ -75,7 +80,8 @@ SpiBusBase::SpiBusBase(size_t instance_num)
         mSpiIrqN = SPI5_IRQn;
         RCC->APB2RSTR |= RCC_APB2RSTR_SPI5RST;
         RCC->APB2RSTR &= ~(RCC_APB2RSTR_SPI5RST);
-        set_vector_table_entry(static_cast<int>(mSpiIrqN) + 16, spi5Isr);
+        NVIC_SetVector(mSpiIrqN, reinterpret_cast<uintptr_t>(spi5Isr));
+        NVIC_SetPriority(mSpiIrqN, SPI5_INT_PRIO);
         mTxDma->setRequest(dma::SPI5_TX_REQ);
         mRxDma->setRequest(dma::SPI5_RX_REQ);
         break;
@@ -86,7 +92,8 @@ SpiBusBase::SpiBusBase(size_t instance_num)
         mSpiIrqN = SPI6_IRQn;
         RCC->APB4RSTR |= RCC_APB4RSTR_SPI6RST;
         RCC->APB4RSTR &= ~(RCC_APB4RSTR_SPI6RST);
-        set_vector_table_entry(static_cast<int>(mSpiIrqN) + 16, spi6Isr);
+        NVIC_SetVector(mSpiIrqN, reinterpret_cast<uintptr_t>(spi6Isr));
+        NVIC_SetPriority(mSpiIrqN, SPI6_INT_PRIO);
         mTxDma->setRequest(dma::SPI6_TX_REQ);
         mRxDma->setRequest(dma::SPI6_RX_REQ);
         break;

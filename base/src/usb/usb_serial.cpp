@@ -1,4 +1,5 @@
 #include "usb_serial.hpp"
+#include <system/interrupts.h>
 
 namespace usb {
 
@@ -9,7 +10,8 @@ USBSerial::USBSerial() :
     mUsbInterfaces{USBCommunication(0), USBCommunication(1)},
     mTimer(USBSerial::scTimerNum)
 {
-    set_vector_table_entry(static_cast<int>(OTG_FS_IRQn+16), USBSerial::usbHandler);
+    NVIC_SetVector(OTG_FS_IRQn, reinterpret_cast<uintptr_t>(usbHandler));
+    NVIC_SetPriority(OTG_FS_IRQn, USB_OTG_INT_PRIO);
     tud_init(BOARD_TUD_RHPORT);
 
     mTimer.setFreq(USBSerial::scTusbFreq);
@@ -56,7 +58,5 @@ size_t USBSerial::USBCommunication::Available() {
 void USBSerial::USBCommunication::Flush() {
     tud_cdc_n_write_flush(mItfIdx);
 }
-
-
 
 } // namespace usb
