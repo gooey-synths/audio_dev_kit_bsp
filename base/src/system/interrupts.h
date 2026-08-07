@@ -15,6 +15,4 @@
 #define USB_OTG_INT_PRIO  7
 #define CM_MIN_PRIORITY   7 // Do not try to set a priority below this.
 
-
-
 #endif // SYSTEM_INTERRUPTS_H
