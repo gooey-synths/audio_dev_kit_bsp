@@ -56,14 +56,14 @@ public:
     /// @param name Name of the input to get the index of.
     /// @return The index of the input with the corresponding name.
     ///
-  	virtual size_t getInputIdx(std::string name) = 0;
+    virtual size_t getInputIdx(std::string name) = 0;
 
     ///
     /// Get the index of an output given the output name.
     /// @param name Name of the output to get the index of.
     /// @return The index of the output with the corresponding name.
     ///
-  	virtual size_t getOutputIdx(std::string name) = 0;
+    virtual size_t getOutputIdx(std::string name) = 0;
 
     ///
     /// Run function, performs a single cycle of module processing, reads inputs and sets outputs.
@@ -75,8 +75,9 @@ public:
     /// Initial configuration of module. Will be called once during module instantiation.
     /// @param params User parameters for the module. Keys are parameter names while values are parameter values.
     /// @note Casting to appropriate types should happen inside this function. May throw if parameter is not present or malformed.
+    /// @note params will go out of scope after this function returns, make copies as necessary.
     ///
-    virtual void configure(std::unordered_map<std::string, std::string> params) = 0;
+    virtual void configure(std::unordered_map<std::string, std::string>& params) = 0;
 };
 
 ///

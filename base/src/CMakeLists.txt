@@ -11,6 +11,8 @@ FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 # c and c++ files for both host and ARM build
 set(CROSS_PLATFORM_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_runner.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_loader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/module_loader.cpp
 )
 
 # SOURCES for ARM build only
@@ -76,7 +78,7 @@ if (BUILD_ARM)
 	# Create binary file
 	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
 	add_custom_command(TARGET ${PROJECT_NAME}.bin COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
-    
+
 else()
 	add_subdirectory(third_party/googletest)
 
