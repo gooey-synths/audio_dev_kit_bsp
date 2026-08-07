@@ -42,7 +42,7 @@ mIntFunc(NULL)
         case BASIC_TIMER_7:
             mTimerHw = TIM7;
             mBTimIrqN = TIM7_IRQn;
-            NVIC_SetVector(mBTimIrqN, reinterpret_cast<uintptr_t>(timerIsr<0>));
+            NVIC_SetVector(mBTimIrqN, reinterpret_cast<uintptr_t>(timerIsr<1>));
             NVIC_SetPriority(mBTimIrqN, TIM7_INT_PRIO);
             RCC->APB1LENR |= RCC_APB1LENR_TIM7EN; // Enable clock to hw
             RCC->APB1LRSTR |= RCC_APB1LRSTR_TIM7RST; // Set reset bit;
