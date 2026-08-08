@@ -87,7 +87,13 @@ void GraphLoader::validateGraph(Graph* graph) {
 
     // TODO: Check The inputs of every module is pointed to by 0 or 1 connection.
 }
-
+///
+/// Load a new graph from input
+/// @param buf
+/// @param len
+/// @return 
+///
+// TODO: Split this up
 Graph* GraphLoader::load(char* buf, size_t len) {
     ArduinoJson::JsonDocument doc;
     ArduinoJson::DeserializationError err = deserializeJson(doc, buf, len);
@@ -109,7 +115,7 @@ Graph* GraphLoader::load(char* buf, size_t len) {
         throw "Invalid connections key";
     }
 
-    // prepare graph for loading.
+    // Prepare graph for loading.
     clearGraph(mLoadingGraph);
 
     // Parse Modules
@@ -145,6 +151,9 @@ Graph* GraphLoader::load(char* buf, size_t len) {
         }
 
         module_basics::ModuleInterface* newModule = mModuleLoader.loadModule(moduleId);
+        if(!newModule) {
+            throw "Module lookup failed";
+        }
         mLoadingGraph->mods.push_back(newModule);
         newModule->configure(moduleArgs);
     }
@@ -177,7 +186,7 @@ Graph* GraphLoader::load(char* buf, size_t len) {
         size_t outputModIdx = connection[scConnectionsOutputModJsonKey];
 
         if(inputModIdx >= mLoadingGraph->mods.size()) {
-        throw scInvalidConnectionInputMod;
+            throw scInvalidConnectionInputMod;
         }
 
         if(outputModIdx >= mLoadingGraph->mods.size()) {
