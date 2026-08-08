@@ -1,5 +1,6 @@
 #include "../system/stm32h750xx.h"
 #include "../system/board_defs.h"
+#include <system/core_cm7.h>
 #include <stdint.h>
 
 // prototypes
@@ -406,6 +407,15 @@ void enable_otg_2(){
     PWR->CR3 |= PWR_CR3_USB33DEN;
 }
 
+void enable_cache() {
+    /* Invalidate and Enable Instruction and Data Caches */
+    SCB_InvalidateICache();
+    SCB_EnableICache();
+
+    SCB_InvalidateDCache();
+    SCB_EnableDCache();
+}
+
 ///
 /// Reset handler and initial entry point. 
 ///
@@ -440,6 +450,8 @@ __attribute__ ((noreturn)) void reset_handler(){
 
     enable_otg_2();
 
+    enable_cache();
+
     main();
 
     halt(); // Should never get here! 
@@ -449,6 +461,7 @@ __attribute__ ((noreturn)) void reset_handler(){
 /// Halt the system due to error.
 ///
 __attribute__ ((noreturn)) void halt(){
+    volatile uint32_t vectactive = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) >> SCB_ICSR_VECTACTIVE_Pos;
     while(1){;}
 }
 
