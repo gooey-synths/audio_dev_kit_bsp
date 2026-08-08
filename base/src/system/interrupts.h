@@ -4,8 +4,8 @@
 // File for defining system wide interrupt priorities
 
 #define CM_MAX_PRIORITY   0 // Do not try to set a priority above this.
-#define SPI2_INT_PRIO     0
-#define TIM7_INT_PRIO     1
+#define TIM7_INT_PRIO     0
+#define SPI2_INT_PRIO     1
 #define SPI1_INT_PRIO     3
 #define SPI3_INT_PRIO     3
 #define SPI4_INT_PRIO     3

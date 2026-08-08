@@ -201,7 +201,7 @@ public:
     ///
     virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) = 0;
 
-    /// 
+    ///
     /// Get a reference to an digital output on the board.
     /// @param speed Speed of the digital output to get a reference to.
     /// @param idx Index of the digital output to get.

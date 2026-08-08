@@ -222,7 +222,6 @@ void HwCsSpiBus::transact() {
     if(mIsActive) {
         throw scIsActive;
     }
-
     mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
 
     mSpiHw->IER |= SPI_IER_TXPIE | SPI_IER_RXPIE; // TX and RX interrupt
