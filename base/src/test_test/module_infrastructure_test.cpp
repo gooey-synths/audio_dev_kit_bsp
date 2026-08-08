@@ -1,14 +1,26 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "modules/module_basics.hpp"
-#include "modules/graph_runner.hpp"
+#include <modules/module_basics.hpp>
+#include <modules/graph_runner.hpp>
+#include <modules/graph_loader.hpp>
 
+static constexpr size_t scMockPortIdx = 0;
 // Test double deriving from the actual base class template
 template<size_t I, size_t O>
 class MockModule : public module_basics::ModuleBase<I, O> {
 public:
-    MOCK_METHOD(size_t, getInputIdx, (std::string name), (override));
-    MOCK_METHOD(size_t, getOutputIdx, (std::string name), (override));
+    size_t getInputIdx(std::string name) override {
+        if(name == "mock") {
+            return scMockPortIdx;
+        }
+        return -1;
+    }
+    size_t getOutputIdx(std::string name) override {
+        if(name == "mock") {
+            return scMockPortIdx;
+        }
+        return -1;
+    }
 
     MOCK_METHOD(void, run, (), (noexcept, override));
 
@@ -187,4 +199,69 @@ TEST_F(GraphRunnerFunctionalityTestFixture, VerifiesGraphRunnerCallsModuleRun) {
     board.mTimer.tick();
  
     // 3. gmock will automatically fail the test here if run() wasn't called exactly once!
+}
+
+class MockModuleLoader: public graph_infrastructure::ModuleLoaderInterface {
+public:
+    static constexpr module_basics::ModuleIdType scMockModuleId = 0;
+    static constexpr size_t scMockModuleNumInputs = 1;
+    static constexpr size_t scMockModuleNumOutputs = 1;
+
+    virtual module_basics::ModuleInterface* loadModule(module_basics::ModuleIdType modId) override {
+        if(modId == scMockModuleId) {
+            return new MockModule<scMockModuleNumInputs, scMockModuleNumOutputs>();
+        }
+        return NULL;
+    }
+};
+
+TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
+    const char* validGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 0,\
+                    \"input_port_name\": \"mock\",\
+                    \"output_mod\": 1,\
+                    \"output_port_name\": \"mock\"\
+                }\
+            ]\
+        }\
+    ";
+    std::cout << validGraphJson << std::endl;
+
+    MockModuleLoader moduleLoader;
+
+    graph_infrastructure::GraphLoader graphLoader(moduleLoader);
+    graph_infrastructure::Graph* g = graphLoader.load(const_cast<char*>(validGraphJson), sizeof(validGraphJson));
+
+    // Make sure that graph is not NULL
+    EXPECT_NE(g, nullptr);
+
+    // Make sure that 2 modules were added to the graph
+    EXPECT_EQ(g->mods.size(), 2);
+
+    // Make sure that all modules are not NULL
+    for(module_basics::ModuleInterface* mod : g->mods) {
+        EXPECT_NE(mod, nullptr);
+    }
+
+    // Make sure there is one connection
+    EXPECT_EQ(g->cons.size(), 1);
+
+    // Make sure that both input and output of that connection point to the mock port
+    EXPECT_EQ(g->cons[0].inPortIdx, scMockPortIdx);
+    EXPECT_EQ(g->cons[0].outPortIdx, scMockPortIdx);
+
+    //TODO: Check input and output module indices and add sad path tests :(
 }

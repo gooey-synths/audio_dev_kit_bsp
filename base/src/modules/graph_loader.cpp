@@ -96,12 +96,12 @@ void GraphLoader::validateGraph(Graph* graph) {
 ///
 Graph* GraphLoader::load(char* buf, size_t len) {
     ArduinoJson::JsonDocument doc;
-    ArduinoJson::DeserializationError err = deserializeJson(doc, buf, len);
+    ArduinoJson::DeserializationError err = deserializeJson(doc, buf);
 
     ArduinoJson::JsonObject obj = doc.as<ArduinoJson::JsonObject>();
 
     if(err) {
-        throw "JSON parsing error";
+        throw err.c_str();
     }
 
     // Prepare graph for loading.
@@ -175,7 +175,7 @@ void GraphLoader::parseModules(ArduinoJson::JsonObject& obj) {
 /// @note All modules should be loaded into the graph before calling this.
 ///
 void GraphLoader::parseConnections(ArduinoJson::JsonObject& obj) {
-    ArduinoJson::JsonArray connections = obj[scModulesJsonKey];
+    ArduinoJson::JsonArray connections = obj[scConnectionsJsonKey];
     if(connections.isNull()) {
         throw "Invalid connections key";
     }
