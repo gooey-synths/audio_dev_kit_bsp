@@ -1,14 +1,14 @@
+#include <gpio/gpio.hpp>
+
+extern "C" {
+#include <system/board_defs.h>
+#include "tusb.h"
+#include "device/usbd.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "../gpio/gpio.hpp"
-
-extern "C" {
-#include "../system/board_defs.h"
-#include "../util/util.h"
-#include "tusb.h"
-#include "device/usbd.h"
+#include <system/interrupts.h>
 }
 
 ///
@@ -95,7 +95,8 @@ static void cdc_task(void)
 void test_tinyusb_serial() {
     setupPins();
 
-    set_vector_table_entry(static_cast<int>(OTG_FS_IRQn+16), usb_handler);
+    NVIC_SetVector(OTG_FS_IRQn, reinterpret_cast<uintptr_t>(usb_handler));
+    NVIC_SetPriority(OTG_FS_IRQn, USB_OTG_INT_PRIO);
     // init device stack on configured roothub port
     volatile bool debug = CFG_TUSB_MCU;
     tud_init(BOARD_TUD_RHPORT);
