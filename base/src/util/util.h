@@ -1,8 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 #ifndef UTIL_H
 #define UTIL_H
 
@@ -14,12 +9,14 @@ extern "C" {
 
 typedef void (*InterruptFunctionPtr)();
 
+#ifdef MCU_TARGET // Only use RAM functions when building for the MCU
+#define __RAMFUNC __attribute__((section(".ramfunc")))
+#else
+#define __RAMFUNC
+#endif
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif // UTIL_H
-
-#ifdef __cplusplus
-}
-#endif

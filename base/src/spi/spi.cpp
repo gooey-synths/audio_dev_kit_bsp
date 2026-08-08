@@ -218,9 +218,8 @@ void HwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, s
 ///
 /// Inherit documentation.
 ///
-void HwCsSpiBus::transact() {
+__RAMFUNC void HwCsSpiBus::transact() {
     if(mIsActive) {
-        throw scIsActive;
     }
     mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI
 
@@ -281,7 +280,7 @@ void SwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, s
 ///
 void SwCsSpiBus::transact() {
     if(mIsActive) {
-        throw scIsActive;
+        ;
     }
 
     mSpiHw->CR1 &= ~(SPI_CR1_SPE); // Disable SPI

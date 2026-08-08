@@ -4,6 +4,7 @@
 #include "../dma/dma.hpp"
 #include "../system/stm32h750xx.h"
 #include "adc_interface.hpp"
+#include <util/util.h>
 #include <cassert>
 
 namespace adc {
@@ -45,7 +46,7 @@ class OnChipADC : public IOnChipADC {
     /// @note To correlate the conversion number to the channel, remember your
     /// set sequence
     ///
-    uint16_t getConversion(uint8_t convIdx) {
+    __RAMFUNC uint16_t getConversion(uint8_t convIdx) {
         if (convIdx >= NUM_CONVERSIONS) {
             return 0;
         }

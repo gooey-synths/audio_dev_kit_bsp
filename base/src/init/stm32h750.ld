@@ -160,14 +160,25 @@ SECTIONS
     *(.data*)          /* .data* sections */
 
     . = ALIGN(4);
-    _edata = .;        /* define a global symbol at data end */
+    *(.ramfunc)           /* .ramfunc sections */
+    *(.ramfunc*)          /* .ramfunc* sections */
     
+    . = ALIGN(4);
+    _edata = .;        /* define a global symbol at data end */
   } >RAM AT> ROM
 
-  /* Uninitialized data section into "RAM" Ram type memory */
-  . = ALIGN(4);
-  .bss :
-  {
+ /*   .ramfunc : 
+   {
+        . = ALIGN(4);
+        *(.ramfunc)           /* .ramfunc sections */
+/*        *(.ramfunc*)          /* .ramfunc* sections */
+
+/*    } >RAM AT> ROM */
+
+    /* Uninitialized data section into "RAM" Ram type memory */
+    . = ALIGN(4);
+    .bss :
+    {
     /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;

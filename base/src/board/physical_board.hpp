@@ -151,7 +151,7 @@ public:
     ///
     virtual BoardConfig GetBoardConfig() { return scProtoBoardV1Cfg; }
 
-    virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) {
+    __RAMFUNC virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -168,7 +168,7 @@ public:
         }
     }
 
-    virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) {
+    __RAMFUNC virtual AnalogOutput& GetAnalogOutput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -185,7 +185,7 @@ public:
         }
     }
 
-    virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) {
+    __RAMFUNC virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -202,7 +202,7 @@ public:
         }
     }
 
-    virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) {
+    __RAMFUNC virtual DigitalOutput& GetDigitalOutput(IOSpeed speed, size_t idx) {
         switch (speed) {
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
@@ -232,7 +232,7 @@ public:
 
     virtual void UpdateSlowIO() { ; /* Do nothing for now */ }
 
-    virtual void UpdateFastIO() {
+    __RAMFUNC virtual void UpdateFastIO() {
         mDac.updateStream();
     }
 

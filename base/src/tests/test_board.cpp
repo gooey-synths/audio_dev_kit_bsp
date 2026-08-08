@@ -2,13 +2,22 @@
 
 using namespace board;
 
+/*__RAMFUNC*/ void ramfunc() {
+    for (volatile int i = 0; i < 0xFFFF; i++) {
+        ;
+    }
+}
+
 ///
 /// Echo test for board
 /// @note To check for success feed an analog signal into one of the analog inputs
 /// and see it echoed back on the corresponding analog output.
 /// Both USB serial instances should also be echoing.
 ///
-void test_board_echo(){
+void test_board_echo() {
+
+    ramfunc();
+
     static ProtoBoardV1 board;
 
     char str[] = "Testing ProtoBoard V1\r\n";
@@ -22,7 +31,7 @@ void test_board_echo(){
     gpio::GPIOController::getInstance()->setConfig(&led_pin, &led_pin_conf);
     static gpio::Pin ledPin = gpio::GPIOController::getInstance()->getPin(&led_pin);
 
-    CallbackFunc fastCallback = [] () {
+    CallbackFunc fastCallback = [] () __RAMFUNC {
         ledPin = true;
         for(size_t i = 0; i < board.GetBoardConfig().fastIO.numAnalogInputs; i++) {
             AnalogOutput& a_out = board.GetAnalogOutput(IOSpeed::FAST, i);

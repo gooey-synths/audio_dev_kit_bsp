@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include "dma.hpp"
+#include <util/util.h>
 #include "../system/stm32h750xx.h"
 #include "../system/core_cm7.h"
 
@@ -236,7 +237,7 @@ void DmaController::DmaChannel::setNumTransfers(uint16_t numTransfers, uint8_t c
 ///
 /// Begin the transfer
 ///
-uint8_t DmaController::DmaChannel::begin(){	
+__RAMFUNC uint8_t DmaController::DmaChannel::begin(){	
 	mChannelController->clearInterrupt(0x3f, mChannelNum);
 
 	mStreamHw->CR |= 1 << 0;

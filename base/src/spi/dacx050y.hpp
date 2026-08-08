@@ -2,6 +2,7 @@
 #define DACx050y_HPP
 
 #include "spibus_interface.hpp"
+#include "util/util.h"
 
 namespace spi {
 
@@ -60,7 +61,7 @@ struct DACx050yTransaction {
 
     uint16_t getData() { return mData; }
 
-    void setData(uint16_t data) {
+    __RAMFUNC void setData(uint16_t data) {
         mData = data;
     }
 };
@@ -180,7 +181,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     /// @param dacIdx Dac index to set value of.
     /// @param val Value to set the DAC to.
     ///
-    virtual void setStreamVal(uint8_t dacIdx, uint16_t val) {
+    __RAMFUNC virtual void setStreamVal(uint8_t dacIdx, uint16_t val) {
         //if (dacIdx > tY) {
         //    throw scInvalidIdx;
         //}
@@ -191,7 +192,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     /// Update DAC values.
     /// @note This does NOT block until transaction is complete.
     ///
-    virtual void updateStream() { mSpiBus.transact(); }
+    __RAMFUNC virtual void updateStream() { mSpiBus.transact(); }
 
   private:
     ///

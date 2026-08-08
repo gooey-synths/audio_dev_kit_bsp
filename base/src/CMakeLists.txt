@@ -72,9 +72,11 @@ if (BUILD_ARM)
 		${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
+    # Add compile macro for MCU specific code
 
 	# Create elf file and link it
     add_executable(${PROJECT_NAME}.elf ${ARM_SOURCES})
+    target_compile_definitions(${PROJECT_NAME}.elf PUBLIC MCU_TARGET)
 	target_link_libraries(${PROJECT_NAME}.elf)
 
 	# Create binary file
