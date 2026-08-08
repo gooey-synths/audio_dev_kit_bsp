@@ -12,7 +12,7 @@ public:
 
     MOCK_METHOD(void, run, (), (noexcept, override));
 
-    MOCK_METHOD(void, configure, ((std::unordered_map<std::string, std::string>)), (override));
+    MOCK_METHOD(void, configure, ((std::unordered_map<std::string, std::string>&)), (override));
 
     // Expose protected fields from ModuleBase for verification
     uint16_t inspectInputArray(size_t idx) const { return this->mInputs[idx]; }

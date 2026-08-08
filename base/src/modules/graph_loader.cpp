@@ -50,6 +50,7 @@ void GraphLoader::clearGraph(Graph* graph) {
 
 ///
 /// Validate the graph that has been loaded.
+/// @param graph The graph to validate.
 ///
 void GraphLoader::validateGraph(Graph* graph) {
 
@@ -171,7 +172,7 @@ void GraphLoader::parseModules(ArduinoJson::JsonObject& obj) {
 ///
 /// Parse connections and load into graph.
 /// @param obj JSON object to parse connections from.
-/// @note @ref All modules should be loaded into the graph before calling this.
+/// @note All modules should be loaded into the graph before calling this.
 ///
 void GraphLoader::parseConnections(ArduinoJson::JsonObject& obj) {
     ArduinoJson::JsonArray connections = obj[scModulesJsonKey];
