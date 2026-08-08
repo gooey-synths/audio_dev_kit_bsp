@@ -8,12 +8,13 @@ namespace graph_infrastructure {
 
 ///
 /// Structure for defining a connection between modules.
+/// Data flows from module output -> module input.
 ///
 struct Connection {
-    size_t inModIdx;   ///< Module index of connection input
-    size_t inPortIdx;  ///< Port index of connection input
-    size_t outModIdx;  ///< Module index of connection output
-    size_t outPortIdx; ///< Port index of connection ouptut
+    size_t inModIdx;   ///< Module to input into
+    size_t inPortIdx;  ///< Port to to input into
+    size_t outModIdx;  ///< Module to get the output from
+    size_t outPortIdx; ///< Port to get the output from
 };
 
 ///

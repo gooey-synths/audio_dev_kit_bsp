@@ -4,20 +4,21 @@
 #include <modules/graph_runner.hpp>
 #include <modules/graph_loader.hpp>
 
-static constexpr size_t scMockPortIdx = 0;
+static constexpr size_t scMockPortInputIdx = 0;
+static constexpr size_t scMockPortOutputIdx = 1;
 // Test double deriving from the actual base class template
 template<size_t I, size_t O>
 class MockModule : public module_basics::ModuleBase<I, O> {
 public:
     size_t getInputIdx(std::string name) override {
         if(name == "mock") {
-            return scMockPortIdx;
+            return scMockPortInputIdx;
         }
         return -1;
     }
     size_t getOutputIdx(std::string name) override {
         if(name == "mock") {
-            return scMockPortIdx;
+            return scMockPortOutputIdx;
         }
         return -1;
     }
@@ -243,7 +244,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
     MockModuleLoader moduleLoader;
 
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
-    graph_infrastructure::Graph* g = graphLoader.load(const_cast<char*>(validGraphJson), sizeof(validGraphJson));
+    graph_infrastructure::Graph* g = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
 
     // Make sure that graph is not NULL
     EXPECT_NE(g, nullptr);
@@ -260,8 +261,22 @@ TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
     EXPECT_EQ(g->cons.size(), 1);
 
     // Make sure that both input and output of that connection point to the mock port
-    EXPECT_EQ(g->cons[0].inPortIdx, scMockPortIdx);
-    EXPECT_EQ(g->cons[0].outPortIdx, scMockPortIdx);
+    EXPECT_EQ(g->cons[0].inPortIdx, scMockPortInputIdx);
+    EXPECT_EQ(g->cons[0].outPortIdx, scMockPortOutputIdx);
 
-    //TODO: Check input and output module indices and add sad path tests :(
+    EXPECT_EQ(g->cons[0].inModIdx, 0);
+    EXPECT_EQ(g->cons[0].outModIdx, 1);
+}
+
+TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
+    //TODO: Add following tests
+    // Test invalid module id
+
+    // Test invalid input module
+
+    // Test invalid output module
+
+    // Test invalid input port
+
+    // Test invalid output port
 }

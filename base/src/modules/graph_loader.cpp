@@ -96,7 +96,7 @@ void GraphLoader::validateGraph(Graph* graph) {
 ///
 Graph* GraphLoader::load(char* buf, size_t len) {
     ArduinoJson::JsonDocument doc;
-    ArduinoJson::DeserializationError err = deserializeJson(doc, buf);
+    ArduinoJson::DeserializationError err = deserializeJson(doc, buf, len);
 
     ArduinoJson::JsonObject obj = doc.as<ArduinoJson::JsonObject>();
 
