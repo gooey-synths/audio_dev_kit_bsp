@@ -2,6 +2,7 @@
 
 #include "graph.hpp"
 #include "module_loader_interface.hpp"
+#include <ArduinoJson.hpp>
 
 namespace graph_infrastructure {
 
@@ -18,6 +19,9 @@ public:
 private:
     static void validateGraph(Graph* graph);
     static void clearGraph(Graph* graph);
+
+    void parseModules(ArduinoJson::JsonObject& obj);
+    void parseConnections(ArduinoJson::JsonObject& obj);
 
     // Graph double buffer so that if new graph fails to load, current graph does not get deleted.
     Graph mGraphA; ///< First graph

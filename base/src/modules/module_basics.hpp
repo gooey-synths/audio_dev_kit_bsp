@@ -7,6 +7,8 @@
 
 namespace module_basics {
 
+typedef uint64_t ModuleIdType; ///< Type to use for module ID, used internally.
+
 ///
 /// Interface for interacting with a module.
 /// @note Modules should not inherit directly from this class. see @ref ModuleBase

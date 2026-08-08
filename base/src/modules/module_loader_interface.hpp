@@ -20,7 +20,7 @@ public:
     /// @param moduleId Id of the module to load.
     /// @return Module pointer or NULL if module could not be found.
     ///
-    virtual module_basics::ModuleInterface* loadModule(uint64_t moduleId) = 0;
+    virtual module_basics::ModuleInterface* loadModule(module_basics::ModuleIdType moduleId) = 0;
 };
 
 } // namespace graph_infrastructure

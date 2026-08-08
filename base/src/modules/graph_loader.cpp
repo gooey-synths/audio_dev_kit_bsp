@@ -1,9 +1,8 @@
 #include "graph_loader.hpp"
-#define ARDUINOJSON_ENABLE_STD_STRING 1
-#include <ArduinoJson.hpp>
 
 namespace graph_infrastructure {
 
+// JSON keys for graph parsing.
 static const char* scModulesJsonKey = "modules";
 static const char* scModuleIdJsonKey = "id";
 static const char* scModuleArgsJsonKey = "args";
@@ -13,6 +12,7 @@ static const char* scConnectionsOutputModJsonKey = "output_mod";
 static const char* scConnectionsInputPortNameJsonKey = "input_port_name";
 static const char* scConnectionsOutputPortNameJsonKey = "output_port_name";
 
+// Shared loading failure messages.
 static const char* scInvalidConnectionInputMod = "Invalid connection input module";
 static const char* scInvalidConnectionOutputMod = "Invalid connection output module";
 
@@ -84,16 +84,15 @@ void GraphLoader::validateGraph(Graph* graph) {
             throw "Invalid connection output port";
         }
     }
-
-    // TODO: Check The inputs of every module is pointed to by 0 or 1 connection.
 }
+
 ///
-/// Load a new graph from input
-/// @param buf
-/// @param len
-/// @return 
+/// Load a new graph from input.
+/// @param buf Buffer to parse for graph description.
+/// @param len Length of buffer.
+/// @return New graph ready to be run.
+/// @note The GraphLoader is responsible for the memory management of this graph.
 ///
-// TODO: Split this up
 Graph* GraphLoader::load(char* buf, size_t len) {
     ArduinoJson::JsonDocument doc;
     ArduinoJson::DeserializationError err = deserializeJson(doc, buf, len);
@@ -104,19 +103,29 @@ Graph* GraphLoader::load(char* buf, size_t len) {
         throw "JSON parsing error";
     }
 
-    // Check for high level keys
+    // Prepare graph for loading.
+    clearGraph(mLoadingGraph);
+
+    parseModules(obj);
+    parseConnections(obj);
+
+    // No errors occured during loading, swap loading and runnable graph and return.
+    Graph* temp = mRunnableGraph;
+    mRunnableGraph = mLoadingGraph;
+    mLoadingGraph = temp;
+
+    return mRunnableGraph;
+}
+
+///
+/// Parse modules and load into graph.
+/// @param obj JSON object to parse modules from.
+///
+void GraphLoader::parseModules(ArduinoJson::JsonObject& obj) {
     ArduinoJson::JsonArray modules = obj[scModulesJsonKey];
     if(modules.isNull()) {
         throw "Invalid modules key";
     }
-
-    ArduinoJson::JsonArray connections = obj[scModulesJsonKey];
-    if(connections.isNull()) {
-        throw "Invalid connections key";
-    }
-
-    // Prepare graph for loading.
-    clearGraph(mLoadingGraph);
 
     // Parse Modules
     for(ArduinoJson::JsonObject mod : modules) {
@@ -125,10 +134,10 @@ Graph* GraphLoader::load(char* buf, size_t len) {
         }
 
         // Parse module id.
-        if(!mod[scModuleIdJsonKey].is<uint64_t>()) {
+        if(!mod[scModuleIdJsonKey].is<module_basics::ModuleIdType>()) {
             throw "Invalid module ID type";
         }
-        uint64_t moduleId = mod[scModuleIdJsonKey];
+        module_basics::ModuleIdType moduleId = mod[scModuleIdJsonKey];
 
         // Parse module arguments
         ArduinoJson::JsonObject args = mod[scModuleArgsJsonKey];
@@ -156,6 +165,18 @@ Graph* GraphLoader::load(char* buf, size_t len) {
         }
         mLoadingGraph->mods.push_back(newModule);
         newModule->configure(moduleArgs);
+    }
+}
+
+///
+/// Parse connections and load into graph.
+/// @param obj JSON object to parse connections from.
+/// @note @ref All modules should be loaded into the graph before calling this.
+///
+void GraphLoader::parseConnections(ArduinoJson::JsonObject& obj) {
+    ArduinoJson::JsonArray connections = obj[scModulesJsonKey];
+    if(connections.isNull()) {
+        throw "Invalid connections key";
     }
 
     // Parse Connections
@@ -210,13 +231,6 @@ Graph* GraphLoader::load(char* buf, size_t len) {
 
         mLoadingGraph->cons.push_back(newConnection);
     }
-
-    // No errors occured during loading, swap loading and runnable graph and return.
-    Graph* temp = mRunnableGraph;
-    mRunnableGraph = mLoadingGraph;
-    mLoadingGraph = temp;
-
-    return mRunnableGraph;
 }
 
 } // namespace graph_infrastructure
