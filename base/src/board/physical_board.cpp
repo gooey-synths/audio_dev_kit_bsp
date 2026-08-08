@@ -54,8 +54,6 @@ ProtoBoardV1::ProtoBoardV1() :
     }
     {
 
-        NVIC_SetPriority(TIM7_IRQn, 4);
-
         // Setup Digital IOs
         gpio::GPIOController* gpioController = gpio::GPIOController::getInstance();
         gpioController->setConfig(&dio_0_pin, &dio_input_conf);
@@ -92,10 +90,10 @@ ProtoBoardV1::ProtoBoardV1() :
         gpioController->setConfig(&adc1_16_pin, &adc1_conf);
         gpioController->setConfig(&adc1_18_pin, &adc1_conf);
         gpioController->setConfig(&adc1_19_pin, &adc1_conf);
-    
+ 
         uint8_t seq_size = sizeof(scProtoBoardV1AdcSeq)/sizeof(*scProtoBoardV1AdcSeq);
         mAdc.setSequence(const_cast<uint8_t*>(scProtoBoardV1AdcSeq), seq_size);
         mAdc.beginConversion(true);
     }
 
-}
+} // namespace board

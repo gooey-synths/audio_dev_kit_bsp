@@ -156,7 +156,7 @@ public:
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
             throw scInvalidIOMsg;
-        
+
         case IOSpeed::FAST:
             if(idx >= scProtoBoardV1Cfg.fastIO.numAnalogInputs) {
                 throw scInvalidIOMsg;
@@ -173,7 +173,7 @@ public:
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
             throw scInvalidIOMsg;
-        
+ 
         case IOSpeed::FAST:
             if(idx >= scProtoBoardV1Cfg.fastIO.numAnalogOutputs) {
                 throw scInvalidIOMsg;
@@ -190,7 +190,7 @@ public:
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
             throw scInvalidIOMsg;
-        
+ 
         case IOSpeed::FAST:
             if(idx >= scProtoBoardV1Cfg.fastIO.numDigitalInputs) {
                 throw scInvalidIOMsg;
@@ -207,7 +207,7 @@ public:
         case IOSpeed::SLOW:
             // No slow IO supported at this moment.
             throw scInvalidIOMsg;
-        
+ 
         case IOSpeed::FAST:
             if(idx >= scProtoBoardV1Cfg.fastIO.numDigitalOutputs) {
                 throw scInvalidIOMsg;
@@ -226,7 +226,7 @@ public:
         return mTimers[idx];
     }
 
-    virtual CommunicationInterface* GetComm(size_t idx) const {
+    virtual CommunicationInterface* GetComm(size_t idx) {
         return &usb::USBSerial::getInstance().getInterface(idx);
     }
 
@@ -251,5 +251,6 @@ private:
     PhysicalAnalogOutput mFastAnalogOutputs[scProtoBoardV1Cfg.fastIO.numAnalogOutputs]; ///< Fast analog outputs
 };
 
-}
-#endif
+} // namspace board
+
+#endif // #ifndef PHYSICAL_BOARD_HPP

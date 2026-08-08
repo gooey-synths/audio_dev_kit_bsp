@@ -16,7 +16,7 @@ void test_board_echo(){
     board.GetComm(0)->Flush();
 
     Timer& fastTimer = board.GetTimer(0);
-    
+ 
     static DigitalOutput& d_out = board.GetDigitalOutput(IOSpeed::FAST, 0);
     static DigitalInput& d_in = board.GetDigitalInput(IOSpeed::FAST, 0);
     gpio::GPIOController::getInstance()->setConfig(&led_pin, &led_pin_conf);
