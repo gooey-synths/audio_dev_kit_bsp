@@ -77,12 +77,12 @@ void GraphLoader::validateGraph(Graph* graph) {
         module_basics::ModuleInterface* inMod = graph->mods[con.inModIdx];
         module_basics::ModuleInterface* outMod = graph->mods[con.outModIdx];
 
-        if(!inMod->outputExists(con.inPortIdx)) {
-            throw "Invalid connection input port";
+        if(!outMod->outputExists(con.outPortIdx)) {
+            throw "Invalid connection output port";
         }
 
-        if(!outMod->inputExists(con.outPortIdx)) {
-            throw "Invalid connection output port";
+        if(!inMod->inputExists(con.inPortIdx)) {
+            throw "Invalid connection input port";
         }
     }
 }
@@ -109,6 +109,9 @@ Graph* GraphLoader::load(char* buf, size_t len) {
 
     parseModules(obj);
     parseConnections(obj);
+
+    // Validate loaded graph
+    validateGraph(mLoadingGraph);
 
     // No errors occured during loading, swap loading and runnable graph and return.
     Graph* temp = mRunnableGraph;

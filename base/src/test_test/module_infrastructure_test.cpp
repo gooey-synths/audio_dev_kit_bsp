@@ -5,7 +5,7 @@
 #include <modules/graph_loader.hpp>
 
 static constexpr size_t scMockPortInputIdx = 0;
-static constexpr size_t scMockPortOutputIdx = 1;
+static constexpr size_t scMockPortOutputIdx = 0;
 // Test double deriving from the actual base class template
 template<size_t I, size_t O>
 class MockModule : public module_basics::ModuleBase<I, O> {
@@ -14,13 +14,13 @@ public:
         if(name == "mock") {
             return scMockPortInputIdx;
         }
-        return -1;
+        return scMockPortInputIdx+1;
     }
     size_t getOutputIdx(std::string name) override {
         if(name == "mock") {
             return scMockPortOutputIdx;
         }
-        return -1;
+        return scMockPortOutputIdx+1;
     }
 
     MOCK_METHOD(void, run, (), (noexcept, override));
@@ -268,15 +268,167 @@ TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
     EXPECT_EQ(g->cons[0].outModIdx, 1);
 }
 
+// NOTE: This does not test all the ways that JSON can be malformed
+// That is too much work for what it is worth
 TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
-    //TODO: Add following tests
+    MockModuleLoader moduleLoader;
+    graph_infrastructure::GraphLoader graphLoader(moduleLoader);
+
     // Test invalid module id
+    const char* invalidModuleIdGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 6,\
+                    \"args\": {}\
+                }\
+           ]\
+        }\
+    ";
+    EXPECT_THROW({
+        try {
+            graphLoader.load(const_cast<char*>(invalidModuleIdGraphJson), strlen(invalidModuleIdGraphJson));
+        } catch(const char* e) {
+            // Ensure that it throws an error referencing the module
+            EXPECT_THAT(e, ::testing::HasSubstr("Module"));
+            throw;
+        }
+    }, const char*);
 
     // Test invalid input module
+    const char* invalidInputModuleGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 9,\
+                    \"input_port_name\": \"mock\",\
+                    \"output_mod\": 1,\
+                    \"output_port_name\": \"mock\"\
+                }\
+            ]\
+        }\
+    ";
+    EXPECT_THROW({
+        try {
+            graphLoader.load(const_cast<char*>(invalidInputModuleGraphJson), strlen(invalidInputModuleGraphJson));
+        } catch(const char* e) {
+            // Ensure that it throws an error referencing the input module
+            EXPECT_THAT(e, ::testing::HasSubstr("input module"));
+            throw;
+        }
+    }, const char*);
 
     // Test invalid output module
+    const char* invalidOutputModuleGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 0,\
+                    \"input_port_name\": \"mock\",\
+                    \"output_mod\": 9,\
+                    \"output_port_name\": \"mock\"\
+                }\
+            ]\
+        }\
+    ";
+    EXPECT_THROW({
+        try {
+            graphLoader.load(const_cast<char*>(invalidOutputModuleGraphJson), strlen(invalidOutputModuleGraphJson));
+        } catch(const char* e) {
+            // Ensure that it throws an error referencing the output module
+            EXPECT_THAT(e, ::testing::HasSubstr("output module"));
+            throw;
+        }
+    }, const char*);
 
     // Test invalid input port
+    const char* invalidInputPortGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 0,\
+                    \"input_port_name\": \"invalid\",\
+                    \"output_mod\": 1,\
+                    \"output_port_name\": \"mock\"\
+                }\
+            ]\
+        }\
+    ";
+    EXPECT_THROW({
+        try {
+            graphLoader.load(const_cast<char*>(invalidInputPortGraphJson), strlen(invalidInputPortGraphJson));
+        } catch(const char* e) {
+            // Ensure that it throws an error referencing the input port
+            EXPECT_THAT(e, ::testing::HasSubstr("input port"));
+            throw;
+        }
+    }, const char*);
 
     // Test invalid output port
+    const char* invalidOutputPortGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 0,\
+                    \"input_port_name\": \"mock\",\
+                    \"output_mod\": 1,\
+                    \"output_port_name\": \"invalid\"\
+                }\
+            ]\
+        }\
+    ";
+    EXPECT_THROW({
+        try {
+            graphLoader.load(const_cast<char*>(invalidOutputPortGraphJson), strlen(invalidOutputPortGraphJson));
+        } catch(const char* e) {
+            std::cout << e << std::endl;
+            // Ensure that it throws an error referencing the output port
+            EXPECT_THAT(e, ::testing::HasSubstr("output port"));
+            throw;
+        }
+    }, const char*);
+}
+
+TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
+    //TODO: Test double buffering system of graph loader
 }
