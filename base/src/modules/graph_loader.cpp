@@ -1,3 +1,8 @@
+///
+/// Implements graph JSON schema defined here:
+/// https://github.com/gooey-synths/gooey_specs/blob/0d1f2efd83380fb636a8aa1bcca25e371a73405f/Firmware-Interface.md
+///
+
 #include "graph_loader.hpp"
 
 namespace graph_infrastructure {
