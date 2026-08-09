@@ -239,8 +239,6 @@ TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
             ]\
         }\
     ";
-    std::cout << validGraphJson << std::endl;
-
     MockModuleLoader moduleLoader;
 
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
@@ -429,6 +427,97 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 }
 
+bool compareConnections(graph_infrastructure::Connection lhs, graph_infrastructure::Connection rhs) {
+    return lhs.inModIdx == rhs.inModIdx &&
+        lhs.inPortIdx == rhs.inPortIdx &&
+        lhs.outPortIdx == rhs.outPortIdx &&
+        lhs.outModIdx == rhs.outModIdx;
+}
+
 TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
-    //TODO: Test double buffering system of graph loader
+    MockModuleLoader moduleLoader;
+    graph_infrastructure::GraphLoader graphLoader(moduleLoader);
+
+    const char* validGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 0,\
+                    \"input_port_name\": \"mock\",\
+                    \"output_mod\": 1,\
+                    \"output_port_name\": \"mock\"\
+                }\
+            ]\
+        }\
+    ";
+
+    const char* invalidGraphJson = "\
+        {\
+            \"modules\": [\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                },\
+                {\
+                    \"id\": 0,\
+                    \"args\": {}\
+                }\
+            ],\
+            \"connections\": [\
+                {\
+                    \"input_mod\": 0,\
+                    \"input_port_name\": \"mock\",\
+                    \"output_mod\": 9,\
+                    \"output_port_name\": \"mock\"\
+                }\
+            ]\
+        }\
+    ";
+
+    // Test that the second graph loading gives us a new pointer
+    graph_infrastructure::Graph* ogGraph = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
+    graph_infrastructure::Graph* newGraph = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
+
+    EXPECT_NE(ogGraph, newGraph);
+
+    // Test that on a failed load the previously loaded graph is still the same.
+    graph_infrastructure::Graph newGraphCopy;
+    newGraphCopy.mods = newGraph->mods;
+    newGraphCopy.cons = newGraph->cons;
+
+    EXPECT_THROW({
+        graphLoader.load(const_cast<char*>(invalidGraphJson), strlen(invalidGraphJson));
+    }, const char*);
+
+    EXPECT_EQ(newGraph->mods, newGraphCopy.mods);
+    // Manually compare connections
+    EXPECT_EQ(newGraph->cons.size(), newGraphCopy.cons.size());
+    for(size_t i = 0; i < newGraph->cons.size(); i++) {
+        EXPECT_TRUE(compareConnections(newGraph->cons[i], newGraphCopy.cons[i]));
+    }
+
+    // Check that loading a third time works
+    const char* emptyGraphJson = "\
+        {\
+            \"modules\": [\
+           ],\
+            \"connections\": [\
+           ]\
+        }\
+    ";
+    graph_infrastructure::Graph* emptyGraph = graphLoader.load(const_cast<char*>(emptyGraphJson), strlen(emptyGraphJson));
+
+    EXPECT_EQ(emptyGraph->mods.size(), 0);
+    EXPECT_EQ(emptyGraph->cons.size(), 0);
+
 }

@@ -43,6 +43,7 @@ GraphLoader::~GraphLoader() {
 ///
 /// Clear a graph.
 /// @param graph The graph to clear.
+/// @note After clear pointer will still point to an empty graph.
 ///
 void GraphLoader::clearGraph(Graph* graph) {
     for(module_basics::ModuleInterface* mod : graph->mods) {
@@ -98,6 +99,8 @@ void GraphLoader::validateGraph(Graph* graph) {
 /// @param len Length of buffer.
 /// @return New graph ready to be run.
 /// @note The GraphLoader is responsible for the memory management of this graph.
+/// @note Every successful load will invalidate the previous pointer returned by load.
+/// @note In the event of a failed load, the previous graph will still be available and it's pointer still valid.
 ///
 Graph* GraphLoader::load(char* buf, size_t len) {
     ArduinoJson::JsonDocument doc;

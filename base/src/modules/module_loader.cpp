@@ -6,14 +6,14 @@ namespace graph_infrastructure {
 /// Modules that utilize board HW
 ///
 std::unordered_map<module_basics::ModuleIdType, std::function<module_basics::ModuleInterface*(board::BoardInterface&)>> ModuleLoader::sHardwareModules = {
-
+    // Add hardware modules as they become available.
 };
 
 ///
 /// Modules that are hard coded into the FW
 ///
 std::unordered_map<module_basics::ModuleIdType, std::function<module_basics::ModuleInterface*()>> ModuleLoader::sStaticModules = {
-
+    // Add static modules as they become available.
 };
 
 ///
