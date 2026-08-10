@@ -101,6 +101,9 @@ SpiBusBase::SpiBusBase(size_t instance_num)
 
     NVIC_DisableIRQ(mSpiIrqN);
 
+    __DSB();
+    __ISB();
+
     sInstances[mSpiNum - 1] = this;
 
     mSpiHw->CR1 &= ~SPI_CR1_SPE;                     // disable SPI

@@ -1,6 +1,6 @@
 #include "../system/stm32h750xx.h"
 #include "../system/board_defs.h"
-#include <system/core_cm7.h>
+#include <system/mpu_armv7.h>
 #include <stdint.h>
 
 // prototypes
@@ -416,6 +416,28 @@ void enable_cache() {
     SCB_EnableDCache();
 }
 
+/* Configure SRAM region as Write-Through using standard CMSIS functions */
+void MPU_Config_WriteThrough(void) {
+    // Disable MPU before configuration
+    ARM_MPU_Disable();
+
+    // Configure Region 1 (e.g., RAM starting at 0x24000000, size 512KB)
+    MPU->RBAR = ARM_MPU_RBAR(1, 0x24000000UL);
+    
+    MPU->RASR = ARM_MPU_RASR(
+        0,                      // DisableExec (0 = execution allowed)
+        ARM_MPU_AP_FULL,        // Access Permission (Full Read/Write)
+        0,                      // TEX: 0b000 (For Write-Through)
+        0,                      // Shareable (0 = Non-shareable)
+        1,                      // Cacheable: 1
+        0,                      // Bufferable: 0
+        0,                      // SubRegionDisable
+        ARM_MPU_REGION_SIZE_512KB // Region Size
+    );
+
+    // Enable MPU with default background memory map enabled
+    ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
+}
 ///
 /// Reset handler and initial entry point. 
 ///
@@ -450,6 +472,7 @@ __attribute__ ((noreturn)) void reset_handler(){
 
     enable_otg_2();
 
+    MPU_Config_WriteThrough();
     enable_cache();
 
     main();
