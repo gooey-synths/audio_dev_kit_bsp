@@ -217,7 +217,7 @@ public:
 };
 
 TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
-    const char* validGraphJson = R"(
+    char validGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -242,7 +242,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
    MockModuleLoader moduleLoader;
 
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
-    graph_infrastructure::Graph* g = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
+    graph_infrastructure::Graph* g = graphLoader.load(validGraphJson, strlen(validGraphJson));
 
     // Make sure that graph is not NULL
     EXPECT_NE(g, nullptr);
@@ -273,7 +273,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
 
     // Test invalid module id
-    const char* invalidModuleIdGraphJson = R"(
+    char invalidModuleIdGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -286,7 +286,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     )";
     EXPECT_THROW({
         try {
-            graphLoader.load(const_cast<char*>(invalidModuleIdGraphJson), strlen(invalidModuleIdGraphJson));
+            graphLoader.load(invalidModuleIdGraphJson, strlen(invalidModuleIdGraphJson));
         } catch(const char* e) {
             // Ensure that it throws an error referencing the module
             EXPECT_THAT(e, ::testing::HasSubstr("Module"));
@@ -295,7 +295,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid input module
-    const char* invalidInputModuleGraphJson = R"(
+    char invalidInputModuleGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -319,7 +319,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     )";
     EXPECT_THROW({
         try {
-            graphLoader.load(const_cast<char*>(invalidInputModuleGraphJson), strlen(invalidInputModuleGraphJson));
+            graphLoader.load(invalidInputModuleGraphJson, strlen(invalidInputModuleGraphJson));
         } catch(const char* e) {
             // Ensure that it throws an error referencing the input module
             EXPECT_THAT(e, ::testing::HasSubstr("input module"));
@@ -328,7 +328,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid output module
-    const char* invalidOutputModuleGraphJson = R"(
+    char invalidOutputModuleGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -352,7 +352,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     )";
     EXPECT_THROW({
         try {
-            graphLoader.load(const_cast<char*>(invalidOutputModuleGraphJson), strlen(invalidOutputModuleGraphJson));
+            graphLoader.load(invalidOutputModuleGraphJson, strlen(invalidOutputModuleGraphJson));
         } catch(const char* e) {
             // Ensure that it throws an error referencing the output module
             EXPECT_THAT(e, ::testing::HasSubstr("output module"));
@@ -361,7 +361,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid input port
-    const char* invalidInputPortGraphJson = R"(
+    char invalidInputPortGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -385,7 +385,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     )";
     EXPECT_THROW({
         try {
-            graphLoader.load(const_cast<char*>(invalidInputPortGraphJson), strlen(invalidInputPortGraphJson));
+            graphLoader.load(invalidInputPortGraphJson, strlen(invalidInputPortGraphJson));
         } catch(const char* e) {
             // Ensure that it throws an error referencing the input port
             EXPECT_THAT(e, ::testing::HasSubstr("input port"));
@@ -394,7 +394,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid output port
-    const char* invalidOutputPortGraphJson = R"(
+    char invalidOutputPortGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -418,7 +418,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     )";
     EXPECT_THROW({
         try {
-            graphLoader.load(const_cast<char*>(invalidOutputPortGraphJson), strlen(invalidOutputPortGraphJson));
+            graphLoader.load(invalidOutputPortGraphJson, strlen(invalidOutputPortGraphJson));
         } catch(const char* e) {
             std::cout << e << std::endl;
             // Ensure that it throws an error referencing the output port
@@ -432,7 +432,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     MockModuleLoader moduleLoader;
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
 
-    const char* validGraphJson = R"(
+    char validGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -455,7 +455,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
         }
     )";
 
-    const char* invalidGraphJson = R"(
+    char invalidGraphJson[] = R"(
         {
             "modules": [
                 {
@@ -479,8 +479,8 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     )";
 
     // Test that the second graph loading gives us a new pointer
-    graph_infrastructure::Graph* ogGraph = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
-    graph_infrastructure::Graph* newGraph = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
+    graph_infrastructure::Graph* ogGraph = graphLoader.load(validGraphJson, strlen(validGraphJson));
+    graph_infrastructure::Graph* newGraph = graphLoader.load(validGraphJson, strlen(validGraphJson));
 
     EXPECT_NE(ogGraph, newGraph);
 
@@ -490,20 +490,20 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     newGraphCopy.cons = newGraph->cons;
 
     EXPECT_THROW({
-        graphLoader.load(const_cast<char*>(invalidGraphJson), strlen(invalidGraphJson));
+        graphLoader.load(invalidGraphJson, strlen(invalidGraphJson));
     }, const char*);
 
     EXPECT_EQ(newGraph->mods, newGraphCopy.mods);
     EXPECT_EQ(newGraph->cons, newGraphCopy.cons);
 
     // Check that loading a third time works
-    const char* emptyGraphJson = R"(
+    char emptyGraphJson[] = R"(
         {
             "modules": [],
             "connections": []
         }
     )";
-    graph_infrastructure::Graph* emptyGraph = graphLoader.load(const_cast<char*>(emptyGraphJson), strlen(emptyGraphJson));
+    graph_infrastructure::Graph* emptyGraph = graphLoader.load(emptyGraphJson, strlen(emptyGraphJson));
 
     EXPECT_EQ(emptyGraph->mods.size(), 0);
     EXPECT_EQ(emptyGraph->cons.size(), 0);
