@@ -217,29 +217,29 @@ public:
 };
 
 TEST(GraphLoaderCoreTests, GraphLoaderHappyPath) {
-    const char* validGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 0,\
-                    \"input_port_name\": \"mock\",\
-                    \"output_mod\": 1,\
-                    \"output_port_name\": \"mock\"\
-                }\
-            ]\
-        }\
-    ";
-    MockModuleLoader moduleLoader;
+    const char* validGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 0,
+                    "input_port_name": "mock",
+                    "output_mod": 1,
+                    "output_port_name": "mock"
+                }
+            ]
+        }
+    )";
+   MockModuleLoader moduleLoader;
 
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
     graph_infrastructure::Graph* g = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
@@ -273,16 +273,17 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
 
     // Test invalid module id
-    const char* invalidModuleIdGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 6,\
-                    \"args\": {}\
-                }\
-           ]\
-        }\
-    ";
+    const char* invalidModuleIdGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 6,
+                    "args": {}
+                }
+            ],
+            connections: []
+        }
+    )";
     EXPECT_THROW({
         try {
             graphLoader.load(const_cast<char*>(invalidModuleIdGraphJson), strlen(invalidModuleIdGraphJson));
@@ -294,28 +295,28 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid input module
-    const char* invalidInputModuleGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 9,\
-                    \"input_port_name\": \"mock\",\
-                    \"output_mod\": 1,\
-                    \"output_port_name\": \"mock\"\
-                }\
-            ]\
-        }\
-    ";
+    const char* invalidInputModuleGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 9,
+                    "input_port_name": "mock",
+                    "output_mod": 1,
+                    "output_port_name": "mock"
+                }
+            ]
+        }
+    )";
     EXPECT_THROW({
         try {
             graphLoader.load(const_cast<char*>(invalidInputModuleGraphJson), strlen(invalidInputModuleGraphJson));
@@ -327,28 +328,28 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid output module
-    const char* invalidOutputModuleGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 0,\
-                    \"input_port_name\": \"mock\",\
-                    \"output_mod\": 9,\
-                    \"output_port_name\": \"mock\"\
-                }\
-            ]\
-        }\
-    ";
+    const char* invalidOutputModuleGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 0,
+                    "input_port_name": "mock",
+                    "output_mod": 9,
+                    "output_port_name": "mock"
+                }
+            ]
+        }
+    )";
     EXPECT_THROW({
         try {
             graphLoader.load(const_cast<char*>(invalidOutputModuleGraphJson), strlen(invalidOutputModuleGraphJson));
@@ -360,28 +361,28 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid input port
-    const char* invalidInputPortGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 0,\
-                    \"input_port_name\": \"invalid\",\
-                    \"output_mod\": 1,\
-                    \"output_port_name\": \"mock\"\
-                }\
-            ]\
-        }\
-    ";
+    const char* invalidInputPortGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 0,
+                    "input_port_name": "invalid",
+                    "output_mod": 1,
+                    "output_port_name": "mock"
+                }
+            ]
+        }
+    )";
     EXPECT_THROW({
         try {
             graphLoader.load(const_cast<char*>(invalidInputPortGraphJson), strlen(invalidInputPortGraphJson));
@@ -393,28 +394,28 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 
     // Test invalid output port
-    const char* invalidOutputPortGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 0,\
-                    \"input_port_name\": \"mock\",\
-                    \"output_mod\": 1,\
-                    \"output_port_name\": \"invalid\"\
-                }\
-            ]\
-        }\
-    ";
+    const char* invalidOutputPortGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 0,
+                    "input_port_name": "mock",
+                    "output_mod": 1,
+                    "output_port_name": "invalid"
+                }
+            ]
+        }
+    )";
     EXPECT_THROW({
         try {
             graphLoader.load(const_cast<char*>(invalidOutputPortGraphJson), strlen(invalidOutputPortGraphJson));
@@ -431,51 +432,51 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     MockModuleLoader moduleLoader;
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
 
-    const char* validGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 0,\
-                    \"input_port_name\": \"mock\",\
-                    \"output_mod\": 1,\
-                    \"output_port_name\": \"mock\"\
-                }\
-            ]\
-        }\
-    ";
+    const char* validGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 0,
+                    "input_port_name": "mock",
+                    "output_mod": 1,
+                    "output_port_name": "mock"
+                }
+            ]
+        }
+    )";
 
-    const char* invalidGraphJson = "\
-        {\
-            \"modules\": [\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                },\
-                {\
-                    \"id\": 0,\
-                    \"args\": {}\
-                }\
-            ],\
-            \"connections\": [\
-                {\
-                    \"input_mod\": 0,\
-                    \"input_port_name\": \"mock\",\
-                    \"output_mod\": 9,\
-                    \"output_port_name\": \"mock\"\
-                }\
-            ]\
-        }\
-    ";
+    const char* invalidGraphJson = R"(
+        {
+            "modules": [
+                {
+                    "id": 0,
+                    "args": {}
+                },
+                {
+                    "id": 0,
+                    "args": {}
+                }
+            ],
+            "connections": [
+                {
+                    "input_mod": 0,
+                    "input_port_name": "mock",
+                    "output_mod": 9,
+                    "output_port_name": "mock"
+                }
+            ]
+        }
+    )";
 
     // Test that the second graph loading gives us a new pointer
     graph_infrastructure::Graph* ogGraph = graphLoader.load(const_cast<char*>(validGraphJson), strlen(validGraphJson));
@@ -496,14 +497,12 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     EXPECT_EQ(newGraph->cons, newGraphCopy.cons);
 
     // Check that loading a third time works
-    const char* emptyGraphJson = "\
-        {\
-            \"modules\": [\
-           ],\
-            \"connections\": [\
-           ]\
-        }\
-    ";
+    const char* emptyGraphJson = R"(
+        {
+            "modules": [],
+            "connections": []
+        }
+    )";
     graph_infrastructure::Graph* emptyGraph = graphLoader.load(const_cast<char*>(emptyGraphJson), strlen(emptyGraphJson));
 
     EXPECT_EQ(emptyGraph->mods.size(), 0);
