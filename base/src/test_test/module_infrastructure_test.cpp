@@ -427,13 +427,6 @@ TEST(GraphLoaderCoreTests, GraphLoaderSadPaths) {
     }, const char*);
 }
 
-bool compareConnections(graph_infrastructure::Connection lhs, graph_infrastructure::Connection rhs) {
-    return lhs.inModIdx == rhs.inModIdx &&
-        lhs.inPortIdx == rhs.inPortIdx &&
-        lhs.outPortIdx == rhs.outPortIdx &&
-        lhs.outModIdx == rhs.outModIdx;
-}
-
 TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     MockModuleLoader moduleLoader;
     graph_infrastructure::GraphLoader graphLoader(moduleLoader);
@@ -500,11 +493,7 @@ TEST(GraphLoaderCoreTests, GraphLoaderDoubleBufferingTest) {
     }, const char*);
 
     EXPECT_EQ(newGraph->mods, newGraphCopy.mods);
-    // Manually compare connections
-    EXPECT_EQ(newGraph->cons.size(), newGraphCopy.cons.size());
-    for(size_t i = 0; i < newGraph->cons.size(); i++) {
-        EXPECT_TRUE(compareConnections(newGraph->cons[i], newGraphCopy.cons[i]));
-    }
+    EXPECT_EQ(newGraph->cons, newGraphCopy.cons);
 
     // Check that loading a third time works
     const char* emptyGraphJson = "\

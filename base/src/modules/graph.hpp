@@ -11,10 +11,22 @@ namespace graph_infrastructure {
 /// Data flows from module output -> module input.
 ///
 struct Connection {
-    size_t inModIdx;   ///< Module to input into
-    size_t inPortIdx;  ///< Port to to input into
-    size_t outModIdx;  ///< Module to get the output from
-    size_t outPortIdx; ///< Port to get the output from
+    size_t inModIdx;   ///< Module to input data into.
+    size_t inPortIdx;  ///< Port to input data into.
+    size_t outModIdx;  ///< Module to get data from.
+    size_t outPortIdx; ///< Port to get data from.
+
+    ///
+    /// Equality operator.
+    /// @param rhs Connection to compare.
+    /// @return True if the Connection is the same.
+    ///
+    bool operator==(const Connection& rhs) const {
+        return inModIdx == rhs.inModIdx &&
+            inPortIdx == rhs.inPortIdx &&
+            outModIdx == rhs.outModIdx &&
+            outPortIdx == rhs.outPortIdx;
+    }
 };
 
 ///
