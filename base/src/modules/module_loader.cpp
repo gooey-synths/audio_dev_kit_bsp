@@ -47,8 +47,9 @@ module_basics::ModuleInterface* ModuleLoader::loadModule(module_basics::ModuleId
 /// @return Pointer to new module on the heap, NULL if not found.
 ///
 module_basics::ModuleInterface* ModuleLoader::loadHardwareModule(module_basics::ModuleIdType modId) {
-    if(sHardwareModules.count(modId) > 0) {
-        return sHardwareModules[modId](mBoard);
+    auto it = sHardwareModules.find(modId);
+    if (it != sHardwareModules.end()) {
+        return it->second(mBoard);
     }
     return NULL;
 }
@@ -59,8 +60,9 @@ module_basics::ModuleInterface* ModuleLoader::loadHardwareModule(module_basics::
 /// @return Pointer to new module on the heap, NULL if not found.
 ///
 module_basics::ModuleInterface* ModuleLoader::loadStaticModule(module_basics::ModuleIdType modId) {
-    if(sStaticModules.count(modId) > 0) {
-        return sStaticModules[modId]();
+    auto it = sStaticModules.find(modId);
+    if (it != sStaticModules.end()) {
+        return it->second();
     }
     return NULL;
 }
