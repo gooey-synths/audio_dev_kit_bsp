@@ -25,7 +25,7 @@ set(CMAKE_RANLIB       ${TARGET_TRIPLET}gcc-ranlib${TOOLCHAIN_EXT})
 
 # Flags for your compilers
 set(CMAKE_C_FLAGS                   "-mfpu=fpv5-d16 -mfloat-abi=hard -Wno-psabi --specs=nosys.specs -fdata-sections -ffunction-sections -Wl,--gc-sections" CACHE INTERNAL "")
-set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS} -fpermissive -fno-use-cxa-atexit -fexceptions -fno-threadsafe-statics" CACHE INTERNAL "")
+set(CMAKE_CXX_FLAGS                 "${CMAKE_C_FLAGS} -fno-use-cxa-atexit -fexceptions -fno-threadsafe-statics" CACHE INTERNAL "")
 
 set(CMAKE_C_FLAGS_DEBUG             "-mcpu=cortex-m7 -mthumb -O3 -g3" CACHE INTERNAL "")
 set(CMAKE_C_FLAGS_RELEASE           "-mcpu=cortex-m7 -mthumb -Os -DNDEBUG" CACHE INTERNAL "")
