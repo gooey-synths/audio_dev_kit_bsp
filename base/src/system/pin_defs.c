@@ -1,19 +1,11 @@
-#include "../gpio/gpio_defs.h"
+#include <gpio/gpio_defs.h>
 
 // LED pins
 
-#if 0
 const GPIOPin led_pin = {
     .port = 1, // Port B
     .pin = 1  // Pin 1
 };
-#endif
-
-const GPIOPin led_pin = {
-    .port = 3, // Port D
-    .pin = 9  // Pin 9
-};
-
 
 const GPIOConf led_pin_conf = {
     .type = PUSH_PULL_TYPE,
