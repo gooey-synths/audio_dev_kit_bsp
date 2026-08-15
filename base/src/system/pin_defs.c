@@ -153,7 +153,7 @@ const GPIOConf spi3_copi_conf = {
 
 const GPIOPin spi3_cs0_pin = {
     .port = 2,
-    .pin = 6
+    .pin = 8
 };
 
 const GPIOConf spi3_cs0_conf = {
@@ -177,7 +177,7 @@ const GPIOConf spi3_cs1_conf = {
 
 const GPIOPin spi3_cs2_pin = {
     .port = 2,
-    .pin = 8
+    .pin = 6
 };
 
 const GPIOConf spi3_cs2_conf = {

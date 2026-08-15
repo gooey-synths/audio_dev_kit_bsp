@@ -5,7 +5,7 @@
 #include <spi/spi.hpp>
 
 static constexpr size_t scFpgaProgUsbItf = 1;
-static constexpr size_t scFpgaCsPin = 1;
+static constexpr size_t scFpgaCsPin = 0;
 
 const uint8_t HEADER[3] = {0x15,0x15,0x15};
 
@@ -79,8 +79,8 @@ void test_fpga_prog() {
     spi::SwCsSpiBus spiBus(3, cs_pins, sizeof cs_pins / sizeof *cs_pins);
 
     spi::SpiBusConfig conf;
-    conf.mFreq = 25000000;
-    conf.mPhase = 0;
+    conf.mFreq = 2000000;
+    conf.mPhase = 1;
     conf.mPolarity = 1;
     conf.mWordSize = 8;
     conf.mIoSwap = false;
@@ -88,6 +88,10 @@ void test_fpga_prog() {
     spiBus.configure(conf);
 
     fpgaHardReset = false;
+
+    fpgaProgItf.WriteN("test", sizeof("test"));
+
+    fpgaCS = true;
 
     // Wait for header
     wait_for_header(fpgaProgItf);
@@ -98,6 +102,8 @@ void test_fpga_prog() {
     for(volatile int i = 0; i < 0xFFFF; i++); // lazy delay
     fpgaHardReset = true;
     for(volatile int i = 0; i < 0xFFFFFF; i++); // lazy delay
+    
+#if 0
     fpgaCS = true;
 
     // Send Dummy Clocks
@@ -108,6 +114,7 @@ void test_fpga_prog() {
     spiBus.waitForCompletion();
 
     fpgaCS = false;
+#endif
 
     while(1) {
         while(!fpgaProgItf.Available());
