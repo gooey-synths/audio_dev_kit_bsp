@@ -86,10 +86,12 @@ else()
     add_executable(my_tests test_test/hello_test.cpp)
 	add_executable(dac_tests test_test/dac_test.cpp)
     add_executable(module_infrastructure_tests test_test/module_infrastructure_test.cpp ${CROSS_PLATFORM_SOURCES})
+    add_executable(hw_modules_test test_test/hw_modules_test.cpp ${CROSS_PLATFORM_SOURCES})
 
 	target_link_libraries(my_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(dac_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(module_infrastructure_tests PRIVATE gtest_main gmock_main gtest)
+	target_link_libraries(hw_modules_test PRIVATE gtest_main gmock_main gtest)
 
 	include(GoogleTest)
 	gtest_discover_tests(dac_tests)
