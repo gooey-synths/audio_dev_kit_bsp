@@ -3,7 +3,6 @@
 
 #include "board_interface.hpp"
 #include "gpio/gpio.hpp"
-#include "gpio/gpio_defs.h"
 #include "spi/dacx050y.hpp"
 #include "spi/spi.hpp"
 #include "adc/adc_interface.hpp"
@@ -77,7 +76,7 @@ class PhysicalAnalogInput : public AnalogInput {
 public:
     ///
     /// Constructor.
-    /// @param dac ADC to use for analog input
+    /// @param adc ADC to use for analog input
     /// @param idx Index of the ADC channel to use
     ///
     PhysicalAnalogInput(adc::IOnChipADC& adc, size_t idx) :
