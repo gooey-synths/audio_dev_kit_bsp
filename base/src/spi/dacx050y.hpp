@@ -179,12 +179,20 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     /// Set DAC value.
     /// @param dacIdx Dac index to set value of.
     /// @param val Value to set the DAC to.
+    /// @note For performance reasons dacIdx is not checked before setting
+    /// please use @ref checkIdx for bounds checking.
     ///
     virtual void setStreamVal(uint8_t dacIdx, uint16_t val) {
-        //if (dacIdx > tY) {
-        //    throw scInvalidIdx;
-        //}
         mTxBuf[dacIdx].setData(val);
+    }
+
+    ///
+    /// Check if a DAC index is valid.
+    /// @param dacIdx DAC index to check.
+    /// @return True if DAC index is valid.
+    ///
+    virtual bool checkIdx(uint8_t dacIdx) {
+        return dacIdx < tY;
     }
 
     ///

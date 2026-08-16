@@ -112,15 +112,8 @@ TEST_F(DacTest, testInvalidMode) {
 
 TEST_F(DacTest, testInvalidIdx) {
     // Check that we can't set an invalid DAC idx
-    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);    
-    EXPECT_THROW({
-        try {
-            dac.setStreamVal(255, 0);
-        } catch (const char* e) {
-            ASSERT_EQ(e, spi::DAC60508::scInvalidIdx);
-            throw;
-        }
-    }, const char*);
+    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    EXPECT_EQ(dac.checkIdx(255), false);
 }
 
 TEST_F(DacTest, testRegisterWrite) {
