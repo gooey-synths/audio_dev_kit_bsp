@@ -110,7 +110,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     /// @param cs Chip select the the DAC is connected to.
     ///
     DACx050y(ISpiBus &spiBus, size_t cs) : mSpiBus(spiBus), mCs(cs), mMode(DACx050y_REG_MODE) {
-        setMode(mMode);
+        DACx050y::setMode(mMode);
     }
 
     ///
