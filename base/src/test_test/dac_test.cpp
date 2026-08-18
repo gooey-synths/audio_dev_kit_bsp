@@ -38,7 +38,7 @@ public:
         mDataSize = dataSize;
     }
 
-    virtual void transact() {
+    virtual void transact() override {
         if(mBusy) {
             throw cSpiBusy;
         }

@@ -352,7 +352,6 @@ const GPIOConf dio_input_conf = {
     .pull = NO_PULL,
 };
 
-
 const GPIOConf dio_output_conf = {
     .type = PUSH_PULL_TYPE,
     .mode = OUTPUT_MODE,
