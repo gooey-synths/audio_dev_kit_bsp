@@ -17,18 +17,18 @@ const char* const cSpiBusy = "Spi bus";
 
 class MockSpiBus : public spi::ISpiBus {
 public:
-    virtual void configure(spi::SpiBusConfig conf) {
+    virtual void configure(spi::SpiBusConfig conf) override {
         if(mBusy) {
             throw cSpiBusy;
         }
         mConf = conf;
     }
 
-    virtual spi::SpiBusConfig getConfiguration() {
+    virtual spi::SpiBusConfig getConfiguration() override {
         return mConf;
     }
 
-    virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
+    virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) override {
         if(mBusy) {
             throw cSpiBusy;
         }
@@ -83,7 +83,7 @@ TEST_F(DacTest, testDacMode) {
     mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_STREAM_MODE);
     ASSERT_EQ(mockBus.getBufLen(), 8);
-    
+ 
     dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
     mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
