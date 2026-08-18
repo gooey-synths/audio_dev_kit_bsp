@@ -2,13 +2,13 @@
 #define PHYSICAL_BOARD_HPP
 
 #include "board_interface.hpp"
-#include "gpio/gpio.hpp"
-#include "spi/dacx050y.hpp"
-#include "spi/spi.hpp"
-#include "adc/adc_interface.hpp"
-#include "timer/basic_timer.hpp"
-#include "adc/adc.hpp"
-#include "usb/usb_serial.hpp"
+#include <gpio/gpio.hpp>
+#include <spi/dacx050y.hpp>
+#include <spi/spi.hpp>
+#include <adc/adc_interface.hpp>
+#include <timer/basic_timer.hpp>
+#include <adc/adc.hpp>
+#include <usb/usb_serial.hpp>
 
 namespace board {
 
