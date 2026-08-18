@@ -57,7 +57,7 @@ public:
     }
 
     virtual void configure(std::unordered_map<std::string, std::string>& params) override {
-        size_t idx = -1;
+        int idx = -1;
         getKeyValue(params, "idx", idx, true);
         mAo = &mBoard.GetAnalogOutput(board::IOSpeed::FAST, idx);
     }

@@ -60,3 +60,29 @@ TEST(FastAnalogOutputTests, HappyPathTests) {
 
     EXPECT_EQ(board.GetAnalogOutputVal(), 0x6767);
 }
+
+TEST(FastAnalogOutputTests, SadPathTests) {
+    MockBoard board;
+    modules::hw::FastAnalogOutput ao(board);
+
+    std::unordered_map<std::string, std::string> config;
+
+    // Expect key not found.
+    EXPECT_THROW(
+        try {
+            ao.configure(config);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Key not found");
+            throw;
+        }, const char*);
+
+    config["idx"] = "something";
+    // Expect invalid value.
+    EXPECT_THROW(
+        try {
+            ao.configure(config);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Invalid value");
+            throw;
+        }, const char*);
+}

@@ -11,6 +11,7 @@
 /// @param val Value to return to.
 /// @param throwNotFound Set to true in order to throw and exception on key not found.
 /// @return True if key was found, false if not.
+/// @note The only types that are supported are std::string, int, and float.
 ///
 template<typename T>
 bool getKeyValue(std::unordered_map<std::string, std::string>& map, std::string key, T& val, bool throwNotFound) {
@@ -24,6 +25,8 @@ bool getKeyValue(std::unordered_map<std::string, std::string>& map, std::string 
                 val = std::stoi(second);
             } else if constexpr (std::is_same_v<T, float>) {
                 val = std::stof(second);
+            } else {
+                throw "Invalid type";
             }
         } catch(...) {
             throw "Invalid value";
