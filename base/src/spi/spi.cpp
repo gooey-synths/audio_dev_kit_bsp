@@ -174,7 +174,7 @@ SpiBusConfig SpiBusBase::getConfiguration() {
     ret.mPhase = !!(mSpiHw->CFG2 & (SPI_CFG2_CPHA));
     ret.mPolarity = !!(mSpiHw->CFG2 & (SPI_CFG2_CPOL));
     ret.mIoSwap = !!(mSpiHw->CFG2 & (SPI_CFG2_IOSWP));
-    ret.mWordSize = 1 + (mSpiHw->CFG1 & SPI_CFG1_DSIZE_Msk) >> SPI_CFG1_DSIZE_Pos;
+    ret.mWordSize = 1 + ((mSpiHw->CFG1 & SPI_CFG1_DSIZE_Msk) >> SPI_CFG1_DSIZE_Pos);
     ret.mMidi = (mSpiHw->CFG2 & SPI_CFG2_MIDI_Msk) >> SPI_CFG2_MIDI_Pos;
 
     return ret;

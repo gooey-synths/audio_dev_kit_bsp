@@ -41,7 +41,9 @@ set(ARM_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/usb/usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_usb_serial.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_arduinojson.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/board/physical_board.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_board.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
 )
 
 # TinyUSB stuff
@@ -68,7 +70,9 @@ option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 if (BUILD_ARM)
 
 	# Place directories to include here
-	include_directories()
+	include_directories(
+		${CMAKE_CURRENT_SOURCE_DIR}
+	)
 
 
 	# Create elf file and link it

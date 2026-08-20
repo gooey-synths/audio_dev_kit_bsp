@@ -1,4 +1,4 @@
-#include "../gpio/gpio_defs.h"
+#include <gpio/gpio_defs.h>
 
 // LED pins
 
@@ -194,59 +194,28 @@ const GPIOPin adc1_16_pin = {
     .pin = 0
 };
 
-const GPIOConf adc1_16_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL
-};
 
 const GPIOPin adc1_3_pin = {
     .port = 0,
     .pin = 6
 };
 
-const GPIOConf adc1_3_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
-};
 
 const GPIOPin adc1_8_pin = {
     .port = 2,
     .pin = 5
 };
 
-const GPIOConf adc1_8_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
-};
 
 const GPIOPin adc1_9_pin = {
     .port = 1,
     .pin = 0
 };
 
-const GPIOConf adc1_9_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
-};
 
 const GPIOPin adc1_10_pin = {
     .port = 2,
     .pin = 0
-};
-
-const GPIOConf adc1_10_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
 };
 
 const GPIOPin adc1_11_pin = {
@@ -254,23 +223,9 @@ const GPIOPin adc1_11_pin = {
     .pin = 1
 };
 
-const GPIOConf adc1_11_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
-};
-
 const GPIOPin adc1_14_pin = {
     .port = 0,
     .pin = 2
-};
-
-const GPIOConf adc1_14_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
 };
 
 const GPIOPin adc1_15_pin = {
@@ -278,36 +233,21 @@ const GPIOPin adc1_15_pin = {
     .pin = 3
 };
 
-const GPIOConf adc1_15_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
-};
-
 const GPIOPin adc1_18_pin = {
     .port = 0,
     .pin = 4
 };
-
-const GPIOConf adc1_18_conf = {
-    .type = PUSH_PULL_TYPE,
-    .mode = ANALOG_MODE,
-    .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
-};
-
 
 const GPIOPin adc1_19_pin = {
     .port = 0,
     .pin = 5
 };
 
-const GPIOConf adc1_19_conf = {
+const GPIOConf adc1_conf = {
     .type = PUSH_PULL_TYPE,
     .mode = ANALOG_MODE,
     .speed = VERY_HIGH_SPEED,
-    .pull = NO_PULL,
+    .pull = NO_PULL
 };
 
 // USB pins
@@ -362,4 +302,59 @@ GPIOConf usb_d_minus_conf = {
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
     .alternate_function = 10
+};
+
+// Digital IO pins
+const GPIOPin dio_0_pin = {
+    .port = 3,
+    .pin = 0
+};
+
+const GPIOPin dio_1_pin = {
+    .port = 3,
+    .pin = 1
+};
+
+const GPIOPin dio_2_pin = {
+    .port = 3,
+    .pin = 2
+};
+
+const GPIOPin dio_3_pin = {
+    .port = 3,
+    .pin = 3
+};
+
+const GPIOPin dio_4_pin = {
+    .port = 3,
+    .pin = 4
+};
+
+const GPIOPin dio_5_pin = {
+    .port = 3,
+    .pin = 5
+};
+
+const GPIOPin dio_6_pin = {
+    .port = 3,
+    .pin = 6
+};
+
+const GPIOPin dio_7_pin = {
+    .port = 3,
+    .pin = 7
+};
+
+const GPIOConf dio_input_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+};
+
+const GPIOConf dio_output_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = OUTPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
 };

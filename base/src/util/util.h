@@ -1,3 +1,8 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #ifndef UTIL_H
 #define UTIL_H
 
@@ -14,3 +19,7 @@ typedef void (*InterruptFunctionPtr)();
 #endif
 
 #endif // UTIL_H
+
+#ifdef __cplusplus
+}
+#endif

@@ -135,13 +135,13 @@ private:
 			mControllerHw->LIFCR |= intMask << channel*6;
 		}
 		else if(channel < 4){
-			mControllerHw->LIFCR |= intMask << (channel*6)+4;
+			mControllerHw->LIFCR |= intMask << ((channel*6)+4);
 		}
 		else if(channel < 6){
-			mControllerHw->HIFCR |= intMask << (channel-4)*6;
+			mControllerHw->HIFCR |= intMask << ((channel-4)*6);
 		}
 		else if(channel < 8){
-			mControllerHw->HIFCR |= intMask << ((channel-4)*6)+4;
+			mControllerHw->HIFCR |= intMask << (((channel-4)*6)+4);
 		}
 	}
 
@@ -152,6 +152,5 @@ private:
 	DmaChannel mChannels[DMA1_NUM_CHANNELS]; ///< DMA channels
 };
 
-
+} // namespace dma
 #endif
-}// namespace dma

@@ -69,10 +69,8 @@ enum eDACx050yMode { DACx050y_REG_MODE = 0, DACx050y_STREAM_MODE };
 
 ///
 /// Interface for DACx050y
-/// @tparam tX first digit in part number, means to resolution / 2
-/// @tparam tY last digit in part, means number of channels
 ///
-template <size_t tX, size_t tY> class IDACx050y {
+class IDACx050y {
   public:
     virtual void setup() = 0;
 
@@ -91,14 +89,14 @@ template <size_t tX, size_t tY> class IDACx050y {
 /// @tparam tX first digit in part number, means to resolution / 2
 /// @tparam tY last digit in part, means number of channels
 ///
-template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
+template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
   public:
     /// SPI bus configuration for the DACX050Y
     static constexpr SpiBusConfig scSpiConf = {
         .mPolarity = true,
         .mPhase = false,
         .mIoSwap = true,
-        .mFreq = 300000000U,
+        .mFreq = 400000000U,
         .mWordSize = 24,
         .mMidi = 0x7
     };
@@ -112,7 +110,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     /// @param cs Chip select the the DAC is connected to.
     ///
     DACx050y(ISpiBus &spiBus, size_t cs) : mSpiBus(spiBus), mCs(cs), mMode(DACx050y_REG_MODE) {
-        setMode(mMode);
+        DACx050y::setMode(mMode);
     }
 
     ///
@@ -181,12 +179,20 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y<tX, tY> {
     /// Set DAC value.
     /// @param dacIdx Dac index to set value of.
     /// @param val Value to set the DAC to.
+    /// @note For performance reasons dacIdx is not checked before setting
+    /// please use @ref checkIdx for bounds checking.
     ///
     virtual void setStreamVal(uint8_t dacIdx, uint16_t val) {
-        if (dacIdx > tY) {
-            throw scInvalidIdx;
-        }
         mTxBuf[dacIdx].setData(val);
+    }
+
+    ///
+    /// Check if a DAC index is valid.
+    /// @param dacIdx DAC index to check.
+    /// @return True if DAC index is valid.
+    ///
+    virtual bool checkIdx(uint8_t dacIdx) {
+        return dacIdx < tY;
     }
 
     ///

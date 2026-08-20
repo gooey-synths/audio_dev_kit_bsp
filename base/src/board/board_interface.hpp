@@ -31,7 +31,7 @@ public:
     /// Get the speed of the IO device.
     /// @return The speed of the IO device.
     ///
-    IOSpeed GetSpeed() const { return mSpeed; }
+    IOSpeed GetSpeed() { return mSpeed; }
 
 protected:
     IOSpeed mSpeed; ///< Device speed.
@@ -48,7 +48,7 @@ public:
     /// Get the value of the input.
     /// @return The value of the input.
     ///
-    virtual DataType GetValue() const = 0;
+    virtual DataType GetValue() = 0;
 };
 
 ///
@@ -184,7 +184,7 @@ public:
     /// @return A reference to an analog input on the board.
     ///
     virtual AnalogInput& GetAnalogInput(IOSpeed speed, size_t idx) = 0;
- 
+
     ///
     /// Get a reference to an analog output on the board.
     /// @param speed Speed of the analog output to get a reference to.
@@ -200,7 +200,7 @@ public:
     /// @return A reference to an digital input on the board.
     ///
     virtual DigitalInput& GetDigitalInput(IOSpeed speed, size_t idx) = 0;
- 
+
     ///
     /// Get a reference to an digital output on the board.
     /// @param speed Speed of the digital output to get a reference to.

@@ -11,7 +11,7 @@ namespace adc {
 ///
 /// Class for controlling the ADC on the STM32H750.
 ///
-class OnChipADC : IOnChipADC {
+class OnChipADC : public IOnChipADC {
 
     static constexpr const char* const scInvalidADC = "Invalid ADC";
     static constexpr const char* const scInvalidPrescaler = "Invalid ADC prescaler";
