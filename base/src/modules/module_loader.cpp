@@ -1,4 +1,5 @@
 #include "module_loader.hpp"
+#include "hw/fast_analog_out.hpp"
 
 namespace graph_infrastructure {
 
@@ -6,7 +7,7 @@ namespace graph_infrastructure {
 /// Modules that utilize board HW
 ///
 std::unordered_map<module_basics::ModuleIdType, std::function<module_basics::ModuleInterface*(board::BoardInterface&)>> ModuleLoader::sHardwareModules = {
-    // Add hardware modules as they become available.
+    { modules::hw::FastAnalogOutput::scId, modules::hw::FastAnalogOutput::factory }
 };
 
 ///

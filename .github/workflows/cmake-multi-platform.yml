@@ -123,3 +123,4 @@ jobs:
           ./my_tests
           ./dac_tests
           ./module_infrastructure_tests
+          ./hw_modules_tests

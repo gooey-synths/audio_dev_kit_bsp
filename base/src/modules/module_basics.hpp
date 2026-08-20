@@ -9,6 +9,8 @@ namespace module_basics {
 
 typedef uint64_t ModuleIdType; ///< Type to use for module ID, used internally.
 
+static constexpr size_t scInvalidIOIdx = -1; ///< return value for invalid input/output idx.
+
 ///
 /// Interface for interacting with a module.
 /// @note Modules should not inherit directly from this class. see @ref ModuleBase
