@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <modules/hw/fast_analog_out.hpp>
+#include <modules/hw/fast_analog_in.hpp>
 #include <modules/hw/fast_digital_out.hpp>
 
 
@@ -9,6 +10,15 @@ public:
     virtual void SetValue(board::BoardData data) override { mData = data; }
 
     board::BoardData getValue() { return mData; }
+protected:
+    board::BoardData mData;
+};
+
+class MockAnalogInput : public board::AnalogInput {
+public:
+    void setValue(board::BoardData data){ mData = data; }
+
+    board::BoardData GetValue() override { return mData; }
 protected:
     board::BoardData mData;
 };
@@ -32,7 +42,13 @@ public:
         return scMockBoardConfig;
     }
 
-    MOCK_METHOD(board::AnalogInput&, GetAnalogInput, (board::IOSpeed, size_t), (override));
+    board::AnalogInput& GetAnalogInput(board::IOSpeed, size_t) override {
+        return mAi;
+    }
+
+    void SetAnalogInputVal(board::BoardData data) {
+        mAi.setValue(data);
+    }
 
     board::AnalogOutput& GetAnalogOutput(board::IOSpeed, size_t) override {
         return mAo;
@@ -59,6 +75,7 @@ public:
 
 protected:
     MockAnalogOutput mAo;
+    MockAnalogInput mAi;
     MockDigitalOutput mDo;
 };
 
@@ -103,6 +120,49 @@ TEST(FastAnalogOutputTests, SadPathTests) {
             throw;
         }, const char*);
 }
+
+TEST(FastAnalogInputTests, HappyPathTests) {
+    MockBoard board;
+    modules::hw::FastAnalogInput ai(board);
+
+    std::unordered_map<std::string, std::string> config;
+    config["idx"] = "0";
+
+    ai.configure(config);
+
+    size_t outputIdx = ai.getOutputIdx("in");
+    board.SetAnalogInputVal(0x6767);
+
+    ai.run();
+    ASSERT_EQ(ai.getOutput(outputIdx), 0x6767);
+}
+
+TEST(FastAnalogInputTests, SadPathTests) {
+    MockBoard board;
+    modules::hw::FastAnalogInput ai(board);
+
+    std::unordered_map<std::string, std::string> config;
+
+    // Expect key not found.
+    EXPECT_THROW(
+        try {
+            ai.configure(config);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Key not found");
+            throw;
+        }, const char*);
+
+    config["idx"] = "something";
+    // Expect invalid value.
+    EXPECT_THROW(
+        try {
+            ai.configure(config);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Invalid value");
+            throw;
+        }, const char*);
+}
+
 
 TEST(FastDigitalOutputTests, HappyPathTests) {
     MockBoard board;
