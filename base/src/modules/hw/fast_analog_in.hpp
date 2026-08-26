@@ -13,7 +13,7 @@ namespace hw {
 ///
 class FastAnalogInput : public module_basics::ModuleBase<0, 1> {
 public:
-    static constexpr module_basics::ModuleIdType scId = 2; ///< Module ID of the analog output
+    static constexpr module_basics::ModuleIdType scId = 2; ///< Module ID of the analog input
 
     ///
     /// Factory method.

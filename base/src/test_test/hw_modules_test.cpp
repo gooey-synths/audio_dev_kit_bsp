@@ -163,7 +163,6 @@ TEST(FastAnalogInputTests, SadPathTests) {
         }, const char*);
 }
 
-
 TEST(FastDigitalOutputTests, HappyPathTests) {
     MockBoard board;
     modules::hw::FastDigitalOutput fdo(board);
