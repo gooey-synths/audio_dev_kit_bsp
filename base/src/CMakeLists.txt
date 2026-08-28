@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.21.4)
 
+# PROJECT_NAME
+project(audio_dev_kit_bsp)
+
 # Leave as debug for now
 set(CMAKE_BUILD_TYPE Debug)
 
 set(TINYUSB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyusb)
 set(ARDUINOJSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
+set(FREERTOS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/FreeRTOS-Kernel)
 
 FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 
@@ -19,6 +23,7 @@ set(CROSS_PLATFORM_SOURCES
 set(ARM_SOURCES
     ${CROSS_PLATFORM_SOURCES}
 	${TinyUSBCSources}
+    ${FREERTOS_PATH}/portable/MemMang/heap_4.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/system/syscalls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
@@ -59,9 +64,6 @@ include_directories(
 	${ARDUINOJSON_PATH}/src
 )
 
-# PROJECT_NAME
-project(audio_dev_kit_bsp)
-
 # ArduinoJSON stuff
 add_subdirectory(${ARDUINOJSON_PATH})
 
@@ -69,8 +71,15 @@ add_subdirectory(${ARDUINOJSON_PATH})
 option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
 if (BUILD_ARM)
+# FreeRTOS stuff
+    set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "FreeRTOS Port")
 
-	# Place directories to include here
+    add_library(freertos_config INTERFACE)
+    target_include_directories(freertos_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/system/)
+
+    add_subdirectory(${FREERTOS_PATH})
+	
+    # Place directories to include here
 	include_directories(
 		${CMAKE_CURRENT_SOURCE_DIR}
 	)
@@ -78,7 +87,7 @@ if (BUILD_ARM)
 
 	# Create elf file and link it
     add_executable(${PROJECT_NAME}.elf ${ARM_SOURCES})
-	target_link_libraries(${PROJECT_NAME}.elf)
+    target_link_libraries(${PROJECT_NAME}.elf PRIVATE freertos_kernel)
 
 	# Create binary file
 	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)

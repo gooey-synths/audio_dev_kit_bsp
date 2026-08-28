@@ -7,3 +7,6 @@
 [submodule "base/src/third_party/ArduinoJson"]
 	path = base/src/third_party/ArduinoJson
 	url = https://github.com/bblanchon/ArduinoJson.git
+[submodule "base/src/third_party/FreeRTOS-Kernel"]
+       path = base/src/third_party/FreeRTOS-Kernel
+       url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
