@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include <modules/hw/fast_analog_out.hpp>
 #include <modules/hw/fast_digital_out.hpp>
+#include <modules/hw/fast_digital_in.hpp>
 
 
 class MockAnalogOutput : public board::AnalogOutput {
@@ -18,6 +19,15 @@ public:
     virtual void SetValue(bool data) override { mData = data; }
 
     bool getValue() { return mData; }
+protected:
+    bool mData;
+};
+
+class MockDigitalInput : public board::DigitalInput {
+public:
+    void setValue(bool data) { mData = data; }
+
+    virtual bool GetValue() override { return mData; }
 protected:
     bool mData;
 };
@@ -42,7 +52,13 @@ public:
         return mAo.getValue();
     }
 
-    MOCK_METHOD(board::DigitalInput&, GetDigitalInput, (board::IOSpeed, size_t), (override));
+    board::DigitalInput& GetDigitalInput(board::IOSpeed, size_t) override {
+        return mDi;
+    }
+
+    void SetDigitalInputVal(bool val) {
+        mDi.setValue(val);
+    }
 
     board::DigitalOutput& GetDigitalOutput(board::IOSpeed, size_t) override {
         return mDo;
@@ -60,6 +76,7 @@ public:
 protected:
     MockAnalogOutput mAo;
     MockDigitalOutput mDo;
+    MockDigitalInput mDi;
 };
 
 TEST(FastAnalogOutputTests, HappyPathTests) {
@@ -140,6 +157,48 @@ TEST(FastDigitalOutputTests, SadPathTests) {
     EXPECT_THROW(
         try {
             fdo.configure(config);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Invalid value");
+            throw;
+        }, const char*);
+}
+
+TEST(FastDigitalInputTests, HappyPathTests) {
+    MockBoard board;
+    modules::hw::FastDigitalInput fdi(board);
+
+    std::unordered_map<std::string, std::string> config;
+    config["idx"] = "0";
+
+    fdi.configure(config);
+
+    size_t outputIdx = fdi.getOutputIdx("in");
+    board.SetDigitalInputVal(true);
+    fdi.run();
+
+    EXPECT_GT(fdi.getOutput(outputIdx), 0x7FFF);
+}
+
+TEST(FastDigitalInputTests, SadPathTests) {
+    MockBoard board;
+    modules::hw::FastDigitalOutput fdi(board);
+
+    std::unordered_map<std::string, std::string> config;
+
+    // Expect key not found.
+    EXPECT_THROW(
+        try {
+            fdi.configure(config);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Key not found");
+            throw;
+        }, const char*);
+
+    config["idx"] = "something";
+    // Expect invalid value.
+    EXPECT_THROW(
+        try {
+            fdi.configure(config);
         } catch(const char* c) {
             EXPECT_EQ(c, "Invalid value");
             throw;

@@ -1,6 +1,7 @@
 #include "module_loader.hpp"
 #include "hw/fast_analog_out.hpp"
 #include "hw/fast_digital_out.hpp"
+#include "hw/fast_digital_in.hpp"
 
 namespace graph_infrastructure {
 
@@ -9,7 +10,8 @@ namespace graph_infrastructure {
 ///
 std::unordered_map<module_basics::ModuleIdType, std::function<module_basics::ModuleInterface*(board::BoardInterface&)>> ModuleLoader::sHardwareModules = {
     { modules::hw::FastAnalogOutput::scId, modules::hw::FastAnalogOutput::factory },
-    { modules::hw::FastDigitalOutput::scId, modules::hw::FastDigitalOutput::factory }
+    { modules::hw::FastDigitalOutput::scId, modules::hw::FastDigitalOutput::factory },
+    { modules::hw::FastDigitalInput::scId, modules::hw::FastDigitalInput::factory }
 };
 
 ///
