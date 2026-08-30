@@ -5,7 +5,7 @@
 
 namespace graph_infrastructure {
 
-static constexpr size_t scRxBufSize = 4096;
+static constexpr size_t scRxBufSize = 8192;
 static char sRxBuffer[scRxBufSize];
 const char scNewline[] = "\r\n";
 
@@ -51,6 +51,10 @@ void run_graph_processor(board::BoardInterface &board) {
     GraphLoader graphLoader(modLoader);
     GraphRunner graphRunner(board);
 
+    char ENDOFFILE[] = {0x1A};
+    char SUCCESS[] = "Success";
+    char FAIL[] = "Fail";
+
     board::CommunicationInterface& comm = *board.GetComm(0);
     while(1) {
         memset(sRxBuffer, 0, scRxBufSize);
@@ -65,10 +69,15 @@ void run_graph_processor(board::BoardInterface &board) {
                 graphRunner.stop();
                 graphRunner.setGraph(newGraph);
                 graphRunner.start();
+                comm.WriteN(SUCCESS, sizeof(SUCCESS));
+                comm.WriteN(ENDOFFILE, sizeof(ENDOFFILE));
+            } else {
+                comm.WriteN(FAIL, sizeof(FAIL));
+                comm.WriteN(ENDOFFILE, sizeof(ENDOFFILE));
             }
         } catch(const char* errorMsg) {
             comm.WriteN(const_cast<char*>(errorMsg), strlen(errorMsg));
-            comm.WriteN((char*)&scNewline, sizeof(scNewline));
+            comm.WriteN(ENDOFFILE, sizeof(ENDOFFILE));
         }
     }
 }
