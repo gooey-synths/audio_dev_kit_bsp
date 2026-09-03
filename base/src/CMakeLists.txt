@@ -50,6 +50,7 @@ set(ARM_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_processor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/blinky/blinky.cpp
 )
 
 # TinyUSB stuff
@@ -71,7 +72,7 @@ add_subdirectory(${ARDUINOJSON_PATH})
 option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
 if (BUILD_ARM)
-    # FreeRTOS stuff
+# FreeRTOS stuff
     set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "FreeRTOS Port")
 
     add_library(freertos_config INTERFACE)

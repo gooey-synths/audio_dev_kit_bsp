@@ -530,7 +530,6 @@ __attribute__ ((noreturn)) void reset_handler(){
 
     call_constructors();
 
-    main();
     start_freertos();
 
     halt(); // Should never get here!
