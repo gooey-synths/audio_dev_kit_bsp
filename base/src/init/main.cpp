@@ -1,7 +1,8 @@
-#include "../tests/tests.hpp"
-#include <cstdlib>
+#include <board/physical_board.hpp>
+#include <modules/graph_processor.hpp>
 
 int main() {
-    test_board_echo();
+    static board::ProtoBoardV1 board;
+    graph_infrastructure::run_graph_processor(board);
     return 0;
 }

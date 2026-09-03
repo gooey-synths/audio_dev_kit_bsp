@@ -44,6 +44,7 @@ set(ARM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/board/physical_board.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_processor.cpp
 )
 
 # TinyUSB stuff

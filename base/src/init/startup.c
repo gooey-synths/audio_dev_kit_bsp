@@ -9,7 +9,11 @@ extern int main(); // defined in main.c
 
 #define ISR_NOT_IMPL ((uint32_t*) halt)
 
- /* These are defined in the linker script */
+typedef void (*constructor_fn)(void);
+
+/* These are defined in the linker script */
+extern constructor_fn __init_array_start[]; //< Start of global and static object initializers.
+extern constructor_fn __init_array_end[];   //< End of global and static object initializers.
 extern const uint32_t _stext;  //< Start of text section
 extern const uint32_t _etext;  //< End of text section
 extern const uint32_t _sbss;   //< Start of BSS section
@@ -407,6 +411,15 @@ void enable_otg_2(){
 }
 
 ///
+/// Intitialize global and static objects.
+///
+void call_constructors() {
+    for (constructor_fn* p = __init_array_start; p < __init_array_end; ++p) {
+        (*p)();
+    }
+}
+
+///
 /// Reset handler and initial entry point. 
 ///
 __attribute__ ((noreturn)) void reset_handler(){
@@ -439,6 +452,8 @@ __attribute__ ((noreturn)) void reset_handler(){
     start_clocks();
 
     enable_otg_2();
+
+    call_constructors();
 
     main();
 
