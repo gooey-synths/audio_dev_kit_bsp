@@ -432,6 +432,7 @@ void _main(void * pvParameters) {
     (void) pvParameters;
 
     main();
+    halt();
 }
 
 // These are defined somewhere in the FreeRTOS port I think.
