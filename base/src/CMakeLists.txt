@@ -71,7 +71,7 @@ add_subdirectory(${ARDUINOJSON_PATH})
 option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
 if (BUILD_ARM)
-# FreeRTOS stuff
+    # FreeRTOS stuff
     set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "FreeRTOS Port")
 
     add_library(freertos_config INTERFACE)
@@ -83,7 +83,6 @@ if (BUILD_ARM)
 	include_directories(
 		${CMAKE_CURRENT_SOURCE_DIR}
 	)
-
 
 	# Create elf file and link it
     add_executable(${PROJECT_NAME}.elf ${ARM_SOURCES})
