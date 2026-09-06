@@ -1,4 +1,6 @@
 #include "board/physical_board.hpp"
+#include "FreeRTOS.h"
+#include "task.h"
 
 using namespace board;
 
@@ -46,6 +48,7 @@ void test_board_echo(){
     // Echo USB serial communication as well.
     while(1) {
         for(size_t iComm = 0; iComm < usb::USBSerial::getInstance().numInterfaces(); iComm++) {
+            vTaskDelay(10);
             if(board.GetComm(iComm)->Available()) {
                 size_t nRead = board.GetComm(iComm)->ReadN(buf, sizeof(buf));
                 board.GetComm(iComm)->WriteN(buf, nRead);

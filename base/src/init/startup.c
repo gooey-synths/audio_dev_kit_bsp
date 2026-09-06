@@ -1,5 +1,9 @@
 #include "../system/stm32h750xx.h"
 #include "../system/board_defs.h"
+#include <third_party/FreeRTOS-Kernel/include/FreeRTOS.h>
+#include <third_party/FreeRTOS-Kernel/include/task.h>
+#include <system/tasks.h>
+#include <system/FreeRTOSConfig.h>
 #include <stdint.h>
 
 // prototypes
@@ -380,7 +384,7 @@ void start_clocks(){
 
     // Set system clock
     RCC->CFGR |= 3; // Select PLL1p as system clock 
-    
+ 
     while (!((RCC->CFGR & 3<<3) == 3<<3)){
         ; // Wait for PLL1 to be selected for CPU clock.
     }
@@ -421,6 +425,78 @@ void call_constructors() {
 
 ///
 /// Reset handler and initial entry point. 
+/// Glue function to call main.
+/// @param pvParameters Unused task init parameters.
+///
+void _main(void * pvParameters) {
+    (void) pvParameters;
+
+    main();
+    halt();
+}
+
+// These are defined somewhere in the FreeRTOS port I think.
+extern void vPortSVCHandler();
+extern void xPortPendSVHandler();
+extern void xPortSysTickHandler();
+
+///
+/// Create main task and start freeRTOS scheduler.
+///
+void start_freertos() {
+
+    // Map required handlers
+    __NVIC_SetVector(SVCall_IRQn, (int)vPortSVCHandler);
+    __NVIC_SetVector(PendSV_IRQn, (int)xPortPendSVHandler);
+    __NVIC_SetVector(SysTick_IRQn, (int)xPortSysTickHandler);
+
+    // Crate main task
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+
+    /* Create the task, storing the handle. */
+    xReturned = xTaskCreate(
+                    _main,                   /* Function that implements the task. */
+                    "Main",                      /* Text name for the task. */
+                    MAIN_TASK_STACK_SIZE,  /* Stack size in words, not bytes. */
+                    NULL,                  /* Parameter passed into the task. */
+                    MAIN_TASK_PRIO,          /* Priority at which the task is created. */
+                    &xHandle );           /* Used to pass out the created task's handle. */
+
+    if( xReturned != pdPASS )
+    {
+        vTaskDelete(xHandle);
+        halt();
+    }
+
+    // Start scheduler
+    vTaskStartScheduler();
+}
+
+///
+/// FreeRTOS task stack overflow hook.
+/// @param xTask Task handle.
+/// @param pcTaskName Task name.
+///
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+    (void) xTask;
+    (void) pcTaskName;
+
+    halt();
+}
+
+///
+/// FreeRTOS idle hook.
+///
+void vApplicationIdleHook( void )
+{
+    ; // Do nothing for now.
+}
+
+
+///
+/// Reset handler and initial entry point.
 ///
 __attribute__ ((noreturn)) void reset_handler(){
 
@@ -455,9 +531,9 @@ __attribute__ ((noreturn)) void reset_handler(){
 
     call_constructors();
 
-    main();
+    start_freertos();
 
-    halt(); // Should never get here! 
+    halt(); // Should never get here!
 }
 
 ///

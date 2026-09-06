@@ -1,8 +1,10 @@
-#include <board/physical_board.hpp>
-#include <modules/graph_processor.hpp>
+#include <tests/tests.hpp>
+
+#include <FreeRTOS.h>
+#include <task.h>
 
 int main() {
-    static board::ProtoBoardV1 board;
-    graph_infrastructure::run_graph_processor(board);
-    return 0;
+    while(1) {
+        vTaskDelay(1000);
+    }
 }
