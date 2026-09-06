@@ -4,6 +4,9 @@
 #include <board/board_interface.hpp>
 extern "C" {
 #include "tusb.h"
+#include <FreeRTOS.h>
+#include <event_groups.h>
+
 #include "device/usbd.h"
 }
 
@@ -27,16 +30,35 @@ public:
 
         virtual void Flush() override;
 
+        virtual bool BlockUntilAvailable(uint32_t timeout) override;
+
+
         // Delete copy and assignment.
         USBCommunication(USBCommunication const&) = delete;
         void operator=(USBCommunication const&)  = delete;
 
     private:
-        friend class USBSerial; // Only allow USB Serial class to construct interfaces.
-        USBCommunication(size_t itfIdx);
-        size_t mItfIdx; ///< USB interface index.
-    };
+        USBCommunication(size_t itfIdx, EventGroupHandle_t& eventGroup);
 
+        ///
+        /// Notify RTOS that data is available.
+        ///
+        void NotifyRxEvent() {
+            // Have to do this to avoid priority inversion
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            xEventGroupSetBitsFromISR(mEventGroup, 1 << mItfIdx, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
+
+        // Only allow USB Serial class to construct interfaces.
+        friend class USBSerial;
+        // Allow TinyUSB RX callback to access event bits while maintaining encapsulation.
+        // Note: I don't feel great about this but the alternatives feel worse to me.
+        friend void ::tud_cdc_rx_cb(uint8_t itf);
+
+        size_t mItfIdx; ///< USB interface index.
+        EventGroupHandle_t& mEventGroup; ///< Event group reference for USB events.
+    };
 
     static const size_t scNumInterfaces = CFG_TUD_CDC; ///< Number of interfaces to manage.
 
@@ -87,15 +109,15 @@ private:
         }
     }
 
-
     ///
-    /// Handler for USB events.
+    /// Handler for USB interrupt.
     ///
     static void usbHandler() {
         tud_int_handler(BOARD_TUD_RHPORT);
     }
 
     USBCommunication mUsbInterfaces[scNumInterfaces];  ///< USB buffers.
+    EventGroupHandle_t mUsbEventGroup;                 ///< FreeRTOS event group.
 };
 
 } // namespace usb
