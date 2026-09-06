@@ -4,7 +4,5 @@
 #include <task.h>
 
 int main() {
-    while(1) {
-        vTaskDelay(1000);
-    }
+    test_usb_serial_echo();
 }

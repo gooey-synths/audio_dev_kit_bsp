@@ -1,5 +1,10 @@
 #include "usb_serial.hpp"
 #include <system/interrupts.h>
+#include <system/tasks.h>
+#include <FreeRTOS.h>
+#include <task.h>
+
+#include <cassert>
 
 namespace usb {
 
@@ -7,16 +12,25 @@ namespace usb {
 /// Constructor.
 ///
 USBSerial::USBSerial() :
-    mUsbInterfaces{USBCommunication(0), USBCommunication(1)},
-    mTimer(USBSerial::scTimerNum)
+    mUsbInterfaces{USBCommunication(0), USBCommunication(1)}
 {
     NVIC_SetVector(OTG_FS_IRQn, reinterpret_cast<uintptr_t>(usbHandler));
     NVIC_SetPriority(OTG_FS_IRQn, USB_OTG_INT_PRIO);
     tud_init(BOARD_TUD_RHPORT);
 
-    mTimer.setFreq(USBSerial::scTusbFreq);
-    mTimer.setInterrupt(USBSerial::timerHandler);
-    mTimer.start(false);
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+
+    /* Create the task, storing the handle. */
+    xReturned = xTaskCreate(
+                    USBSerial::UsbSerialTask,         /* Function that implements the task. */
+                    "USB",                      /* Text name for the task. */
+                    USB_TASK_STACK_SIZE,  /* Stack size in words, not bytes. */
+                    NULL,                    /* Parameter passed into the task. */
+                    USB_TASK_PRIO,          /* Priority at which the task is created. */
+                    &xHandle );             /* Used to pass out the created task's handle. */
+
+    assert(xReturned == pdPASS);
 }
 
 ///
