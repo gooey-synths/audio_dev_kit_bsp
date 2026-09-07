@@ -6,7 +6,6 @@ extern "C" {
 #include "tusb.h"
 #include <FreeRTOS.h>
 #include <event_groups.h>
-
 #include "device/usbd.h"
 }
 
@@ -32,7 +31,6 @@ public:
 
         virtual bool BlockUntilAvailable(uint32_t timeout) override;
 
-
         // Delete copy and assignment.
         USBCommunication(USBCommunication const&) = delete;
         void operator=(USBCommunication const&)  = delete;
@@ -41,7 +39,7 @@ public:
         USBCommunication(size_t itfIdx, EventGroupHandle_t& eventGroup);
 
         ///
-        /// Notify RTOS that data is available.
+        /// Notify task that data is available.
         ///
         void NotifyRxEvent() {
             // Have to do this to avoid priority inversion

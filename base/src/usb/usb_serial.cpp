@@ -76,9 +76,7 @@ size_t USBSerial::USBCommunication::WriteN(char* buf, size_t n) {
     return ret;
 }
 
-///
-/// Documentation inherited.
-///
+// Documentation inherited.
 size_t USBSerial::USBCommunication::Available() {
     return tud_cdc_n_available(mItfIdx);
 }
