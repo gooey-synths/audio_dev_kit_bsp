@@ -59,12 +59,13 @@ USBSerial::USBCommunication::USBCommunication(size_t itfIdx, EventGroupHandle_t&
 
 // Documentation inherited.
 size_t USBSerial::USBCommunication::ReadN(char* buf, size_t n) {
+    taskENTER_CRITICAL();
     size_t nRead = tud_cdc_n_read(mItfIdx, buf, n);
     if(!Available()) {
         // We have read all of the data cleare RX event flag.
-        xEventGroupClearBitsFromISR(mEventGroup, 1 << mItfIdx);
+        xEventGroupClearBits(mEventGroup, 1 << mItfIdx);
     }
-
+    taskEXIT_CRITICAL();
     return nRead;
 }
 
