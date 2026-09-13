@@ -96,25 +96,14 @@ void test_fpga_prog() {
     // Wait for header
     wait_for_header(fpgaProgItf);
 
+
+
     // Start FPGA in slave mode
     fpgaHardReset = false;
     fpgaCS = false;
     for(volatile int i = 0; i < 0xFFFF; i++); // lazy delay
     fpgaHardReset = true;
     for(volatile int i = 0; i < 0xFFFFFF; i++); // lazy delay
-    
-#if 0
-    fpgaCS = true;
-
-    // Send Dummy Clocks
-    uint8_t dummyTx = 0x67;
-    uint8_t dummyRx = 0x00;
-    spiBus.prepare(&dummyTx, &dummyRx, 1, spi::SpiBusBase::NO_CS_SELECTED);
-    spiBus.transact();
-    spiBus.waitForCompletion();
-
-    fpgaCS = false;
-#endif
 
     while(1) {
         while(!fpgaProgItf.Available());
@@ -126,6 +115,7 @@ void test_fpga_prog() {
             spiBus.transact();
             spiBus.waitForCompletion();
         }
+
     }
 }
 
