@@ -2,6 +2,7 @@
 #include "graph_runner.hpp"
 #include "graph_loader.hpp"
 #include "module_loader.hpp"
+#include "FreeRTOS.h"
 
 namespace graph_infrastructure {
 
@@ -22,6 +23,7 @@ static bool readUntilEOF(char* buf, size_t bufLen, board::CommunicationInterface
     char c;
 
     while(1) {
+        itf.BlockUntilAvailable(portMAX_DELAY);
         size_t numRead = itf.ReadN(&c, 1);
 
         if(numRead) {
@@ -71,13 +73,16 @@ void run_graph_processor(board::BoardInterface &board) {
                 graphRunner.start();
                 comm.WriteN(SUCCESS, sizeof(SUCCESS));
                 comm.WriteN(ENDOFFILE, sizeof(ENDOFFILE));
+                comm.Flush();
             } else {
                 comm.WriteN(FAIL, sizeof(FAIL));
                 comm.WriteN(ENDOFFILE, sizeof(ENDOFFILE));
+                comm.Flush();
             }
         } catch(const char* errorMsg) {
             comm.WriteN(const_cast<char*>(errorMsg), strlen(errorMsg));
             comm.WriteN(ENDOFFILE, sizeof(ENDOFFILE));
+            comm.Flush();
         }
     }
 }

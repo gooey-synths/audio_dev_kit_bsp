@@ -252,7 +252,7 @@
 /* Set configUSE_EVENT_GROUPS to 1 to include event group functionality in the
  * build. Set to 0 to exclude event group functionality from the build. The
  * FreeRTOS/source/event_groups.c source file must be included in the build if
- * configUSE_EVENT_GROUPS is set to 1. Defaults to 1 if left undefined. */
+ * configUSE_EVENT_GROUPS is set to& 1. Defaults to 1 if left undefined. */
 
 #define configUSE_EVENT_GROUPS    1
 
@@ -670,7 +670,7 @@
 #define INCLUDE_uxTaskGetStackHighWaterMark    0
 #define INCLUDE_xTaskGetIdleTaskHandle         0
 #define INCLUDE_eTaskGetState                  0
-#define INCLUDE_xTimerPendFunctionCall         0
+#define INCLUDE_xTimerPendFunctionCall         1
 #define INCLUDE_xTaskAbortDelay                0
 #define INCLUDE_xTaskGetHandle                 0
 #define INCLUDE_xTaskResumeFromISR             1
