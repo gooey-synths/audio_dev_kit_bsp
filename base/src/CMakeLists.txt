@@ -85,6 +85,13 @@ if (BUILD_ARM)
 		${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
+    # Allow the user to optionally set flash size and start address if we are compiling for a lower flash version of the board
+    set(FLASH_START "0x08000000" CACHE STRING "Address of start of flash")
+    set(FLASH_SIZE "2048K" CACHE STRING "Size of flash")
+
+    # This replaces the @@ variables and outputs a regular linker script
+    configure_file(init/stm32h7xx.ld.template ${CMAKE_CURRENT_BINARY_DIR}/stm32h7xx.ld @ONLY)
+
 	# Create elf file and link it
     add_executable(${PROJECT_NAME}.elf ${ARM_SOURCES})
     target_link_libraries(${PROJECT_NAME}.elf PRIVATE freertos_kernel)
