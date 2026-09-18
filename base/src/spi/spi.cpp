@@ -263,13 +263,22 @@ void SwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, s
     mRxDma->disable();
     mTxDma->disable();
 
-    // Tx and Rx
-    mTxDma->setSource(txBuff, dataSize, 1);
+    // Setup TX DMA
+    if(txBuff) {
+        mTxDma->setSource(txBuff, dataSize, 1);
+    } else {
+        mTxDma->setSource(&mTxDummy, dataSize, 0);
+    }
     mTxDma->setDest((void *)&mSpiHw->TXDR, dataSize, 0);
     mTxDma->setNumTransfers(bufLen, 0);
 
+    // Setup RX DMA
     mRxDma->setSource((void *)&mSpiHw->RXDR, dataSize, 0);
-    mRxDma->setDest(rxBuff, dataSize, 1);
+    if(rxBuff) {
+        mRxDma->setDest(rxBuff, dataSize, 1);
+    } else {
+        mRxDma->setDest(&mRxDummy, dataSize, 0);
+    }
     mRxDma->setNumTransfers(bufLen, 0);
 
     mSpiHw->CR2 = bufLen;

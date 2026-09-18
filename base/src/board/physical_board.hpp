@@ -9,6 +9,7 @@
 #include <timer/basic_timer.hpp>
 #include <adc/adc.hpp>
 #include <usb/usb_serial.hpp>
+#include <fpga/comm_ice40_loader.hpp>
 
 namespace board {
 
@@ -237,8 +238,18 @@ public:
 
 private:
     adc::OnChipADC mAdc;       ///< ADC
+
     spi::HwCsSpiBus mHwSpiBus; ///< Hw SPI bus
+
+    gpio::Pin mSwCsPins[3];    ///< Pins for the Sw SPI bus
+    spi::SwCsSpiBus mSwSpiBus; ///< Sw SPI bus
+
+    gpio::Pin mIce40ResetPin;         ///< ICE40 reset pin
+    gpio::Pin mIce40CDonePin;         ///< ICE40 CDone pin
+    fpga::CommIce40Loader mIceLoader; ///< ICE40 loader
+
     spi::DAC60508 mDac;        ///< DAC
+
     timer::BasicTimer mTimerHw[scProtoBoardV1Cfg.numTimers]; /// Timer HW
 
     PhysicalTimer mTimers[scProtoBoardV1Cfg.numTimers]; ///< Timers
