@@ -15,7 +15,7 @@ class CommIce40Loader {
 public:
     static const char scHeader[3];
     CommIce40Loader(board::CommunicationInterface& commItf,
-            gpio::Pin csPin, gpio::Pin cDonePin, gpio::Pin resetPin, spi::ISpiBus& spi);
+            gpio::Pin& csPin, gpio::Pin& cDonePin, gpio::Pin& resetPin, spi::ISpiBus& spi);
 
     virtual ~CommIce40Loader();
 
@@ -33,7 +33,7 @@ private:
     gpio::Pin& mResetPin;     ///< Reset pin of the FPGA.
     gpio::Pin& mCDonePin;     ///< CDone pin of the FPGA.
     gpio::Pin& mCsPin;        ///< CS pin of the FPGA.
-    TaskHandle_t mTaskHandle;
+    TaskHandle_t mTaskHandle; ///< Handle of the FPGA loader task.
 };
 
 } // namespace fpga

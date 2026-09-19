@@ -9,10 +9,12 @@ const char CommIce40Loader::scHeader[3] = {0xAB,0xCD,0xEF};
 CommIce40Loader* CommIce40Loader::sInstance = NULL;
 
 CommIce40Loader::CommIce40Loader(board::CommunicationInterface& commItf,
-        gpio::Pin csPin, gpio::Pin cDonePin, gpio::Pin resetPin, spi::ISpiBus& spi)
+        gpio::Pin& csPin, gpio::Pin& cDonePin, gpio::Pin& resetPin, spi::ISpiBus& spi)
     : mSpiBus(spi), mCsPin(csPin), mCDonePin(cDonePin), mResetPin(resetPin), mCommItf(commItf) {
 
     assert(sInstance == nullptr);
+
+    sInstance = this;
 
     BaseType_t xReturned;
 
@@ -73,8 +75,11 @@ void CommIce40Loader::loaderTask(void* v) {
     (void) v;
 
     while(1) {
+        // This could technically be optimized to pend on some signal, but I won't bother.
         if(sInstance) {
             sInstance->loaderTaskBody();
+        } else {
+            vTaskDelay(100);
         }
     }
 }
@@ -90,9 +95,7 @@ void CommIce40Loader::loaderTaskBody() {
     ice40_init(mResetPin, mCsPin);
 
     while(!ice40_is_done(mCDonePin)) {
-        if(!mCommItf.BlockUntilAvailable(portMAX_DELAY)) {
-            continue;
-        }
+        mCommItf.BlockUntilAvailable(portMAX_DELAY);
         size_t nRead = mCommItf.ReadN(buffer, sizeof buffer);
         if(nRead) {
             ice40_write_bytes(mSpiBus, buffer, nRead);

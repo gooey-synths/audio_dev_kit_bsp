@@ -1,5 +1,3 @@
-#pragma once
-
 #include "ice40_loader.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -45,7 +43,7 @@ void ice40_write_bytes(spi::ISpiBus& spi, char* bytes, size_t len) {
 
     // This is not great tbh
     while(!spi.isComplete()) {
-        vTaskDelay(10);
+        vTaskDelay(1);
     }
 }
 
