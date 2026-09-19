@@ -13,6 +13,15 @@ const char* const ProtoBoardV1::scInvalidTimerMsg = "Invalid Timer index";
 ProtoBoardV1::ProtoBoardV1() :
     mAdc(1),
     mHwSpiBus(2),
+    mSwCsPins {
+        gpio::GPIOController::getInstance()->getPin(&spi3_cs0_pin),
+        gpio::GPIOController::getInstance()->getPin(&spi3_cs1_pin),
+        gpio::GPIOController::getInstance()->getPin(&spi3_cs2_pin),
+    },
+    mSwSpiBus(3, mSwCsPins, sizeof(mSwCsPins)/sizeof(*mSwCsPins)),
+    mIce40ResetPin(gpio::GPIOController::getInstance()->getPin(&fpga_hard_reset_pin)),
+    mIce40CDonePin(gpio::GPIOController::getInstance()->getPin(&fpga_cdone_pin)),
+    mIceLoader(usb::USBSerial::getInstance().getInterface(1), mSwCsPins[0], mIce40CDonePin, mIce40ResetPin, mSwSpiBus),
     mDac(mHwSpiBus, 0),
     mTimerHw {
         timer::BASIC_TIMER_7
@@ -53,7 +62,6 @@ ProtoBoardV1::ProtoBoardV1() :
         PhysicalAnalogOutput(mDac, 7),
     }
     {
-
         // Setup Digital IOs
         gpio::GPIOController* gpioController = gpio::GPIOController::getInstance();
         gpioController->setConfig(&dio_0_pin, &dio_input_conf);
@@ -65,11 +73,23 @@ ProtoBoardV1::ProtoBoardV1() :
         gpioController->setConfig(&dio_6_pin, &dio_output_conf);
         gpioController->setConfig(&dio_7_pin, &dio_output_conf);
 
-        // Setup SPI pins
+        // Setup HW SPI pins
         gpioController->setConfig(&spi2_clk_pin,  &spi2_clk_conf);
         gpioController->setConfig(&spi2_cipo_pin, &spi2_cipo_conf);
         gpioController->setConfig(&spi2_copi_pin, &spi2_copi_conf);
         gpioController->setConfig(&spi2_cs0_pin,  &spi2_cs0_conf);
+
+        // Setup SW SPI pins
+        gpioController->setConfig(&spi3_clk_pin,  &spi3_clk_conf);
+        gpioController->setConfig(&spi3_cipo_pin, &spi3_cipo_conf);
+        gpioController->setConfig(&spi3_copi_pin, &spi3_copi_conf);
+        gpioController->setConfig(&spi3_cs0_pin,  &spi3_cs0_conf);
+        gpioController->setConfig(&spi3_cs1_pin,  &spi3_cs1_conf);
+        gpioController->setConfig(&spi3_cs2_pin,  &spi3_cs2_conf);
+
+        // Setup ICE40 pins
+        gpioController->setConfig(&fpga_cdone_pin, &fpga_cdone_conf);
+        gpioController->setConfig(&fpga_hard_reset_pin,  &fpga_hard_reset_conf);
 
         // Setup DAC
         mDac.setup();

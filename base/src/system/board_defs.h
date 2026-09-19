@@ -126,4 +126,9 @@ extern GPIOPin dio_7_pin;
 extern GPIOConf dio_input_conf;
 extern GPIOConf dio_output_conf;
 
+extern GPIOPin fpga_hard_reset_pin;
+extern GPIOConf fpga_hard_reset_conf;
+
+extern GPIOPin fpga_cdone_pin;
+extern GPIOConf fpga_cdone_conf;
 #endif
