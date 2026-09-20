@@ -5,7 +5,7 @@
 namespace fpga {
 
 ///
-/// SPI config for interacting with the SPI bus.
+/// SPI config for interacting with the FPGA.
 ///
 static const spi::SpiBusConfig scFpgaSpiBusCfg = {
     .mPolarity = 1,

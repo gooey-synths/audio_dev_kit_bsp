@@ -10,6 +10,7 @@ namespace fpga {
 
 ///
 /// Class for loading a bitstream from a communication interface.
+/// @note This is for development purposes only so it is not perfect.
 ///
 class CommIce40Loader {
 public:

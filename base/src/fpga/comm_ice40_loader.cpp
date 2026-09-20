@@ -5,9 +5,17 @@
 
 namespace fpga {
 
-const char CommIce40Loader::scHeader[3] = {0xAB,0xCD,0xEF};
-CommIce40Loader* CommIce40Loader::sInstance = NULL;
+const char CommIce40Loader::scHeader[3] = {0xAB,0xCD,0xEF}; ///< Header to signal start of communication
+CommIce40Loader* CommIce40Loader::sInstance = NULL; ///< Static instance pointer to enforce singleton.
 
+///
+/// Constructor.
+/// @param commItf Communication interface to use for loading in bitstream.
+/// @param csPin Pin to use for chip select of the ICE40 (output).
+/// @param cDonePin Pin to use for CDone signal of the ICE40 (input).
+/// @param resetPin Pin to use for the reset of the ICE40 (output).
+/// @param spi SPI bus that is connected to the IC40
+///
 CommIce40Loader::CommIce40Loader(board::CommunicationInterface& commItf,
         gpio::Pin& csPin, gpio::Pin& cDonePin, gpio::Pin& resetPin, spi::ISpiBus& spi)
     : mSpiBus(spi), mCsPin(csPin), mCDonePin(cDonePin), mResetPin(resetPin), mCommItf(commItf) {
@@ -47,7 +55,7 @@ void CommIce40Loader::waitForHeader() {
 
     while(1) {
         char c;
-        while(!mCommItf.BlockUntilAvailable(portMAX_DELAY));
+        mCommItf.BlockUntilAvailable(portMAX_DELAY);
 
         size_t n = mCommItf.ReadN(&c, sizeof c);
 
