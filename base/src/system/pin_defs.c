@@ -358,3 +358,29 @@ const GPIOConf dio_output_conf = {
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
+
+// FPGA pins
+const GPIOPin fpga_hard_reset_pin = {
+    .port = 3,
+    .pin = 14
+};
+
+const GPIOConf fpga_hard_reset_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = OUTPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL
+};
+
+const GPIOPin fpga_cdone_pin = {
+    .port = 3,
+    .pin = 15
+};
+
+const GPIOConf fpga_cdone_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = INPUT_MODE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL
+};
+

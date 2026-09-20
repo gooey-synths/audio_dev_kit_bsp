@@ -47,6 +47,7 @@ public:
     MOCK_METHOD(void, interrupt, (), (override));
     MOCK_METHOD(void, cleanup, (), (override));
     MOCK_METHOD(void, waitForCompletion, (), (override));
+    MOCK_METHOD(bool, isComplete, (), (override));
 
     size_t getBufLen() { return mBufLen; }
     size_t getDataSize() { return mDataSize; }

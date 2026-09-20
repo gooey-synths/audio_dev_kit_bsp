@@ -33,12 +33,16 @@ struct SpiBusConfig {
 // SPI bus interface
 class ISpiBus {
   public:
+    /// CS selection for when no CS pin should be used.
+    static constexpr size_t NO_CS_SELECTED = static_cast<size_t>(-1);
+
     virtual ~ISpiBus() = default;
     virtual void configure(SpiBusConfig conf) = 0;
     virtual SpiBusConfig getConfiguration() = 0;
     virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) = 0;
     virtual void transact() = 0;
     virtual void waitForCompletion() = 0;
+    virtual bool isComplete() = 0;
 
   protected:
     virtual void interrupt() = 0;

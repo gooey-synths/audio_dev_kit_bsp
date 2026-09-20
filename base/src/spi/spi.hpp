@@ -28,10 +28,7 @@ static constexpr const char* const scInvalidInstance = "Invalid SPI instance";
 class SpiBusBase : public ISpiBus {
 
   public:
-    /// CS selection for when no CS pin should be used.
-    static constexpr size_t NO_CS_SELECTED = static_cast<size_t>(-1);
-
-    SpiBusBase(size_t);
+     SpiBusBase(size_t);
 
     ///
     /// Destructor.
@@ -49,6 +46,10 @@ class SpiBusBase : public ISpiBus {
         while (mIsActive) {
             ; // Do nothing
         }
+    }
+
+    bool isComplete() override {
+        return !mIsActive;
     }
 
   protected:
@@ -109,6 +110,10 @@ class SpiBusBase : public ISpiBus {
     size_t mNumTransfers;
     dma::DmaController::DmaChannel *mTxDma; ///< TX DMA channel
     dma::DmaController::DmaChannel *mRxDma; ///< RX DMA channel
+
+  protected:
+    uint64_t mTxDummy = 0; ///< Dummy data for when you when you only want to recieve.
+    uint64_t mRxDummy = 0; ///< Dummy location for when you only want to transmit.
 
   private:
     ///

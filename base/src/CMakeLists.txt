@@ -51,6 +51,8 @@ set(ARM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_processor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/blinky/blinky.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fpga/ice40_loader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fpga/comm_ice40_loader.cpp
 )
 
 # TinyUSB stuff
