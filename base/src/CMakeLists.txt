@@ -51,6 +51,8 @@ set(ARM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_processor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/blinky/blinky.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/qspi/qspi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_qspi.cpp
 )
 
 # TinyUSB stuff
