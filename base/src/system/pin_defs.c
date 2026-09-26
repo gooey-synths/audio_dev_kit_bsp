@@ -358,3 +358,89 @@ const GPIOConf dio_output_conf = {
     .speed = VERY_HIGH_SPEED,
     .pull = NO_PULL,
 };
+
+// QSPI pins
+
+const GPIOPin qspi0_pin = {
+    .port = 3,
+    .pin = 11
+};
+
+const GPIOConf qspi0_pin_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 9
+};
+
+
+const GPIOPin qspi1_pin = {
+    .port = 3,
+    .pin = 12
+};
+
+const GPIOConf qspi1_pin_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 9
+};
+
+
+const GPIOPin qspi2_pin = {
+    .port = 4,
+    .pin = 2
+};
+
+const GPIOConf qspi2_pin_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 9
+};
+
+
+const GPIOPin qspi3_pin = {
+    .port = 0,
+    .pin = 1
+};
+
+const GPIOConf qspi3_pin_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 9
+};
+
+
+const GPIOPin qspi_clk_pin = {
+    .port = 1,
+    .pin = 2
+};
+
+const GPIOConf qspi_clk_pin_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 9
+};
+
+
+const GPIOPin qspi_cs_pin = {
+    .port = 1,
+    .pin = 10
+};
+
+const GPIOConf qspi_cs_pin_conf = {
+    .type = PUSH_PULL_TYPE,
+    .mode = ALTERNATE,
+    .speed = VERY_HIGH_SPEED,
+    .pull = NO_PULL,
+    .alternate_function = 9
+};
+

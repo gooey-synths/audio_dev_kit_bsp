@@ -1,4 +1,5 @@
 #include "qspi.hpp"
+#include <system/board_defs.h>
 
 namespace qspi {
 
@@ -6,9 +7,10 @@ namespace qspi {
 /// Constructor.
 ///
 QSpi::QSpi()
-    : mMdmaCh(mdma::MDMAController::getInstance()->getChannel(0))
+    : mQspi(QUADSPI), mMdmaCh(mdma::MDMAController::getInstance()->getChannel(0))
 {
     RCC->AHB3ENR |= RCC_AHB3ENR_QSPIEN;
+    mQspi->CR |= QUADSPI_CR_EN;
 }
 
 ///
@@ -16,18 +18,15 @@ QSpi::QSpi()
 ///
 QSpi::~QSpi() {
     RCC->AHB3ENR &= ~RCC_AHB3ENR_QSPIEN;
+    mQspi->CR &= ~QUADSPI_CR_EN;
 }
 
 ///
 /// Set the communication cofiguration.
 /// @param comm Desired communication configuration.
-/// @note This will stop the QSPI.
 ///
 void QSpi::setCommunicationConfiguration(CommunicationConfiguration& comm) {
-    stop();
-    uint32_t funcModeBits = QUADSPI->CCR & QUADSPI_CCR_FMODE;
-    uint32_t ccr = comm.toReg();
-    QUADSPI->CCR = funcModeBits | ccr;
+    mQspi->CCR = comm.toReg();
 }
 
 ///
@@ -38,17 +37,22 @@ void QSpi::setCommunicationConfiguration(CommunicationConfiguration& comm) {
 void QSpi::setDeviceConfiguration(DeviceConfiguration& dev) {
     stop();
 
-    // TODO: Set frequency
+    // Set frequency prescaler
+    // This is the default kernel clock
+    uint32_t kerClk = AHB_AXI_TARGET;
+    uint32_t prescaler = (kerClk / dev.freq) - 1;
+    mQspi->CR &= ~QUADSPI_CR_PRESCALER_Msk;
+    mQspi->CR |= (prescaler << QUADSPI_CR_PRESCALER_Pos) & QUADSPI_CR_PRESCALER_Msk;
 
-    // Set device selection.
+    // Set device selection
     if(dev.devSel == DUAL) {
-        QUADSPI->CR |= QUADSPI_CR_DFM;
+        mQspi->CR |= QUADSPI_CR_DFM;
     } else {
-        QUADSPI->CR &= ~QUADSPI_CR_DFM;
+        mQspi->CR &= ~QUADSPI_CR_DFM;
         if(dev.devSel == DEV_1) {
-            QUADSPI->CR |= QUADSPI_CR_FSEL;
+            mQspi->CR &= ~QUADSPI_CR_FSEL;
         } else {
-            QUADSPI->CR &= ~QUADSPI_CR_FSEL;
+            mQspi->CR |= QUADSPI_CR_FSEL;
         }
     }
 
@@ -63,7 +67,7 @@ void QSpi::setDeviceConfiguration(DeviceConfiguration& dev) {
     // Set clock polarity
     dcr |= ((uint32_t)dev.clkPol << QUADSPI_DCR_CKMODE_Pos) & QUADSPI_DCR_CKMODE_Msk;
 
-    QUADSPI->DCR = dcr;
+    mQspi->DCR = dcr;
 }
 
 ///
@@ -74,8 +78,8 @@ void QSpi::setDeviceConfiguration(DeviceConfiguration& dev) {
 void QSpi::setHeader(Header& head) {
     stop();
 
-    QUADSPI->AR = head.address;
-    QUADSPI->ABR = head.alternate;
+    mQspi->AR = head.address;
+    mQspi->ABR = head.alternate;
 }
 
 ///
@@ -87,7 +91,7 @@ void QSpi::startMemoryMapped() {
 
     setMode(MEMORY_MAPPED);
 
-    QUADSPI->CR |= QUADSPI_CR_EN;
+    mQspi->CR |= QUADSPI_CR_EN;
 }
 
 ///
@@ -99,13 +103,13 @@ void QSpi::startMemoryMapped() {
 void QSpi::startIndirectWrite(uint8_t* buf, size_t bufLen) {
     stop();
 
+    mQspi->DLR = bufLen - 1;
+
     setMode(INDIRECT_WRITE);
 
-    QUADSPI->DLR = bufLen - 1;
-
-    mMdmaList[0].setSource(buf, sizeof(*buf), 1, true);
-    mMdmaList[0].setDestination((void*)&QUADSPI->DR, sizeof(*buf), 0, true);
-    mMdmaList[0].setNumberData(bufLen, 1);
+    mMdmaList[0].setSource(buf, sizeof(*buf), sizeof(*buf), false);
+    mMdmaList[0].setDestination((void*)&mQspi->DR, sizeof(*buf), 0, false);
+    mMdmaList[0].setNumberData(bufLen, sizeof(*buf));
     mMdmaList[0].setTrigger(22, false, mdma::eTriggerMode::BUF_TRANS);
     mMdmaList[0].linkTo(nullptr);
 
@@ -123,21 +127,19 @@ void QSpi::startIndirectWrite(uint8_t* buf, size_t bufLen) {
 void QSpi::startIndirectRead(uint8_t* buf, size_t bufLen) {
     stop();
 
+    mQspi->DLR = bufLen - 1;
+
     setMode(INDIRECT_READ);
 
-    QUADSPI->DLR = bufLen - 1;
-
-    mMdmaList[0].setSource((void*)&QUADSPI->DR, sizeof(*buf), 0, true);
-    mMdmaList[0].setDestination(buf, sizeof(*buf), 1, true);
-    mMdmaList[0].setNumberData(bufLen, 1);
+    mMdmaList[0].setSource((void*)&mQspi->DR, sizeof(*buf), 0, false);
+    mMdmaList[0].setDestination(buf, sizeof(*buf), sizeof(*buf), false);
+    mMdmaList[0].setNumberData(bufLen, sizeof(*buf));
     mMdmaList[0].setTrigger(22, false, mdma::eTriggerMode::BUF_TRANS);
     mMdmaList[0].linkTo(nullptr);
 
     mMdmaCh->disable();
     mMdmaCh->configureTransfer(mMdmaList);
     mMdmaCh->enable();
-
-    QUADSPI->CR |= QUADSPI_CR_EN;
 }
 
 ///
@@ -148,15 +150,22 @@ void QSpi::startIndirectRead(uint8_t* buf, size_t bufLen) {
 void QSpi::startStatusPolling(StatusPollingConfigurtion& spConf) {
     stop();
 
-    setMode(INDIRECT_READ);
+    setMode(STATUS_POLLING);
 
-    QUADSPI->PIR = spConf.interval;
-    QUADSPI->PSMKR = spConf.mask;
-    QUADSPI->PSMAR = spConf.match;
+    // Set polling interval
+    mQspi->PIR = spConf.interval;
+
+    // Set status mask
+    mQspi->PSMKR = spConf.mask;
+
+    // Set status match
+    mQspi->PSMAR = spConf.match;
+
+    // Set match mode
     if(spConf.orMode) {
-        QUADSPI->CR |= QUADSPI_CR_PMM;
+        mQspi->CR |= QUADSPI_CR_PMM;
     } else {
-        QUADSPI->CR &= ~QUADSPI_CR_PMM;
+        mQspi->CR &= ~QUADSPI_CR_PMM;
     }
 }
 
@@ -166,8 +175,8 @@ void QSpi::startStatusPolling(StatusPollingConfigurtion& spConf) {
 /// @note This will clear the status match flag.
 ///
 bool QSpi::statusPollingMatch() {
-    bool ret = !!(QUADSPI->SR & QUADSPI_SR_SMF);
-    QUADSPI->FCR |= QUADSPI_FCR_CSMF;
+    bool ret = !!(mQspi->SR & QUADSPI_SR_SMF);
+    mQspi->FCR |= QUADSPI_FCR_CSMF;
 
     return ret;
 }

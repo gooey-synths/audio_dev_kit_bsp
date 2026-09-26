@@ -137,18 +137,32 @@ public:
 
     bool statusPollingMatch();
 
-    void stop();
+    ///
+    /// Stop any incoming transfer.
+    ///
+    void stop() {
+        mQspi->CR |= QUADSPI_CR_ABORT_Msk;
+        while(isBusy());
+    }
+
+    ///
+    /// Check if the QSPI peripheral is busy.
+    /// @return True if the QSPI is busy.
+    ///
+    bool isBusy() {
+        return mQspi->SR & QUADSPI_SR_BUSY_Msk;
+    }
 private:
 
     ///
     /// Set the functional mode of the QSPI.
     /// @param mode The desired functional mode of the QSPI.
     ///
-    void setMode(eMode mode) {
-        QUADSPI->CCR &= ~QUADSPI_CCR_FMODE_Msk;
-        QUADSPI->CCR |= ((uint32_t)mode << QUADSPI_CCR_FMODE_Pos) & QUADSPI_CCR_FMODE_Msk;
+    inline void setMode(eMode mode) {
+        mQspi->CCR |= ((uint32_t)mode << QUADSPI_CCR_FMODE_Pos) & QUADSPI_CCR_FMODE_Msk;
     }
 
+    QUADSPI_TypeDef* mQspi;         ///< QSPI hardware.
     mdma::MDMAChannel* mMdmaCh;     ///< MDMA channel used for indirect mode transfers.
     mdma::ListNode mMdmaList[3];    ///< MDMA list for chaining indirect mode transfers.
 };

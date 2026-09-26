@@ -47,3 +47,6 @@ extern void test_mdma_list_buffer();
 
 // Board tests
 extern void test_board_echo();
+
+// QSPI tests
+extern void test_qspi_W25Q128JV();
