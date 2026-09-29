@@ -103,19 +103,21 @@ void QSpi::startMemoryMapped() {
 void QSpi::startIndirectWrite(uint8_t* buf, size_t bufLen) {
     stop();
 
-    mQspi->DLR = bufLen - 1;
-
     setMode(INDIRECT_WRITE);
 
-    mMdmaList[0].setSource(buf, sizeof(*buf), sizeof(*buf), false);
-    mMdmaList[0].setDestination((void*)&mQspi->DR, sizeof(*buf), 0, false);
-    mMdmaList[0].setNumberData(bufLen, sizeof(*buf));
-    mMdmaList[0].setTrigger(22, false, mdma::eTriggerMode::BUF_TRANS);
-    mMdmaList[0].linkTo(nullptr);
+    if(buf) {
+        mQspi->DLR = bufLen - 1;
 
-    mMdmaCh->disable();
-    mMdmaCh->configureTransfer(mMdmaList);
-    mMdmaCh->enable();
+        mMdmaList[0].setSource(buf, sizeof(*buf), sizeof(*buf), false);
+        mMdmaList[0].setDestination((void*)&mQspi->DR, sizeof(*buf), 0, false);
+        mMdmaList[0].setNumberData(bufLen, sizeof(*buf));
+        mMdmaList[0].setTrigger(22, false, mdma::eTriggerMode::BUF_TRANS);
+        mMdmaList[0].linkTo(nullptr);
+
+        mMdmaCh->disable();
+        mMdmaCh->configureTransfer(mMdmaList);
+        mMdmaCh->enable();
+    }
 }
 
 ///
@@ -150,7 +152,8 @@ void QSpi::startIndirectRead(uint8_t* buf, size_t bufLen) {
 void QSpi::startStatusPolling(StatusPollingConfigurtion& spConf) {
     stop();
 
-    setMode(STATUS_POLLING);
+    // Clear status polling flag
+    mQspi->FCR |= QUADSPI_FCR_CSMF;
 
     // Set polling interval
     mQspi->PIR = spConf.interval;
@@ -167,6 +170,8 @@ void QSpi::startStatusPolling(StatusPollingConfigurtion& spConf) {
     } else {
         mQspi->CR &= ~QUADSPI_CR_PMM;
     }
+
+    setMode(STATUS_POLLING);
 }
 
 ///

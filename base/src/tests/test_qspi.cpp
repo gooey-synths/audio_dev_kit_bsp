@@ -4,6 +4,7 @@
 #include <usb/usb_serial.hpp>
 
 #include <stdio.h>
+#include <inttypes.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -26,19 +27,6 @@ public:
         mQ.setDeviceConfiguration(mDevConf);
     }
 
-    void configureSlowCommand(uint8_t nDummy, uint8_t inst, bool hasData) {
-        mCommConf.addressMode = qspi::eNumLines::DISABLED;
-        mCommConf.addressSize = qspi::eCommandSize::EIGHT;
-        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
-        mCommConf.dataMode = hasData ? qspi::eNumLines::ONE : qspi::eNumLines::DISABLED;
-        mCommConf.doubleDataRate = false;
-        mCommConf.dummyCycles = nDummy;
-        mCommConf.instruction = inst;
-        mCommConf.instructionMode = qspi::eNumLines::ONE;
-
-        mQ.setCommunicationConfiguration(mCommConf);
-    }
-
     void waitForCompletion() {
         while(mQ.isBusy()) {
             vTaskDelay(10);
@@ -47,16 +35,38 @@ public:
 
     uint64_t readUniqueId() {
         uint64_t id;
-        configureSlowCommand(31, 0x4B, true);
+
+        mCommConf.addressMode = qspi::eNumLines::DISABLED;
+        mCommConf.addressSize = qspi::eCommandSize::EIGHT;
+        mCommConf.alternateMode = qspi::eNumLines::ONE;
+        mCommConf.dataMode = qspi::eNumLines::ONE;
+        mCommConf.dummyCycles = 24;
+        mCommConf.instruction = 0x4B;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+        mQ.setCommunicationConfiguration(mCommConf);
+
+        // Use alternate byte to make up the last dummy byte
+        mHeader.alternate = 0;
+        mQ.setHeader(mHeader);
+
         mQ.startIndirectRead((uint8_t*)&id, sizeof(id));
 
         waitForCompletion();
         return id;
     }
 
-    uint64_t readJEDEC() {
-        uint64_t id;
-        configureSlowCommand(0, 0x9F, true);
+    uint32_t readJEDEC() {
+        uint32_t id;
+
+        mCommConf.addressMode = qspi::eNumLines::DISABLED;
+        mCommConf.addressSize = qspi::eCommandSize::EIGHT;
+        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+        mCommConf.dataMode = qspi::eNumLines::ONE;
+        mCommConf.dummyCycles = 0;
+        mCommConf.instruction = 0x9F;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+        mQ.setCommunicationConfiguration(mCommConf);
+
         mQ.startIndirectRead((uint8_t*)&id, 3);
 
         waitForCompletion();
@@ -64,14 +74,66 @@ public:
     }
 
     void writeStatusReg(uint8_t inst, uint8_t data) {
-        configureSlowCommand(0, inst, true);
+        mCommConf.addressMode = qspi::eNumLines::DISABLED;
+        mCommConf.addressSize = qspi::eCommandSize::EIGHT;
+        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+        mCommConf.dataMode = qspi::eNumLines::ONE;
+        mCommConf.dummyCycles = 0;
+        mCommConf.instruction = inst;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+        mQ.setCommunicationConfiguration(mCommConf);
 
         mQ.startIndirectWrite(&data, 1);
 
         waitForCompletion();
     }
 
+    void erase() {
+        mCommConf.addressMode = qspi::eNumLines::DISABLED;
+        mCommConf.addressSize = qspi::eCommandSize::EIGHT;
+        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+        mCommConf.dataMode = qspi::eNumLines::DISABLED;
+        mCommConf.dummyCycles = 0;
+        mCommConf.instruction = 0xC7;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+        mQ.setCommunicationConfiguration(mCommConf);
+
+        // We do not need to start an indirect write if there is no data.
+        // mQ.startIndirectWrite(nullptr, 0);
+
+        waitForCompletion();
+
+        // Begin status polling for erase finish
+        qspi::StatusPollingConfigurtion conf;
+        conf.dataLength = 1;
+        conf.interval = 1000;
+        conf.mask = 0x80;
+        conf.match = 0x80;
+        conf.orMode = false;
+
+        beginStatusPolling(0x00, conf);
+
+        while(!mQ.statusPollingMatch()) {
+            vTaskDelay(10);
+        }
+    }
+
 private:
+
+
+    void beginStatusPolling(uint8_t inst, qspi::StatusPollingConfigurtion& conf) {
+        mCommConf.addressMode = qspi::eNumLines::DISABLED;
+        mCommConf.addressSize = qspi::eCommandSize::EIGHT;
+        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+        mCommConf.dataMode = qspi::eNumLines::ONE;
+        mCommConf.dummyCycles = 0;
+        mCommConf.instruction = inst;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+        mQ.setCommunicationConfiguration(mCommConf);
+
+        mQ.startStatusPolling(conf);
+    }
+
     qspi::QSpi& mQ;
     qspi::CommunicationConfiguration mCommConf;
     qspi::DeviceConfiguration mDevConf;
@@ -112,19 +174,23 @@ void test_qspi_W25Q128JV() {
     while(1) {
         // Print unique ID
         uint64_t uid = flash.readUniqueId();
-        sprintf(buffer, "UID: 0x%x", uid);
+        sprintf(buffer, "UID: 0x%llx", uid);
         comm.WriteN(buffer, strlen(buffer));
         comm.Flush();
 
         // Print JEDEC
-        //uint64_t jid = flash.readJEDEC();
-        //sprintf(buffer, "JID: 0x%xll", jid);
-        //comm.WriteN(buffer, strlen(buffer));
-        //comm.Flush();
+        uint32_t jid = flash.readJEDEC();
+        sprintf(buffer, "JID: 0x%xll", jid);
+        comm.WriteN(buffer, strlen(buffer));
+        comm.Flush();
 
         // Enable Quad
         flash.writeStatusReg(0x31, 1<<1);
 
-        vTaskDelay(1000);
+
+        // Chip erase
+        flash.erase();
+
+        vTaskDelay(100);
     }
 }
