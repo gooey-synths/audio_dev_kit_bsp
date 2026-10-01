@@ -43,13 +43,11 @@ public:
         mCommConf.dummyCycles = 24;
         mCommConf.instruction = 0x4B;
         mCommConf.instructionMode = qspi::eNumLines::ONE;
-        mQ.setCommunicationConfiguration(mCommConf);
 
         // Use alternate byte to make up the last dummy byte
         mHeader.alternate = 0;
-        mQ.setHeader(mHeader);
 
-        mQ.startIndirectRead((uint8_t*)&id, sizeof(id));
+        mQ.startIndirectRead(mHeader, mCommConf, (uint8_t*)&id, sizeof(id));
 
         waitForCompletion();
         return id;
@@ -65,9 +63,8 @@ public:
         mCommConf.dummyCycles = 0;
         mCommConf.instruction = 0x9F;
         mCommConf.instructionMode = qspi::eNumLines::ONE;
-        mQ.setCommunicationConfiguration(mCommConf);
 
-        mQ.startIndirectRead((uint8_t*)&id, 3);
+        mQ.startIndirectRead(mHeader, mCommConf, (uint8_t*)&id, 3);
 
         waitForCompletion();
         return id;
@@ -81,9 +78,8 @@ public:
         mCommConf.dummyCycles = 0;
         mCommConf.instruction = inst;
         mCommConf.instructionMode = qspi::eNumLines::ONE;
-        mQ.setCommunicationConfiguration(mCommConf);
 
-        mQ.startIndirectWrite(&data, 1);
+        mQ.startIndirectWrite(mHeader, mCommConf,&data, 1);
 
         waitForCompletion();
     }
@@ -96,10 +92,8 @@ public:
         mCommConf.dummyCycles = 0;
         mCommConf.instruction = 0xC7;
         mCommConf.instructionMode = qspi::eNumLines::ONE;
-        mQ.setCommunicationConfiguration(mCommConf);
 
-        // We do not need to start an indirect write if there is no data.
-        // mQ.startIndirectWrite(nullptr, 0);
+        mQ.startIndirectWrite(mHeader, mCommConf, nullptr, 0);
 
         waitForCompletion();
 
@@ -119,8 +113,6 @@ public:
     }
 
 private:
-
-
     void beginStatusPolling(uint8_t inst, qspi::StatusPollingConfigurtion& conf) {
         mCommConf.addressMode = qspi::eNumLines::DISABLED;
         mCommConf.addressSize = qspi::eCommandSize::EIGHT;
@@ -129,9 +121,8 @@ private:
         mCommConf.dummyCycles = 0;
         mCommConf.instruction = inst;
         mCommConf.instructionMode = qspi::eNumLines::ONE;
-        mQ.setCommunicationConfiguration(mCommConf);
 
-        mQ.startStatusPolling(conf);
+        mQ.startStatusPolling(mHeader, mCommConf, conf);
     }
 
     qspi::QSpi& mQ;
@@ -186,7 +177,6 @@ void test_qspi_W25Q128JV() {
 
         // Enable Quad
         flash.writeStatusReg(0x31, 1<<1);
-
 
         // Chip erase
         flash.erase();

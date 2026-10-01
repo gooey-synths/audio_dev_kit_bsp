@@ -121,19 +121,16 @@ public:
 
     virtual ~QSpi();
 
-    void setCommunicationConfiguration(CommunicationConfiguration& comm);
 
     void setDeviceConfiguration(DeviceConfiguration& dev);
 
-    void setHeader(Header& head);
-
     void startMemoryMapped();
 
-    void startIndirectRead(uint8_t* buf, size_t bufLen);
+    void startIndirectRead(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen);
 
-    void startIndirectWrite(uint8_t* buf, size_t bufLen);
+    void startIndirectWrite(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen);
 
-    void startStatusPolling(StatusPollingConfigurtion& spConf);
+    void startStatusPolling(Header& head, CommunicationConfiguration& comm, StatusPollingConfigurtion& spConf);
 
     bool statusPollingMatch();
 
@@ -153,14 +150,7 @@ public:
         return mQspi->SR & QUADSPI_SR_BUSY_Msk;
     }
 private:
-
-    ///
-    /// Set the functional mode of the QSPI.
-    /// @param mode The desired functional mode of the QSPI.
-    ///
-    inline void setMode(eMode mode) {
-        mQspi->CCR |= ((uint32_t)mode << QUADSPI_CCR_FMODE_Pos) & QUADSPI_CCR_FMODE_Msk;
-    }
+    void setHeader(Header& head);
 
     QUADSPI_TypeDef* mQspi;         ///< QSPI hardware.
     mdma::MDMAChannel* mMdmaCh;     ///< MDMA channel used for indirect mode transfers.

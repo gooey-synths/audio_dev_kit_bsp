@@ -22,14 +22,6 @@ QSpi::~QSpi() {
 }
 
 ///
-/// Set the communication cofiguration.
-/// @param comm Desired communication configuration.
-///
-void QSpi::setCommunicationConfiguration(CommunicationConfiguration& comm) {
-    mQspi->CCR = comm.toReg();
-}
-
-///
 /// Set the device configuration
 /// @param dev Desired device configuration.
 /// @note this will stop the QSPI.
@@ -89,24 +81,27 @@ void QSpi::setHeader(Header& head) {
 void QSpi::startMemoryMapped() {
     stop();
 
-    setMode(MEMORY_MAPPED);
+    //setMode(MEMORY_MAPPED);
 
     mQspi->CR |= QUADSPI_CR_EN;
 }
 
 ///
 /// Start an indirect write operation.
-/// @param buf Buffer to write.
+/// @param head Header to use.
+/// @param comm Communication cofiguration.
+/// @param buf Buffer to write. If null, will only send preamble.
 /// @param bufLen Length of buffer to write.
 /// @note this will restart the QSPI.
 ///
-void QSpi::startIndirectWrite(uint8_t* buf, size_t bufLen) {
+void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen) {
     stop();
 
-    setMode(INDIRECT_WRITE);
+    mQspi->DLR = bufLen - 1;
+    setHeader(head);
+    mQspi->CCR = comm.toReg() | (INDIRECT_WRITE << QUADSPI_CCR_FMODE_Pos);
 
     if(buf) {
-        mQspi->DLR = bufLen - 1;
 
         mMdmaList[0].setSource(buf, sizeof(*buf), sizeof(*buf), false);
         mMdmaList[0].setDestination((void*)&mQspi->DR, sizeof(*buf), 0, false);
@@ -122,16 +117,18 @@ void QSpi::startIndirectWrite(uint8_t* buf, size_t bufLen) {
 
 ///
 /// Start an indirect read operation.
+/// @param head Header to use.
+/// @param comm Communication cofiguration
 /// @param buf Buffer to read into.
 /// @param bufLen Length of buffer to read into.
 /// @note this will restart the QSPI.
 ///
-void QSpi::startIndirectRead(uint8_t* buf, size_t bufLen) {
+void QSpi::startIndirectRead(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen) {
     stop();
 
     mQspi->DLR = bufLen - 1;
-
-    setMode(INDIRECT_READ);
+    setHeader(head);
+    mQspi->CCR = comm.toReg() | (INDIRECT_READ << QUADSPI_CCR_FMODE_Pos);
 
     mMdmaList[0].setSource((void*)&mQspi->DR, sizeof(*buf), 0, false);
     mMdmaList[0].setDestination(buf, sizeof(*buf), sizeof(*buf), false);
@@ -142,14 +139,16 @@ void QSpi::startIndirectRead(uint8_t* buf, size_t bufLen) {
     mMdmaCh->disable();
     mMdmaCh->configureTransfer(mMdmaList);
     mMdmaCh->enable();
-}
+ }
 
 ///
+/// @param head Header to use.
+/// @param comm Communication cofiguration.
 /// Begin status polling mode.
 /// @param spConf Desired status polling configuraiton.
 /// @note this will restart the QSPI.
 ///
-void QSpi::startStatusPolling(StatusPollingConfigurtion& spConf) {
+void QSpi::startStatusPolling(Header& head, CommunicationConfiguration& comm, StatusPollingConfigurtion& spConf) {
     stop();
 
     // Clear status polling flag
@@ -171,7 +170,8 @@ void QSpi::startStatusPolling(StatusPollingConfigurtion& spConf) {
         mQspi->CR &= ~QUADSPI_CR_PMM;
     }
 
-    setMode(STATUS_POLLING);
+    setHeader(head);
+    mQspi->CCR = comm.toReg() | (INDIRECT_READ << QUADSPI_CCR_FMODE_Pos);
 }
 
 ///
