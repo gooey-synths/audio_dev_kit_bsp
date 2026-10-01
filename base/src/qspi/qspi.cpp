@@ -102,7 +102,6 @@ void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, ui
     mQspi->CCR = comm.toReg() | (INDIRECT_WRITE << QUADSPI_CCR_FMODE_Pos);
 
     if(buf) {
-
         mMdmaList[0].setSource(buf, sizeof(*buf), sizeof(*buf), false);
         mMdmaList[0].setDestination((void*)&mQspi->DR, sizeof(*buf), 0, false);
         mMdmaList[0].setNumberData(bufLen, sizeof(*buf));
@@ -151,6 +150,8 @@ void QSpi::startIndirectRead(Header& head, CommunicationConfiguration& comm, uin
 void QSpi::startStatusPolling(Header& head, CommunicationConfiguration& comm, StatusPollingConfigurtion& spConf) {
     stop();
 
+    mQspi->DLR = spConf.dataLength - 1;
+
     // Clear status polling flag
     mQspi->FCR |= QUADSPI_FCR_CSMF;
 
@@ -171,7 +172,7 @@ void QSpi::startStatusPolling(Header& head, CommunicationConfiguration& comm, St
     }
 
     setHeader(head);
-    mQspi->CCR = comm.toReg() | (INDIRECT_READ << QUADSPI_CCR_FMODE_Pos);
+    mQspi->CCR = comm.toReg() | (STATUS_POLLING << QUADSPI_CCR_FMODE_Pos);
 }
 
 ///

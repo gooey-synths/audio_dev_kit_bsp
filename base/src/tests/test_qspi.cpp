@@ -134,7 +134,7 @@ private:
 ///
 /// Setup the pins for testing
 ///
-void setup_pins(){
+void setup_pins() {
 
     gpio::GPIOController* gpio_controller = gpio::GPIOController::getInstance();
 
