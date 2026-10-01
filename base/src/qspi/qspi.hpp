@@ -73,6 +73,7 @@ struct StatusPollingConfigurtion {
     uint32_t match    = 0; ///< Bits to match to.
     size_t dataLength = 0; ///< Data length (max of 4).
     bool orMode       = 0; ///< True if any bits cause a match, false if all bits cause a match.
+    bool stopOnMatch  = 0; ///< Stop status polling on match.
 };
 
 ///

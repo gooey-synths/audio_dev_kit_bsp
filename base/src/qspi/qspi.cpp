@@ -150,6 +150,7 @@ void QSpi::startIndirectRead(Header& head, CommunicationConfiguration& comm, uin
 void QSpi::startStatusPolling(Header& head, CommunicationConfiguration& comm, StatusPollingConfigurtion& spConf) {
     stop();
 
+    // Set data length
     mQspi->DLR = spConf.dataLength - 1;
 
     // Clear status polling flag
@@ -169,6 +170,13 @@ void QSpi::startStatusPolling(Header& head, CommunicationConfiguration& comm, St
         mQspi->CR |= QUADSPI_CR_PMM;
     } else {
         mQspi->CR &= ~QUADSPI_CR_PMM;
+    }
+
+    // Set stop on match
+    if(spConf.stopOnMatch) {
+        mQspi->CR |= QUADSPI_CR_APMS;
+    } else {
+        mQspi->CR &= ~QUADSPI_CR_APMS;
     }
 
     setHeader(head);
