@@ -161,6 +161,22 @@ public:
         }
     }
 
+    void readSingle(uint32_t addr, uint8_t* data, size_t dataLen) {
+        mCommConf.addressMode = qspi::eNumLines::ONE;
+        mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
+        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+        mCommConf.dataMode = qspi::eNumLines::ONE;
+        mCommConf.dummyCycles = 8;
+        mCommConf.instruction = 0x0B;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+
+        mHeader.address = addr;
+
+        mQ.startIndirectRead(mHeader, mCommConf, data, dataLen);
+
+        waitForCompletion();
+    }
+
 private:
     void beginStatusPolling(uint8_t inst, qspi::StatusPollingConfigurtion& conf) {
         mCommConf.addressMode = qspi::eNumLines::DISABLED;
@@ -211,10 +227,9 @@ void test_qspi_W25Q128JV() {
 
     usb::USBSerial::USBCommunication& comm = usb::USBSerial::getInstance().getInterface(0);
 
-    char buffer[32];
+    char buffer[sizeof(testPayload) < 64 ? 64: sizeof(testPayload)];
 
     while(1) {
-
         // Reset
         flash.simpleInstruction(0x66);
         flash.simpleInstruction(0x99);
@@ -231,9 +246,6 @@ void test_qspi_W25Q128JV() {
         comm.WriteN(buffer, strlen(buffer));
         comm.Flush();
 
-        // Enable Quad
-        // flash.writeStatusReg(0x31, 1<<1);
-
         // Write enable
         flash.simpleInstruction(0x50);
 
@@ -243,8 +255,17 @@ void test_qspi_W25Q128JV() {
         // Chip erase
         flash.erase();
 
+        uint32_t addr = 0x1A4;
         // Write payload
-        flash.programPageSingle(0x1A4, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload));
+        flash.programPageSingle(addr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload));
+
+        // Read payload
+        memset(buffer, 0, sizeof(buffer));
+        flash.readSingle(addr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload));
+        comm.WriteN(buffer, strlen(buffer));
+
+        // Enable Quad
+        // flash.writeStatusReg(0x31, 1<<1);
 
         vTaskDelay(100);
     }

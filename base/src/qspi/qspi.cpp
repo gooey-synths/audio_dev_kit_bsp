@@ -123,8 +123,8 @@ void QSpi::startIndirectRead(Header& head, CommunicationConfiguration& comm, uin
     stop();
 
     mQspi->DLR = bufLen - 1;
-    setHeader(head);
     mQspi->CCR = comm.toReg() | (INDIRECT_READ << QUADSPI_CCR_FMODE_Pos);
+    setHeader(head);
 
     mMdmaList[0].setSource((void*)&mQspi->DR, sizeof(*buf), 0, false);
     mMdmaList[0].setDestination(buf, sizeof(*buf), sizeof(*buf), false);
