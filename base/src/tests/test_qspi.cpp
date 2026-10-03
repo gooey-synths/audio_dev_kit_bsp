@@ -120,27 +120,44 @@ public:
     }
 
     __attribute__((optimize("O0")))
-    void programPageSingle(uint32_t addr, const uint8_t* data, size_t dataLen) {
-        mCommConf.addressMode = qspi::eNumLines::ONE;
-        mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
-        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
-        mCommConf.dataMode = qspi::eNumLines::ONE;
-        mCommConf.dummyCycles = 0;
-        mCommConf.instruction = 0x02;
-        mCommConf.instructionMode = qspi::eNumLines::ONE;
-
-        mHeader.address = addr;
+    void programPageSingle(uint32_t addr, const uint8_t* data, size_t dataLen) {        // Begin status polling for erase finish
+        qspi::StatusPollingConfigurtion spConf;
+        spConf.dataLength = 1;
+        spConf.interval = 1000;
+        spConf.mask = 0x01;
+        spConf.match = 0x01;
+        spConf.orMode = false;
+        spConf.stopOnMatch = true;
 
         size_t nWrites = (dataLen / scPageSize) + (dataLen % scPageSize == 0 ? 0 : 1);
 
         for(size_t iWrite = 0; iWrite < nWrites; iWrite++) {
+            // Write configuration
+            mCommConf.addressMode = qspi::eNumLines::ONE;
+            mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
+            mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+            mCommConf.dataMode = qspi::eNumLines::ONE;
+            mCommConf.dummyCycles = 0;
+            mCommConf.instruction = 0x02;
+            mCommConf.instructionMode = qspi::eNumLines::ONE;
+
+            mHeader.address = addr;
+
+            // Buffer chunking
             size_t startIdx = iWrite * scPageSize;
             size_t len = dataLen - startIdx;
             // Clip at page size
             len = len > scPageSize ? scPageSize : len;
 
+            // Begin write
             mQ.startIndirectWrite(mHeader, mCommConf, data+startIdx, len);
             waitForCompletion();
+
+            // Wait for busy bit to clear
+            beginStatusPolling(0x05, spConf);
+            while(!mQ.statusPollingMatch()) {
+                vTaskDelay(10);
+            }
         }
     }
 
