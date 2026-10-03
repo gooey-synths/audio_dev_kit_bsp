@@ -65,26 +65,23 @@ void QSpi::setDeviceConfiguration(DeviceConfiguration& dev) {
 ///
 /// Set the address and alternate bytes.
 /// @param head Header containing address alternate bytes.
-/// @note this will stop the QSPI.
 ///
 void QSpi::setHeader(Header& head) {
-    stop();
-
-    mQspi->AR = head.address;
     mQspi->ABR = head.alternate;
+    mQspi->AR = head.address;
 }
 
 ///
 /// Begin memory mapped operation of the QSPI.
+/// @param head Header to use.
+/// @param comm Communication cofiguration.
 /// @note this will restart the QSPI.
 ///
-void QSpi::startMemoryMapped() {
+void QSpi::startMemoryMapped(Header& head, CommunicationConfiguration& comm) {
     stop();
 
-    //setMode(MEMORY_MAPPED);
-
-    mQspi->CR |= QUADSPI_CR_EN;
-}
+    setHeader(head);
+    mQspi->CCR = comm.toReg() | (MEMORY_MAPPED << QUADSPI_CCR_FMODE_Pos);}
 
 ///
 /// Start an indirect write operation.
@@ -94,12 +91,12 @@ void QSpi::startMemoryMapped() {
 /// @param bufLen Length of buffer to write.
 /// @note this will restart the QSPI.
 ///
-void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen) {
+void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, const uint8_t* buf, size_t bufLen) {
     stop();
 
     mQspi->DLR = bufLen - 1;
-    setHeader(head);
     mQspi->CCR = comm.toReg() | (INDIRECT_WRITE << QUADSPI_CCR_FMODE_Pos);
+    setHeader(head);
 
     if(buf) {
         mMdmaList[0].setSource(buf, sizeof(*buf), sizeof(*buf), false);
@@ -179,8 +176,8 @@ void QSpi::startStatusPolling(Header& head, CommunicationConfiguration& comm, St
         mQspi->CR &= ~QUADSPI_CR_APMS;
     }
 
-    setHeader(head);
     mQspi->CCR = comm.toReg() | (STATUS_POLLING << QUADSPI_CCR_FMODE_Pos);
+    setHeader(head);
 }
 
 ///

@@ -55,7 +55,7 @@ struct ListNode {
     /// @param inc Source increment in number of byte
     /// @param ahb True if source is connected to the AHB bus, false if AXI
     ///
-    inline void setSource(void* src, uint8_t size, uint8_t inc, bool ahb) {
+    inline void setSource(const void* src, uint8_t size, uint8_t inc, bool ahb) {
         SAR = (uint32_t) src;
 
         TCR &= ~(MDMA_CTCR_SSIZE_Msk); // clear SSIZE bits
@@ -63,7 +63,7 @@ struct ListNode {
         TCR |= (3 & (__builtin_ctz(size))) << MDMA_CTCR_SSIZE_Pos; // set data SSIZE bits
 
         TCR &= ~(MDMA_CTCR_SINCOS_Msk); // clear SINCOS bits
-        TCR &= ~(MDMA_CTCR_SINC_Msk); // clear SINC bits
+        TCR &= ~(MDMA_CTCR_SINC_Msk);   // clear SINC bits
 
 
         if(inc) {

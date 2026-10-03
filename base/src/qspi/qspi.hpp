@@ -125,11 +125,11 @@ public:
 
     void setDeviceConfiguration(DeviceConfiguration& dev);
 
-    void startMemoryMapped();
+    void startMemoryMapped(Header& head, CommunicationConfiguration& comm);
 
     void startIndirectRead(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen);
 
-    void startIndirectWrite(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen);
+    void startIndirectWrite(Header& head, CommunicationConfiguration& comm, const uint8_t* buf, size_t bufLen);
 
     void startStatusPolling(Header& head, CommunicationConfiguration& comm, StatusPollingConfigurtion& spConf);
 
