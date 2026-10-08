@@ -4,7 +4,6 @@
 #include <usb/usb_serial.hpp>
 
 #include <stdio.h>
-#include <inttypes.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -16,8 +15,7 @@ class W25Q128JV {
 public:
     static constexpr size_t scPageSize = 256;
 
-    W25Q128JV(qspi::QSpi& q)
-        : mQ(q)
+    W25Q128JV(qspi::QSpi& q): mQ(q)
     {
         mDevConf.devSel = qspi::eDeviceSelection::DEV_1;
         mDevConf.freq = 2500000;
@@ -87,6 +85,9 @@ public:
     }
 
     void erase() {
+        // Write enable
+        simpleInstruction(0x06);
+
         simpleInstruction(0xC7);
 
         // Begin status polling for erase finish
@@ -94,7 +95,7 @@ public:
         conf.dataLength = 1;
         conf.interval = 1000;
         conf.mask = 0x01;
-        conf.match = 0x01;
+        conf.match = 0x00;
         conf.orMode = false;
         conf.stopOnMatch = true;
 
@@ -119,29 +120,30 @@ public:
         waitForCompletion();
     }
 
-    __attribute__((optimize("O0")))
-    void programPageSingle(uint32_t addr, const uint8_t* data, size_t dataLen) {        // Begin status polling for erase finish
+    void programPage(uint32_t addr, const uint8_t* data, size_t dataLen, bool quad=false) {
+        // Write enable
+        simpleInstruction(0x06);
+
         qspi::StatusPollingConfigurtion spConf;
         spConf.dataLength = 1;
         spConf.interval = 1000;
         spConf.mask = 0x01;
-        spConf.match = 0x01;
+        spConf.match = 0x00;
         spConf.orMode = false;
         spConf.stopOnMatch = true;
+        mHeader.address = addr;
 
         size_t nWrites = (dataLen / scPageSize) + (dataLen % scPageSize == 0 ? 0 : 1);
 
         for(size_t iWrite = 0; iWrite < nWrites; iWrite++) {
             // Write configuration
-            mCommConf.addressMode = qspi::eNumLines::ONE;
+            mCommConf.addressMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
             mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
             mCommConf.alternateMode = qspi::eNumLines::DISABLED;
-            mCommConf.dataMode = qspi::eNumLines::ONE;
+            mCommConf.dataMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
             mCommConf.dummyCycles = 0;
-            mCommConf.instruction = 0x02;
-            mCommConf.instructionMode = qspi::eNumLines::ONE;
-
-            mHeader.address = addr;
+            mCommConf.instruction = quad ? 0x32 : 0x02;
+            mCommConf.instructionMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
 
             // Buffer chunking
             size_t startIdx = iWrite * scPageSize;
@@ -161,14 +163,14 @@ public:
         }
     }
 
-    void readSingle(uint32_t addr, uint8_t* data, size_t dataLen) {
-        mCommConf.addressMode = qspi::eNumLines::ONE;
+    void read(uint32_t addr, uint8_t* data, size_t dataLen, bool quad=false) {
+        mCommConf.addressMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
         mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
         mCommConf.alternateMode = qspi::eNumLines::DISABLED;
-        mCommConf.dataMode = qspi::eNumLines::ONE;
+        mCommConf.dataMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
         mCommConf.dummyCycles = 8;
-        mCommConf.instruction = 0x0B;
-        mCommConf.instructionMode = qspi::eNumLines::ONE;
+        mCommConf.instruction = quad ? 0x6B : 0x0B;
+        mCommConf.instructionMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
 
         mHeader.address = addr;
 
@@ -234,38 +236,44 @@ void test_qspi_W25Q128JV() {
         flash.simpleInstruction(0x66);
         flash.simpleInstruction(0x99);
 
-        // Print unique ID
+        // print unique ID
         uint64_t uid = flash.readUniqueId();
-        sprintf(buffer, "UID: 0x%llx", uid);
+        sprintf(buffer, "UID: 0x%llX\r\n", uid);
         comm.WriteN(buffer, strlen(buffer));
         comm.Flush();
 
         // Print JEDEC
         uint32_t jid = flash.readJEDEC();
-        sprintf(buffer, "JID: 0x%xll", jid);
+        sprintf(buffer, "JID: 0x%X\r\n", jid);
         comm.WriteN(buffer, strlen(buffer));
         comm.Flush();
 
-        // Write enable
-        flash.simpleInstruction(0x50);
-
         // SR Write enable
-        flash.simpleInstruction(0x06);
+        flash.simpleInstruction(0x50);
 
         // Chip erase
         flash.erase();
 
-        uint32_t addr = 0x1A4;
+        uint32_t singleAddr = 0x1A4;
         // Write payload
-        flash.programPageSingle(addr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload));
+        flash.programPage(singleAddr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload));
 
         // Read payload
         memset(buffer, 0, sizeof(buffer));
-        flash.readSingle(addr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload));
+        flash.read(singleAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload));
         comm.WriteN(buffer, strlen(buffer));
 
         // Enable Quad
-        // flash.writeStatusReg(0x31, 1<<1);
+        flash.writeStatusReg(0x31, 1<<1);
+
+        uint32_t quadAddr = 0x43;
+        // Write payload
+        flash.programPage(quadAddr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload), true);
+
+        // Read payload
+        memset(buffer, 0, sizeof(buffer));
+        flash.read(quadAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload), true);
+        comm.WriteN(buffer, strlen(buffer));
 
         vTaskDelay(100);
     }
