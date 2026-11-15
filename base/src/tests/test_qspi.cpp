@@ -105,6 +105,41 @@ public:
             vTaskDelay(10);
         }
     }
+ 
+    void eraseSector(uint32_t addr)
+    {
+        // Write enable
+        simpleInstruction(0x06);
+
+        simpleInstruction(0x20);
+        // Write configuration
+        mCommConf.addressMode = qspi::eNumLines::ONE;
+        mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
+        mCommConf.alternateMode = qspi::eNumLines::DISABLED;
+        mCommConf.dataMode = qspi::eNumLines::DISABLED;
+        mCommConf.dummyCycles = 0;
+        mCommConf.instruction = 0x20;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
+
+        mHeader.address = addr;
+
+        mQ.startIndirectWrite(mHeader, mCommConf, nullptr, 0);
+        waitForCompletion();
+
+        // Begin status polling for erase finish
+        qspi::StatusPollingConfigurtion conf;
+        conf.dataLength = 1;
+        conf.interval = 1000;
+        conf.mask = 0x01;
+        conf.match = 0x00;
+        conf.orMode = false;
+        conf.stopOnMatch = true;
+        beginStatusPolling(0x05, conf);
+
+        while(!mQ.statusPollingMatch()) {
+            vTaskDelay(10);
+        }
+    }
 
     void simpleInstruction(uint8_t inst) {
         mCommConf.addressMode = qspi::eNumLines::DISABLED;
@@ -251,10 +286,11 @@ void test_qspi_W25Q128JV() {
         // SR Write enable
         flash.simpleInstruction(0x50);
 
-        // Chip erase
-        flash.erase();
+        // sector erase
+        uint32_t sectorAddr = 0x100000;
+        flash.eraseSector(sectorAddr);
 
-        uint32_t singleAddr = 0x1A4;
+        uint32_t singleAddr = sectorAddr + 0x100;
         // Write payload
         flash.programPage(singleAddr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload));
 
@@ -263,13 +299,15 @@ void test_qspi_W25Q128JV() {
         flash.read(singleAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload));
         comm.WriteN(buffer, strlen(buffer));
 
-        // Enable Quad
-        flash.writeStatusReg(0x31, 1<<1);
+        uint32_t quadAddr = sectorAddr + 0x200;
 
-        uint32_t quadAddr = 0x43;
+        // Enable quad
+        flash.writeStatusReg(0x31, 1<<1);
         // Write payload
         flash.programPage(quadAddr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload), true);
 
+        // Enable Quad
+        flash.writeStatusReg(0x31, 1<<1);
         // Read payload
         memset(buffer, 0, sizeof(buffer));
         flash.read(quadAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload), true);

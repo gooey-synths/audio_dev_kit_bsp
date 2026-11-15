@@ -94,7 +94,7 @@ void QSpi::startMemoryMapped(Header& head, CommunicationConfiguration& comm) {
 void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, const uint8_t* buf, size_t bufLen) {
     stop();
 
-    mQspi->DLR = bufLen - 1;
+    mQspi->DLR = bufLen > 0 ? bufLen - 1 : 0;
     mQspi->CCR = comm.toReg() | (INDIRECT_WRITE << QUADSPI_CCR_FMODE_Pos);
     setHeader(head);
 
