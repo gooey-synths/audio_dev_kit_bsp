@@ -254,7 +254,8 @@ void setup_pins() {
     gpio_controller->setConfig(&usb_vbus_id_pin, &usb_vbus_id_conf);
 }
 
-static const char testPayload[] = "Hello Flash!";
+static const char testPayload[] = "Hello Flash!\r\n";
+static const char testPayloadQuad[] = "Hello Quad Flash!\r\n";
 
 void test_qspi_W25Q128JV() {
     setup_pins();
@@ -304,13 +305,13 @@ void test_qspi_W25Q128JV() {
         // Enable quad
         flash.writeStatusReg(0x31, 1<<1);
         // Write payload
-        flash.programPage(quadAddr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload), true);
+        flash.programPage(quadAddr, reinterpret_cast<const uint8_t*>(testPayloadQuad), sizeof(testPayloadQuad), true);
 
         // Enable Quad
         flash.writeStatusReg(0x31, 1<<1);
         // Read payload
         memset(buffer, 0, sizeof(buffer));
-        flash.read(quadAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload), true);
+        flash.read(quadAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayloadQuad), true);
         comm.WriteN(buffer, strlen(buffer));
 
         vTaskDelay(100);
