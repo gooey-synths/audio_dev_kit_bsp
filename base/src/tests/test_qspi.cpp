@@ -172,13 +172,13 @@ public:
 
         for(size_t iWrite = 0; iWrite < nWrites; iWrite++) {
             // Write configuration
-            mCommConf.addressMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
+            mCommConf.addressMode = qspi::eNumLines::ONE;
             mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
             mCommConf.alternateMode = qspi::eNumLines::DISABLED;
             mCommConf.dataMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
             mCommConf.dummyCycles = 0;
             mCommConf.instruction = quad ? 0x32 : 0x02;
-            mCommConf.instructionMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
+            mCommConf.instructionMode = qspi::eNumLines::ONE;
 
             // Buffer chunking
             size_t startIdx = iWrite * scPageSize;
@@ -199,13 +199,13 @@ public:
     }
 
     void read(uint32_t addr, uint8_t* data, size_t dataLen, bool quad=false) {
-        mCommConf.addressMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
+        mCommConf.addressMode = qspi::eNumLines::ONE;
         mCommConf.addressSize = qspi::eCommandSize::TWENTYFOUR;
         mCommConf.alternateMode = qspi::eNumLines::DISABLED;
         mCommConf.dataMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
         mCommConf.dummyCycles = 8;
         mCommConf.instruction = quad ? 0x6B : 0x0B;
-        mCommConf.instructionMode = quad ? qspi::eNumLines::FOUR : qspi::eNumLines::ONE;
+        mCommConf.instructionMode = qspi::eNumLines::ONE;
 
         mHeader.address = addr;
 
