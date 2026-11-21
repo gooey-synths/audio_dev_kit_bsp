@@ -22,6 +22,7 @@ GraphRunner::GraphRunner(board::BoardInterface& board) :
     }
 
     board.GetTimer(scFastTimerIdx).SetCallback(fastCallBackCallBack);
+    board.GetTimer(scFastTimerIdx).SetFrequency(module_basics::scSamplerate);
 
     sInstance = this;
 }
