@@ -10,7 +10,6 @@ static void runOscillator(modules::stat::Oscillator& o, uint16_t* buf, size_t nS
     }
 }
 
-
 // Note: This only counts the periods of simple waveforms and an actual midpoint!
 static size_t countPeriods(uint16_t* buf, size_t nSamples, uint16_t midPoint) {
     size_t nHalfPeriods = 0;
@@ -26,6 +25,22 @@ static size_t countPeriods(uint16_t* buf, size_t nSamples, uint16_t midPoint) {
     }
 
     return nHalfPeriods/2;
+}
+
+static void countSlopes(uint16_t* buf, size_t nSamples, int& nPos, int& nNeg) {
+    nPos = 0;
+    nNeg = 0;
+
+    for(size_t i = 1; i < nSamples; i++) {
+        uint16_t last = buf[i-1];
+        uint16_t current = buf[i];
+        if(current > last) {
+            nPos++;
+        }
+        if(last > current) {
+            nNeg++;
+        }
+    }
 }
 
 TEST(OscillatorTests, HappyPathTests) {
@@ -78,6 +93,36 @@ TEST(OscillatorTests, HappyPathTests) {
         }
 
         // Test waveform type
+        int nPos;
+        int nNeg;
+        // Calculate a center frequency such that it will give us 1 period per nTestSamples
+        float cf = module_basics::scSamplerate / (float)nTestSamples;
+        cf *= 1.01F; // Nudge freq a bit to account for rounding stuff
+        params["cf"] = std::to_string(cf);
+        params["opc"] = std::to_string(0); // No octave shift
+        params["wav"] = w;
+        o.configure(params);
+        o.setInput(o.getInputIdx("mod"), 0xFFFF/2);
+        // Check that we have generated that many periods
+        runOscillator(o, testBuffer, nTestSamples);
+        countSlopes(testBuffer, nTestSamples, nPos, nNeg);
+
+        if(w.compare(std::string("saw")) == 0) {
+            // Saw waves only have one negative slope
+            EXPECT_GT(nPos, 0);
+            EXPECT_LE(nNeg, 1);
+        } else if(w.compare(std::string("tri")) == 0) {
+            // Triangle waves have similar amounts of postive and negative slopes
+            EXPECT_LE(abs(nPos-nNeg), 10);
+        } else if(w.compare(std::string("sqr")) == 0) {
+            // Square waves have only highs and lows
+            for(uint16_t& sample : testBuffer) {
+                EXPECT_THAT(sample, ::testing::AnyOf(0, 0xFFFF));
+            }
+        } else {
+            // Unknown waveform
+            FAIL();
+        }
     }
 }
 

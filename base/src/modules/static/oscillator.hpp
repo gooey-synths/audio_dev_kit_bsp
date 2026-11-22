@@ -8,6 +8,9 @@
 namespace modules {
 namespace stat {
 
+// TODO: Add sine wave support
+// TODO: Add symmetry / duty cycle support for tri / sqr
+
 typedef uint16_t (*WaveFunc)(uint16_t);
 
 ///
@@ -65,11 +68,19 @@ public:
 
     virtual void configure(std::unordered_map<std::string, std::string>& params) override {
         std::string waveType;
-        getKeyValue(params, "cf", mCenterFreq, false);
-        getKeyValue(params, "opc", mOctavesPerCount, false);
-        getKeyValue(params, "wav", waveType, false);
+        getKeyValue(params, "cf", mCenterFreq, true);
+        getKeyValue(params, "opc", mOctavesPerCount, true);
+        getKeyValue(params, "wav", waveType, true);
  
-        // TODO: Add wave type decoding
+        if(waveType == "saw") {
+            mWaveFunc = saw;
+        } else if(waveType == "sqr") {
+            mWaveFunc = sqr;
+        } else if(waveType == "tri") {
+            mWaveFunc = tri;
+        } else {
+            throw "Invalid wave type";
+        }
     }
 
 protected:
@@ -111,6 +122,19 @@ protected:
     ///
     static inline uint16_t sqr(uint16_t theta) {
         return theta > 0xFFFF/2 ? 0xFFFF : 0;
+    }
+
+    ///
+    /// Square wave
+    /// @param theta Wave phase to generate.
+    /// @return Amplitude for a given theta.
+    ///
+    static inline uint16_t tri(uint16_t theta) {
+        if(theta < 0xFFFF/2) {
+            return 2 * theta;
+        } else {
+            return 0xFFFF - 2 * theta;
+        }
     }
 
     uint16_t mPhaseAcum = 0;                         ///< Phase accumulator
