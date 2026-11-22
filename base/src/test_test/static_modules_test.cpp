@@ -129,4 +129,56 @@ TEST(OscillatorTests, HappyPathTests) {
 TEST(OscillatorTests, SadPathTests) {
     modules::stat::Oscillator o;
 
+    // Test missing wave type
+    std::unordered_map<std::string, std::string> a = {
+        {"opc", "0.1"},
+        {"cf", "1000"}
+    };
+    EXPECT_THROW(
+        try {
+            o.configure(a);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Key not found");
+            throw;
+        }, const char*);
+
+    // Test missing octaves per count
+    std::unordered_map<std::string, std::string> b = {
+        {"wav", "saw"},
+        {"cf", "1000"}
+    };
+    EXPECT_THROW(
+        try {
+            o.configure(b);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Key not found");
+            throw;
+        }, const char*);
+
+    // Test missing center frequency
+    std::unordered_map<std::string, std::string> c = {
+        {"wav", "saw"},
+        {"opc", "1"}
+    };
+    EXPECT_THROW(
+        try {
+            o.configure(c);
+        } catch(const char* _c) {
+            EXPECT_EQ(_c, "Key not found");
+            throw;
+        }, const char*);
+
+    // Test invalid wave type
+    std::unordered_map<std::string, std::string> d = {
+        {"wav", ";)"},
+        {"opc", "1"},
+        {"cf", "231.23"}
+    };
+    EXPECT_THROW(
+        try {
+            o.configure(d);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Invalid wave type");
+            throw;
+        }, const char*);
 }
