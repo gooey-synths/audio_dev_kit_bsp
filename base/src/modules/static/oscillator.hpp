@@ -143,6 +143,6 @@ protected:
     WaveFunc mWaveFunc = saw;                        ///< Wave function
 };
 
-} // namespace hw
-} // stat
+} // namespace stat
+} // namespace modules
 
