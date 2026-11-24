@@ -126,4 +126,24 @@ extern GPIOPin dio_7_pin;
 extern GPIOConf dio_input_conf;
 extern GPIOConf dio_output_conf;
 
+extern GPIOPin qspi0_pin;
+extern GPIOConf qspi0_pin_conf;
+
+extern GPIOPin qspi1_pin;
+extern GPIOConf qspi1_pin_conf;
+
+extern GPIOPin qspi3_pin;
+extern GPIOConf qspi3_pin_conf;
+
+extern GPIOPin qspi2_pin;
+extern GPIOConf qspi2_pin_conf;
+
+extern GPIOPin qspi3_pin;
+extern GPIOConf qspi3_pin_conf;
+
+extern GPIOPin qspi_clk_pin;
+extern GPIOConf qspi_clk_pin_conf;
+
+extern GPIOPin qspi_cs_pin;
+extern GPIOConf qspi_cs_pin_conf;
 #endif

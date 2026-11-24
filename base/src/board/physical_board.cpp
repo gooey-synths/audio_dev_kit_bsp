@@ -1,5 +1,5 @@
 #include "physical_board.hpp"
-#include "system/board_defs.h"
+#include <system/board_defs.h>
 
 namespace board {
 
@@ -97,3 +97,4 @@ ProtoBoardV1::ProtoBoardV1() :
     }
 
 } // namespace board
+

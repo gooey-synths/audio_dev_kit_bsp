@@ -17,18 +17,18 @@ const char* const cSpiBusy = "Spi bus";
 
 class MockSpiBus : public spi::ISpiBus {
 public:
-    virtual void configure(spi::SpiBusConfig conf) {
+    virtual void configure(spi::SpiBusConfig conf) override {
         if(mBusy) {
             throw cSpiBusy;
         }
         mConf = conf;
     }
 
-    virtual spi::SpiBusConfig getConfiguration() {
+    virtual spi::SpiBusConfig getConfiguration() override {
         return mConf;
     }
 
-    virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
+    virtual void prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) override {
         if(mBusy) {
             throw cSpiBusy;
         }
@@ -38,7 +38,7 @@ public:
         mDataSize = dataSize;
     }
 
-    virtual void transact() {
+    virtual void transact() override {
         if(mBusy) {
             throw cSpiBusy;
         }
@@ -83,7 +83,7 @@ TEST_F(DacTest, testDacMode) {
     mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_STREAM_MODE);
     ASSERT_EQ(mockBus.getBufLen(), 8);
-    
+ 
     dac.setMode(spi::eDACx050yMode::DACx050y_REG_MODE);
     mode = dac.getMode();
     ASSERT_EQ(mode, spi::eDACx050yMode::DACx050y_REG_MODE);
@@ -112,15 +112,8 @@ TEST_F(DacTest, testInvalidMode) {
 
 TEST_F(DacTest, testInvalidIdx) {
     // Check that we can't set an invalid DAC idx
-    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);    
-    EXPECT_THROW({
-        try {
-            dac.setStreamVal(255, 0);
-        } catch (const char* e) {
-            ASSERT_EQ(e, spi::DAC60508::scInvalidIdx);
-            throw;
-        }
-    }, const char*);
+    dac.setMode(spi::eDACx050yMode::DACx050y_STREAM_MODE);
+    EXPECT_EQ(dac.checkIdx(255), false);
 }
 
 TEST_F(DacTest, testRegisterWrite) {

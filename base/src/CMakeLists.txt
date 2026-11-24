@@ -1,22 +1,29 @@
 cmake_minimum_required(VERSION 3.21.4)
 
+# PROJECT_NAME
+project(audio_dev_kit_bsp)
+
 # Leave as debug for now
 set(CMAKE_BUILD_TYPE Debug)
 
 set(TINYUSB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyusb)
 set(ARDUINOJSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ArduinoJson)
+set(FREERTOS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/FreeRTOS-Kernel)
 
 FILE(GLOB_RECURSE TinyUSBCSources ${TINYUSB_PATH}/src/*.c)
 
 # c and c++ files for both host and ARM build
 set(CROSS_PLATFORM_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_runner.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_loader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/module_loader.cpp
 )
 
 # SOURCES for ARM build only
 set(ARM_SOURCES
     ${CROSS_PLATFORM_SOURCES}
 	${TinyUSBCSources}
+    ${FREERTOS_PATH}/portable/MemMang/heap_4.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/startup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/system/syscalls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init/main.cpp
@@ -42,6 +49,10 @@ set(ARM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/board/physical_board.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/tests/test_board.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_mdma.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/graph_processor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/blinky/blinky.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/qspi/qspi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_qspi.cpp
 )
 
 # TinyUSB stuff
@@ -56,9 +67,6 @@ include_directories(
 	${ARDUINOJSON_PATH}/src
 )
 
-# PROJECT_NAME
-project(audio_dev_kit_bsp)
-
 # ArduinoJSON stuff
 add_subdirectory(${ARDUINOJSON_PATH})
 
@@ -66,21 +74,35 @@ add_subdirectory(${ARDUINOJSON_PATH})
 option(BUILD_ARM "Build for ARM Cortex-M" OFF)
 
 if (BUILD_ARM)
+# FreeRTOS stuff
+    set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "FreeRTOS Port")
 
-	# Place directories to include here
+
+    add_library(freertos_config INTERFACE)
+    target_include_directories(freertos_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/system/)
+
+    add_subdirectory(${FREERTOS_PATH})
+	
+    # Place directories to include here
 	include_directories(
 		${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
+    # Allow the user to optionally set flash size and start address if we are compiling for a lower flash version of the board
+    set(FLASH_START "0x08000000" CACHE STRING "Address of start of flash")
+    set(FLASH_SIZE "2048K" CACHE STRING "Size of flash")
+
+    # This replaces the @@ variables and outputs a regular linker script
+    configure_file(init/stm32h7xx.ld.template ${CMAKE_CURRENT_BINARY_DIR}/stm32h7xx.ld @ONLY)
 
 	# Create elf file and link it
     add_executable(${PROJECT_NAME}.elf ${ARM_SOURCES})
-	target_link_libraries(${PROJECT_NAME}.elf)
+    target_link_libraries(${PROJECT_NAME}.elf PRIVATE freertos_kernel)
 
 	# Create binary file
 	add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME}.elf)
 	add_custom_command(TARGET ${PROJECT_NAME}.bin COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin)
-    
+
 else()
 	add_subdirectory(third_party/googletest)
 
@@ -88,14 +110,17 @@ else()
     add_executable(my_tests test_test/hello_test.cpp)
 	add_executable(dac_tests test_test/dac_test.cpp)
     add_executable(module_infrastructure_tests test_test/module_infrastructure_test.cpp ${CROSS_PLATFORM_SOURCES})
+    add_executable(hw_modules_tests test_test/hw_modules_test.cpp ${CROSS_PLATFORM_SOURCES})
 
 	target_link_libraries(my_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(dac_tests PRIVATE gtest_main gmock_main gtest)
 	target_link_libraries(module_infrastructure_tests PRIVATE gtest_main gmock_main gtest)
+	target_link_libraries(hw_modules_tests PRIVATE gtest_main gmock_main gtest)
 
 	include(GoogleTest)
 	gtest_discover_tests(dac_tests)
 	gtest_discover_tests(module_infrastructure_tests)
+	gtest_discover_tests(hw_modules_tests)
 endif()
 
 

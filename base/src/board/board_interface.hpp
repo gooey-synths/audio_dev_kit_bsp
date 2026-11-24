@@ -135,10 +135,17 @@ public:
     virtual size_t WriteN(char* buf, size_t n) = 0;
 
     ///
-    /// Return the number of characters available to read.
+    /// Return the number of characters available to read, non-blocking.
     /// @return Number of bytes available to read.
     ///
     virtual size_t Available() = 0;
+
+    ///
+    /// Block until data is available to be read.
+    /// @param timeout how long to wait in ms.
+    /// @return True if data is available before the timeout.
+    ///
+    virtual bool BlockUntilAvailable(uint32_t timeout) = 0;
 
     ///
     /// Flush any characters in the communication buffer.

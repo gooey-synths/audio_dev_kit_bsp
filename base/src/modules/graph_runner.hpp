@@ -49,3 +49,4 @@ private:
 };
 
 } // namespace graph_infrastructure
+

@@ -85,8 +85,8 @@ inline void GraphRunner::fastCallBack() noexcept {
 
     // Loop through all connections and move data.
     for(Connection& con : mGraph->cons) {
-        uint16_t val = mGraph->mods[con.inModIdx]->getOutput(con.inPortIdx);
-        mGraph->mods[con.outModIdx]->setInput(con.outPortIdx, val);
+        uint16_t val = mGraph->mods[con.outModIdx]->getOutput(con.outPortIdx);
+        mGraph->mods[con.inModIdx]->setInput(con.inPortIdx, val);
     }
 
     // Update our boards fast IO.
