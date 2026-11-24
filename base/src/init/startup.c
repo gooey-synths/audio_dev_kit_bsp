@@ -425,13 +425,13 @@ void enable_cache() {
 }
 
 /* Configure SRAM region as Write-Through using standard CMSIS functions */
-void MPU_Config_WriteThrough(void) {
+void MPU_Config(void) {
     // Disable MPU before configuration
     ARM_MPU_Disable();
 
     // Configure Region 1 (e.g., RAM starting at 0x24000000, size 512KB)
     MPU->RBAR = ARM_MPU_RBAR(1, 0x24000000UL);
-    
+
     MPU->RASR = ARM_MPU_RASR(
         0,                      // DisableExec (0 = execution allowed)
         ARM_MPU_AP_FULL,        // Access Permission (Full Read/Write)
@@ -442,6 +442,20 @@ void MPU_Config_WriteThrough(void) {
         0,                      // SubRegionDisable
         ARM_MPU_REGION_SIZE_512KB // Region Size
     );
+
+    // Configure Region 2 (e.g., RAM starting at 0x24000000, size 32KB, non-cacheable)
+    MPU->RBAR = ARM_MPU_RBAR(2, 0x24000000UL);
+    MPU->RASR = ARM_MPU_RASR(
+        1,                      // DisableExec (1 = execution not allowed)
+        ARM_MPU_AP_FULL,        // Access Permission (Full Read/Write)
+        1,                      // TEX: 0b001 (For Write-Through)
+        0,                      // Shareable (0 = Non-shareable)
+        0,                      // Cacheable: 0
+        0,                      // Bufferable: 0
+        0,                      // SubRegionDisable
+        ARM_MPU_REGION_SIZE_32KB // Region Size
+    );
+
 
     // Enable MPU with default background memory map enabled
     ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
@@ -561,7 +575,7 @@ __attribute__ ((noreturn)) void reset_handler(){
 
     enable_otg_2();
 
-    MPU_Config_WriteThrough();
+    MPU_Config();
     enable_cache();
 
     call_constructors();

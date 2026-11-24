@@ -61,9 +61,10 @@ _Min_Stack_Size = 0x1000;	/* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  DTCM   (rwx)   : ORIGIN = 0x20000000,   LENGTH = 128K
-  RAM    (rwx)   : ORIGIN = 0x24000000,   LENGTH = 512K
-  ROM    (rx)    : ORIGIN = @FLASH_START@,   LENGTH = @FLASH_SIZE@
+  DTCM            (rwx)   : ORIGIN = 0x20000000,   LENGTH = 128K
+  RAM_NONCACHE    (rwx)   : ORIGIN = 0x24000000,   LENGTH = 32K
+  RAM             (rwx)   : ORIGIN = 0x24008000,   LENGTH = 480K
+  ROM             (rx)    : ORIGIN = @FLASH_START@,   LENGTH = @FLASH_SIZE@
 }
 
 /* Sections */
@@ -148,6 +149,16 @@ SECTIONS
     . = ALIGN(4);
   } >ROM
 
+  .noncache_ram (NOLOAD) :
+  {
+      . = ALIGN(32);
+      _snoncache_ram = .;
+      *(.noncache_ram)
+      *(.noncache_ram*)
+      . = ALIGN(32);
+      _enoncache_ram = .;
+  } >RAM_NONCACHE 
+
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
@@ -163,6 +174,7 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
     
   } >RAM AT> ROM
+
 
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);

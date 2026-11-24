@@ -2,6 +2,7 @@
 #define DACx050y_HPP
 
 #include "spibus_interface.hpp"
+#include <util/util.h>
 
 namespace spi {
 
@@ -110,6 +111,8 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     /// @param cs Chip select the the DAC is connected to.
     ///
     DACx050y(ISpiBus &spiBus, size_t cs) : mSpiBus(spiBus), mCs(cs), mMode(DACx050y_REG_MODE) {
+        mTxBuf = (DACx050yTransaction*) allocate_non_cacheable(sizeof(DACx050yTransaction) * tY);
+        mRxBuf = (DACx050yTransaction*) allocate_non_cacheable(sizeof(DACx050yTransaction) * tY);
         DACx050y::setMode(mMode);
     }
 
@@ -201,7 +204,7 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     ///
     virtual void updateStream() { mSpiBus.transact(); }
 
-  private:
+ protected:
     ///
     /// Perform a register mode transaction.
     /// @param addr Address
@@ -224,8 +227,8 @@ template <size_t tX, size_t tY> class DACx050y : public IDACx050y {
     ISpiBus &mSpiBus;               ///< Reference to the SPI bus that the DAC60508 is connected to.
     size_t mCs;                     ///< Chip select the DAC60508 uses.
     eDACx050yMode mMode;            ///< Current operating mode.
-    DACx050yTransaction mTxBuf[tY]; ///< Buffer to use for SPI transmit
-    DACx050yTransaction mRxBuf[tY]; ///< Buffer to use for SPI receive
+    DACx050yTransaction* mTxBuf;    ///< Buffer to use for SPI transmit
+    DACx050yTransaction* mRxBuf;    ///< Buffer to use for SPI receive
 };
 
 ///
