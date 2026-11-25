@@ -15,7 +15,7 @@
 ///
 template<typename T>
 bool getKeyValue(std::unordered_map<std::string, std::string>& map, std::string key, T& val, bool throwNotFound) {
-    auto it = map.find("idx");
+    auto it = map.find(key);
     if (it != map.end()) {
         try {
             std::string second = it->second;

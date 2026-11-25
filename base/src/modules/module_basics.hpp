@@ -7,6 +7,8 @@
 
 namespace module_basics {
 
+static constexpr float scSamplerate = 44100;
+
 typedef uint64_t ModuleIdType; ///< Type to use for module ID, used internally.
 
 static constexpr size_t scInvalidIOIdx = -1; ///< return value for invalid input/output idx.
