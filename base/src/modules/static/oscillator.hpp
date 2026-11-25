@@ -20,8 +20,7 @@ typedef uint16_t (*WaveFunc)(uint16_t);
 ///
 class Oscillator : public module_basics::ModuleBase<1, 1> {
 public:
-    // TODO: figure out ID
-    static constexpr module_basics::ModuleIdType scId = 1234; ///< Module ID of the digital input
+    static constexpr module_basics::ModuleIdType scId = 100; ///< Module ID of the oscillator
 
     ///
     /// Factory method.
