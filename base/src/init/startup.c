@@ -415,50 +415,50 @@ void enable_otg_2(){
     PWR->CR3 |= PWR_CR3_USB33DEN;
 }
 
-void enable_cache() {
-    /* Invalidate and Enable Instruction and Data Caches */
+void MPU_Config(void) {
+    __asm volatile ("dmb");
+    ARM_MPU_Disable();
+
+    /* Region 1: 512 KB AXI SRAM at 0x24000000 - Cacheable (Write-Through) */
+    MPU->RBAR = ARM_MPU_RBAR(1, 0x24000000UL);
+    MPU->RASR = ARM_MPU_RASR(
+        0,                        // XN: 0 = instruction fetch allowed
+        ARM_MPU_AP_FULL,          // Full privileged/unprivileged R/W
+        0,                        // TEX: 0b000
+        0,                        // Shareable: 0 (with TEX=000, C=1, B=0 -> Write-Through)
+        1,                        // Cacheable: 1
+        0,                        // Bufferable: 0
+        0,                        // SubRegionDisable
+        ARM_MPU_REGION_SIZE_512KB
+    );
+
+    /* Region 2: First 32 KB (0x24000000 - 0x24007FFF) - Non-Cacheable DMA region
+       Higher region number (2 > 1) overrides Region 1 on overlap. */
+    MPU->RBAR = ARM_MPU_RBAR(2, 0x24000000UL);
+    MPU->RASR = ARM_MPU_RASR(
+        1,                        // XN: 1 = execute-never
+        ARM_MPU_AP_FULL,          // Full privileged/unprivileged R/W
+        1,                        // TEX: 0b001 (Normal memory)
+        1,                        // Shareable: 1 (with TEX=001, C=0, B=0 -> Non-cacheable)
+        0,                        // Cacheable: 0
+        0,                        // Bufferable: 0
+        0,                        // SubRegionDisable
+        ARM_MPU_REGION_SIZE_32KB
+    );
+
+    ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
+    __DSB();
+    __ISB();
+}
+
+void enable_cache(void) {
+    MPU_Config();
+
     SCB_InvalidateICache();
     SCB_EnableICache();
 
     SCB_InvalidateDCache();
     SCB_EnableDCache();
-}
-
-/* Configure SRAM region as Write-Through using standard CMSIS functions */
-void MPU_Config(void) {
-    // Disable MPU before configuration
-    ARM_MPU_Disable();
-
-    // Configure Region 1 (e.g., RAM starting at 0x24000000, size 512KB)
-    MPU->RBAR = ARM_MPU_RBAR(1, 0x24000000UL);
-
-    MPU->RASR = ARM_MPU_RASR(
-        0,                      // DisableExec (0 = execution allowed)
-        ARM_MPU_AP_FULL,        // Access Permission (Full Read/Write)
-        0,                      // TEX: 0b000 (For Write-Through)
-        0,                      // Shareable (0 = Non-shareable)
-        1,                      // Cacheable: 1
-        0,                      // Bufferable: 0
-        0,                      // SubRegionDisable
-        ARM_MPU_REGION_SIZE_512KB // Region Size
-    );
-
-    // Configure Region 2 (e.g., RAM starting at 0x24000000, size 32KB, non-cacheable)
-    MPU->RBAR = ARM_MPU_RBAR(2, 0x24000000UL);
-    MPU->RASR = ARM_MPU_RASR(
-        1,                      // DisableExec (1 = execution not allowed)
-        ARM_MPU_AP_FULL,        // Access Permission (Full Read/Write)
-        1,                      // TEX: 0b001 (For Write-Through)
-        0,                      // Shareable (0 = Non-shareable)
-        0,                      // Cacheable: 0
-        0,                      // Bufferable: 0
-        0,                      // SubRegionDisable
-        ARM_MPU_REGION_SIZE_32KB // Region Size
-    );
-
-
-    // Enable MPU with default background memory map enabled
-    ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
 }
 ///
 /// Intitialize global and static objects.

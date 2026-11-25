@@ -169,6 +169,9 @@ public:
     ///
     inline void disable() {
         mChannelHw->CCR &= ~MDMA_CCR_EN;
+        while (mChannelHw->CCR & MDMA_CCR_EN) {
+            ;
+        }
     }
 
     ///
@@ -186,6 +189,13 @@ public:
         return (uint32_t) mChannelHw->CESR;
     }
 
+    ///
+    /// Check if the MDMA channel is running
+    /// @return return true if the channel is active
+    ///
+    inline bool isRunning() {
+        return (uint32_t) mChannelHw->CCR & MDMA_CCR_EN;
+    }
     ///
     /// Cofigure the transfer with a configured list node.
     ///

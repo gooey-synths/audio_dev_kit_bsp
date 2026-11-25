@@ -4,7 +4,7 @@
 
 
 int main() {
-    test_DAC60508();
+    test_qspi_W25Q128JV();
     static board::ProtoBoardV1 board;
     graph_infrastructure::run_graph_processor(board);
 

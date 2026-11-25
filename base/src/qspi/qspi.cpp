@@ -1,5 +1,6 @@
 #include "qspi.hpp"
 #include <system/board_defs.h>
+#include <util/util.h>
 
 namespace qspi {
 
@@ -9,6 +10,7 @@ namespace qspi {
 QSpi::QSpi()
     : mQspi(QUADSPI), mMdmaCh(mdma::MDMAController::getInstance()->getChannel(0))
 {
+    mMdmaList = (mdma::ListNode*) allocate_non_cacheable(sizeof(mdma::ListNode)*3);
     RCC->AHB3ENR |= RCC_AHB3ENR_QSPIEN;
     mQspi->CR |= QUADSPI_CR_EN;
 }
@@ -90,6 +92,7 @@ void QSpi::startMemoryMapped(Header& head, CommunicationConfiguration& comm) {
 /// @param buf Buffer to write. If null, will only send preamble.
 /// @param bufLen Length of buffer to write.
 /// @note this will restart the QSPI.
+/// @note buffer should be @ref NON_CACHEABLE
 ///
 void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, const uint8_t* buf, size_t bufLen) {
     stop();
@@ -108,6 +111,7 @@ void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, co
         mMdmaCh->disable();
         mMdmaCh->configureTransfer(mMdmaList);
         mMdmaCh->enable();
+        //for(volatile size_t i = 0; i < 1000000; i++);
     }
 }
 
@@ -118,6 +122,7 @@ void QSpi::startIndirectWrite(Header& head, CommunicationConfiguration& comm, co
 /// @param buf Buffer to read into.
 /// @param bufLen Length of buffer to read into.
 /// @note this will restart the QSPI.
+/// @note buffer should be @ref NON_CACHEABLE
 ///
 void QSpi::startIndirectRead(Header& head, CommunicationConfiguration& comm, uint8_t* buf, size_t bufLen) {
     stop();

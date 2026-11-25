@@ -2,6 +2,7 @@
 #include <gpio/gpio.hpp>
 #include <system/board_defs.h>
 #include <usb/usb_serial.hpp>
+#include <util/util.h>
 
 #include <stdio.h>
 
@@ -34,8 +35,6 @@ public:
     }
 
     uint64_t readUniqueId() {
-        uint64_t id;
-
         mCommConf.addressMode = qspi::eNumLines::DISABLED;
         mCommConf.addressSize = qspi::eCommandSize::EIGHT;
         mCommConf.alternateMode = qspi::eNumLines::ONE;
@@ -54,7 +53,6 @@ public:
     }
 
     uint32_t readJEDEC() {
-        uint32_t id;
 
         mCommConf.addressMode = qspi::eNumLines::DISABLED;
         mCommConf.addressSize = qspi::eCommandSize::EIGHT;
@@ -70,7 +68,7 @@ public:
         return id;
     }
 
-    void writeStatusReg(uint8_t inst, uint8_t data) {
+    void writeStatusReg(uint8_t inst, uint8_t* data) {
         mCommConf.addressMode = qspi::eNumLines::DISABLED;
         mCommConf.addressSize = qspi::eCommandSize::EIGHT;
         mCommConf.alternateMode = qspi::eNumLines::DISABLED;
@@ -79,7 +77,7 @@ public:
         mCommConf.instruction = inst;
         mCommConf.instructionMode = qspi::eNumLines::ONE;
 
-        mQ.startIndirectWrite(mHeader, mCommConf,&data, 1);
+        mQ.startIndirectWrite(mHeader, mCommConf, data, 1);
 
         waitForCompletion();
     }
@@ -231,7 +229,11 @@ private:
     qspi::CommunicationConfiguration mCommConf;
     qspi::DeviceConfiguration mDevConf;
     qspi::Header mHeader;
+
+    NON_CACHEABLE static uint64_t id;
 };
+
+NON_CACHEABLE uint64_t W25Q128JV::id;
 
 ///
 /// Setup the pins for testing
@@ -254,8 +256,9 @@ void setup_pins() {
     gpio_controller->setConfig(&usb_vbus_id_pin, &usb_vbus_id_conf);
 }
 
-static const char testPayload[] = "Hello Flash!\r\n";
-static const char testPayloadQuad[] = "Hello Quad Flash!\r\n";
+NON_CACHEABLE static char testPayload[64];
+NON_CACHEABLE static char testPayloadQuad[64];
+NON_CACHEABLE static char buffer[64];
 
 void test_qspi_W25Q128JV() {
     setup_pins();
@@ -265,7 +268,8 @@ void test_qspi_W25Q128JV() {
 
     usb::USBSerial::USBCommunication& comm = usb::USBSerial::getInstance().getInterface(0);
 
-    char buffer[sizeof(testPayload) < 64 ? 64: sizeof(testPayload)];
+    memcpy(testPayload, "Hello Flash\r\n", sizeof("Hello Flash\r\n"));
+    memcpy(testPayloadQuad, "Hello Quad Flash\r\n", sizeof("Hello Quad Flash\r\n"));
 
     while(1) {
         // Reset
@@ -279,8 +283,8 @@ void test_qspi_W25Q128JV() {
         comm.Flush();
 
         // Print JEDEC
-        uint32_t jid = flash.readJEDEC();
-        sprintf(buffer, "JID: 0x%X\r\n", jid);
+        uint32_t jeid = flash.readJEDEC();
+        sprintf(buffer, "JID: 0x%X\r\n", jeid);
         comm.WriteN(buffer, strlen(buffer));
         comm.Flush();
 
@@ -293,25 +297,27 @@ void test_qspi_W25Q128JV() {
 
         uint32_t singleAddr = sectorAddr + 0x100;
         // Write payload
-        flash.programPage(singleAddr, reinterpret_cast<const uint8_t*>(testPayload), sizeof(testPayload));
+        flash.programPage(singleAddr, reinterpret_cast<const uint8_t*>(testPayload), strlen(testPayload));
 
         // Read payload
         memset(buffer, 0, sizeof(buffer));
-        flash.read(singleAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayload));
+        flash.read(singleAddr, reinterpret_cast<uint8_t*>(buffer), strlen(testPayload));
         comm.WriteN(buffer, strlen(buffer));
 
         uint32_t quadAddr = sectorAddr + 0x200;
 
         // Enable quad
-        flash.writeStatusReg(0x31, 1<<1);
+        buffer[0] = 1<<1;
+        flash.writeStatusReg(0x31, (uint8_t*)&buffer[0]);
         // Write payload
-        flash.programPage(quadAddr, reinterpret_cast<const uint8_t*>(testPayloadQuad), sizeof(testPayloadQuad), true);
+        flash.programPage(quadAddr, reinterpret_cast<const uint8_t*>(testPayloadQuad), strlen(testPayloadQuad), true);
 
         // Enable Quad
-        flash.writeStatusReg(0x31, 1<<1);
+        buffer[0] = 1<<1;
+        flash.writeStatusReg(0x31, (uint8_t*)&buffer[0]);
         // Read payload
         memset(buffer, 0, sizeof(buffer));
-        flash.read(quadAddr, reinterpret_cast<uint8_t*>(buffer), sizeof(testPayloadQuad), true);
+        flash.read(quadAddr, reinterpret_cast<uint8_t*>(buffer), strlen(testPayloadQuad), true);
         comm.WriteN(buffer, strlen(buffer));
 
         vTaskDelay(100);

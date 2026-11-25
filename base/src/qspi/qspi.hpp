@@ -148,14 +148,14 @@ public:
     /// @return True if the QSPI is busy.
     ///
     bool isBusy() {
-        return mQspi->SR & QUADSPI_SR_BUSY_Msk;
+        return mQspi->SR & QUADSPI_SR_BUSY_Msk || mMdmaCh->isRunning();
     }
 private:
     void setHeader(Header& head);
 
     QUADSPI_TypeDef* mQspi;         ///< QSPI hardware.
     mdma::MDMAChannel* mMdmaCh;     ///< MDMA channel used for indirect mode transfers.
-    mdma::ListNode mMdmaList[3];    ///< MDMA list for chaining indirect mode transfers.
+    mdma::ListNode* mMdmaList;      ///< MDMA list for chaining indirect mode transfers.
 };
 
 } // namespace qspi

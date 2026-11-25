@@ -193,7 +193,8 @@ void HwCsSpiBus::HwCsSpiBusInit() {
 
 ///
 /// Inherit documentation.
-/// @note Configured word size must round up to dataSize e.g. 24bits->4bytes, 8bits->1byte, not 8bit->4byte. 
+/// @note Configured word size must round up to dataSize e.g. 24bits->4bytes, 8bits->1byte, not 8bit->4byte
+/// @note rx and tx buffers should be marked as @ref NON_CACHEABLE
 /// @todo add ability to only receive or transmit.
 ///
 void HwCsSpiBus::prepare(void *txBuff, void *rxBuff, size_t bufLen, size_t cs, size_t dataSize) {
