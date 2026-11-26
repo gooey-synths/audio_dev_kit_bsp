@@ -182,3 +182,19 @@ TEST(OscillatorTests, SadPathTests) {
             throw;
         }, const char*);
 }
+
+TEST(VcaTests, HappyPathTests) {
+    // Check that we can modulate the input with cv
+
+    // Check that we can modulate the input with the max attenuation
+
+    // Check that the max attenuation defaults to 1
+
+}
+
+TEST(VcaTests, SadPathTests) {
+    // Check that the configuration throws for an attenuation > 1
+
+    // Check that the configuration throws for an attenuation < 0
+
+}
