@@ -6,6 +6,7 @@
 #include "hw/fast_digital_in.hpp"
 
 #include "static/oscillator.hpp"
+#include "static/fixed_output.hpp"
 
 namespace graph_infrastructure {
 
@@ -23,7 +24,8 @@ std::unordered_map<module_basics::ModuleIdType, std::function<module_basics::Mod
 /// Modules that are hard coded into the FW
 ///
 std::unordered_map<module_basics::ModuleIdType, std::function<module_basics::ModuleInterface*()>> ModuleLoader::sStaticModules = {
-    { modules::stat::Oscillator::scId, modules::stat::Oscillator::factory }
+    { modules::stat::Oscillator::scId, modules::stat::Oscillator::factory },
+    { modules::stat::FixedOutput::scId, modules::stat::FixedOutput::factory },
 };
 
 ///

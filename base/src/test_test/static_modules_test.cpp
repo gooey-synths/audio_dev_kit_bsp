@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <modules/static/oscillator.hpp>
+#include <modules/static/fixed_output.hpp>
 #include <cmath>
 
 static void runOscillator(modules::stat::Oscillator& o, uint16_t* buf, size_t nSamples) {
@@ -181,4 +182,14 @@ TEST(OscillatorTests, SadPathTests) {
             EXPECT_EQ(c, "Invalid wave type");
             throw;
         }, const char*);
+}
+
+TEST(FixedOutputTests, HappyPathTests) {
+    // Test that the output is what we configure it to be
+}
+
+
+TEST(FixedOutputTests, SadPathTests) {
+    // Test that we throw if value is not provieded.
+
 }
