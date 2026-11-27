@@ -182,3 +182,16 @@ TEST(OscillatorTests, SadPathTests) {
             throw;
         }, const char*);
 }
+TEST(AdsrTests, HappyPathTests) {
+
+    //TODO: Figure out how to test this
+
+}
+
+TEST(AdsrTests, SadPathTests) {
+
+    // Test missing parameters
+
+    // Test invalid parameters
+
+}
