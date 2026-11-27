@@ -21,7 +21,7 @@ bool getKeyValue(std::unordered_map<std::string, std::string>& map, std::string 
             std::string second = it->second;
             if constexpr (std::is_same_v<T, std::string>) {
                 val = second;
-            } else if constexpr (std::is_same_v<T, int>) {
+            } else if constexpr (std::is_integral_v<T>) {
                 val = std::stoi(second);
             } else if constexpr (std::is_same_v<T, float>) {
                 val = std::stof(second);
