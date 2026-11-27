@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <modules/static/oscillator.hpp>
+#include <modules/static/fixed_output.hpp>
 #include <cmath>
 
 static void runOscillator(modules::stat::Oscillator& o, uint16_t* buf, size_t nSamples) {
@@ -181,4 +182,33 @@ TEST(OscillatorTests, SadPathTests) {
             EXPECT_EQ(c, "Invalid wave type");
             throw;
         }, const char*);
+}
+
+TEST(FixedOutputTests, HappyPathTests) {
+    // Test that the output is what we configure it to be
+    modules::stat::FixedOutput fo;
+    std::unordered_map<std::string, std::string> cfg = {
+        {"val", "1024"},
+    };
+    fo.configure(cfg);
+
+    for(int i = 0; i < 100; i++) {
+        fo.run();
+        EXPECT_EQ(fo.getOutput(fo.getOutputIdx("out")), 1024);
+    }
+}
+
+TEST(FixedOutputTests, SadPathTests) {
+    // Test that we throw if value is not provided.
+    modules::stat::FixedOutput fo;
+    std::unordered_map<std::string, std::string> cfg = {};
+
+    EXPECT_THROW(
+        try {
+            fo.configure(cfg);
+        } catch(const char* c) {
+            EXPECT_EQ(c, "Key not found");
+            throw;
+        }, const char*);
+
 }
