@@ -3,7 +3,6 @@
 #include <tests/tests.hpp>
 
 int main() {
-    test_DAC60508();
     static board::ProtoBoardV1 board;
     graph_infrastructure::run_graph_processor(board);
 
